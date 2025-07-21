@@ -1,9 +1,8 @@
-<?php $baseHref = isset($baseHref) ? $baseHref : '../'; ?>
 <!DOCTYPE html>
 <html lang="zxx" class="js">
 
 <head>
-    <base href="<?php echo $baseHref; ?>">
+    <base href="../">
     <meta charset="utf-8">
     <meta name="author" content="Softnio">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -16,3 +15,12 @@
     <link rel="stylesheet" href="./assets/css/dashlite.css?ver=3.3.0">
     <link id="skin-default" rel="stylesheet" href="./assets/css/theme.css?ver=3.3.0">
 </head>
+
+<body class="nk-body ui-rounder has-sidebar ">
+    <div class="nk-app-root">
+        <!-- main @s -->
+        <div class="nk-main ">
+            <!-- sidebar @s -->
+<?php
+include_once 'navigation.php';
+?>
