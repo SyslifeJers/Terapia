@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentPath = window.location.pathname.split('/').pop() || 'index.php';
         const menuItems = {
             'index.php': 'menu-casa',
-            'pacientes.html': 'menu-pacientes',
-            'citas.html': 'menu-citas',
-            'areas.html': 'menu-areas',
-            'evaluaciones.html': 'menu-evaluaciones'
+            'pacientes.php': 'menu-pacientes',
+            'citas.php': 'menu-citas',
+            'areas.php': 'menu-areas',
+            'evaluaciones.php': 'menu-evaluaciones'
         };
         
         const activeItemId = menuItems[currentPath];

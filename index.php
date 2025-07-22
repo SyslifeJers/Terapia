@@ -1,5 +1,6 @@
 <?php
 include_once 'includes/head.php';
+date_default_timezone_set('America/Mexico_City');
 ?>
             <!-- sidebar @e -->
             <!-- wrap @s -->
@@ -17,6 +18,13 @@ include_once 'includes/head.php';
                 $citas      = $conn->query("SELECT COUNT(*) as total FROM Cita")->fetch_assoc()['total'] ?? 0;
                 $areas      = $conn->query("SELECT COUNT(*) as total FROM exp_areas_evaluacion")->fetch_assoc()['total'] ?? 0;
                 $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
+
+                $citasProximas = [];
+                $result = $conn->query("SELECT id_cita, fecha, hora FROM Cita WHERE fecha >= CURDATE() ORDER BY fecha ASC LIMIT 15");
+                if ($result) {
+                    $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
+                }
+
                 $db->closeConnection();
                 ?>
                 <!-- main header @e -->
@@ -90,159 +98,34 @@ include_once 'includes/head.php';
                                             <div class="card-inner">
                                                 <div class="card-title-group">
                                                     <div class="card-title">
-                                                        <h6 class="title">Active Campaign</h6>
-                                                    </div>
-                                                    <div class="card-tools">
-                                                        <a href="#" class="link">View All</a>
+                                                        <h6 class="title">Próximas Citas</h6>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="card-inner py-0 mt-n2">
                                                 <div class="nk-tb-list nk-tb-flush nk-tb-dashed">
                                                     <div class="nk-tb-item nk-tb-head">
-                                                        <div class="nk-tb-col"><span>Subject</span></div>
-                                                        <div class="nk-tb-col tb-col-mb"><span>Channels</span></div>
-                                                        <div class="nk-tb-col tb-col-sm"><span>Status</span></div>
-                                                        <div class="nk-tb-col tb-col-md"><span>Assignee</span></div>
-                                                        <div class="nk-tb-col text-end"><span>Date Range</span></div>
-                                                    </div><!-- .nk-tb-head -->
+                                                        <div class="nk-tb-col"><span>ID</span></div>
+                                                        <div class="nk-tb-col tb-col-md"><span>Fecha</span></div>
+                                                        <div class="nk-tb-col tb-col-md"><span>Hora</span></div>
+                                                    </div>
+                                                    <?php foreach ($citasProximas as $cita):
+                                                        $dt = new DateTime(($cita['fecha'] ?? '') . ' ' . ($cita['hora'] ?? ''), new DateTimeZone('America/Mexico_City'));
+                                                        $fecha = $dt->format('Y-m-d');
+                                                        $hora  = $dt->format('H:i');
+                                                    ?>
                                                     <div class="nk-tb-item">
-                                                        <div class="nk-tb-col">
-                                                            <span class="tb-lead">Happy Christmas <span class="dot dot-success d-sm-none ms-1"></span></span>
-                                                            <span class="tb-sub">Created on 01 Dec 22</span>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-mb">
-                                                            <ul class="d-flex gx-1">
-                                                                <li class="text-facebook"><em class="icon ni ni-facebook-f"></em></li>
-                                                                <li class="text-instagram"><em class="icon ni ni-instagram"></em></li>
-                                                                <li class="text-linkedin"><em class="icon ni ni-linkedin"></em></li>
-                                                                <li class="text-twitter"><em class="icon ni ni-twitter"></em></li>
-                                                                <li class="text-youtube"><em class="icon ni ni-youtube-fill"></em></li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-sm">
-                                                            <div class="badge badge-dim bg-success">Live Now</div>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-md">
-                                                            <div class="user-avatar-group">
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/e-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/f-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/g-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <span>2+</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="nk-tb-col text-end"><span>01 Dec - 07 Dec</span></div>
-                                                    </div><!-- .nk-tb-item -->
+                                                        <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['id_cita'] ?? ''); ?></span></div>
+                                                        <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($fecha); ?></span></div>
+                                                        <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($hora); ?></span></div>
+                                                    </div>
+                                                    <?php endforeach; ?>
+                                                    <?php if (empty($citasProximas)): ?>
                                                     <div class="nk-tb-item">
-                                                        <div class="nk-tb-col">
-                                                            <span class="tb-lead">Black Friday <span class="dot dot-success d-sm-none ms-1"></span></span>
-                                                            <span class="tb-sub">Created on 01 Dec 22</span>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-mb">
-                                                            <ul class="d-flex gx-1">
-                                                                <li class="text-linkedin"><em class="icon ni ni-linkedin"></em></li>
-                                                                <li class="text-facebook"><em class="icon ni ni-facebook-f"></em></li>
-                                                                <li class="text-instagram"><em class="icon ni ni-instagram"></em></li>
-                                                                <li class="text-youtube"><em class="icon ni ni-youtube-fill"></em></li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-sm">
-                                                            <div class="badge badge-dim bg-success">Live Now</div>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-md">
-                                                            <div class="user-avatar-group">
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/h-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/i-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/j-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <span>7+</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="nk-tb-col text-end"><span>01 Dec - 07 Dec</span></div>
-                                                    </div><!-- .nk-tb-item -->
-                                                    <div class="nk-tb-item">
-                                                        <div class="nk-tb-col">
-                                                            <span class="tb-lead">Tree Plantation <span class="dot dot-warning d-sm-none ms-1"></span></span>
-                                                            <span class="tb-sub">Created on 01 Jan 23</span>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-mb">
-                                                            <ul class="d-flex gx-1">
-                                                                <li class="text-twitter"><em class="icon ni ni-twitter"></em></li>
-                                                                <li class="text-instagram"><em class="icon ni ni-instagram"></em></li>
-                                                                <li class="text-linkedin"><em class="icon ni ni-linkedin"></em></li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-sm">
-                                                            <div class="badge badge-dim bg-warning">Paused</div>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-md">
-                                                            <div class="user-avatar-group">
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/k-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs bg-pink">
-                                                                    <span>AE</span>
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/e-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <span>3+</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="nk-tb-col text-end"><span>01 Dec - 07 Dec</span></div>
-                                                    </div><!-- .nk-tb-item -->
-                                                    <div class="nk-tb-item">
-                                                        <div class="nk-tb-col">
-                                                            <span class="tb-lead">Getaway Trailer <span class="dot dot-success d-sm-none ms-1"></span></span>
-                                                            <span class="tb-sub">Created on 12 Dec 22</span>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-mb">
-                                                            <ul class="d-flex gx-1">
-                                                                <li class="text-linkedin"><em class="icon ni ni-linkedin"></em></li>
-                                                                <li class="text-twitter"><em class="icon ni ni-twitter"></em></li>
-                                                                <li class="text-facebook"><em class="icon ni ni-facebook-f"></em></li>
-                                                                <li class="text-youtube"><em class="icon ni ni-youtube-fill"></em></li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-sm">
-                                                            <div class="badge badge-dim bg-success">Live Now</div>
-                                                        </div>
-                                                        <div class="nk-tb-col tb-col-md">
-                                                            <div class="user-avatar-group">
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/i-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/k-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/e-sm.jpg" alt="">
-                                                                </div>
-                                                                <div class="user-avatar xs">
-                                                                    <img src="./images/avatar/g-sm.jpg" alt="">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="nk-tb-col text-end"><span>01 Dec - 07 Dec</span></div>
-                                                    </div><!-- .nk-tb-item -->
-                                                </div><!-- .nk-tb-list -->
+                                                        <div class="nk-tb-col">No hay citas próximas.</div>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
                                         </div><!-- .card -->
                                     </div><!-- .col -->
