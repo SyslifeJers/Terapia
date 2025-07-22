@@ -62,6 +62,7 @@ date_default_timezone_set('America/Mexico_City');
                                                     <th>Programa</th>
                                                     <th>Tx</th>
                                                     <th>Responsable</th>
+                                                    <th>Detalle</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -73,6 +74,7 @@ date_default_timezone_set('America/Mexico_City');
                                                     <td><?php echo htmlspecialchars($p['programa'] ?? ''); ?></td>
                                                     <td><?php echo htmlspecialchars($p['tx'] ?? ''); ?></td>
                                                     <td><?php echo htmlspecialchars($p['responsable'] ?? ''); ?></td>
+                                                    <td><a class="btn btn-sm btn-primary" href="paciente.php?id=<?php echo urlencode($p['id_nino']); ?>">Ver</a></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                             <?php if (empty($pacientes)): ?>

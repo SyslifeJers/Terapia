@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const menuItems = {
             'index.php': 'menu-casa',
             'pacientes.php': 'menu-pacientes',
+            'paciente.php': 'menu-pacientes',
             'citas.php': 'menu-citas',
             'areas.php': 'menu-areas',
             'evaluaciones.php': 'menu-evaluaciones'
