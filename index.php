@@ -7,6 +7,17 @@ include_once 'includes/head.php';
                 <!-- main header @s -->
             <?php
                 include_once 'includes/menu_superior.php';
+
+                // Conexion a la base de datos
+                require_once 'database/conexion.php';
+                $db = new Database();
+                $conn = $db->getConnection();
+
+                $pacientes  = $conn->query("SELECT COUNT(*) as total FROM nino")->fetch_assoc()['total'] ?? 0;
+                $citas      = $conn->query("SELECT COUNT(*) as total FROM Cita")->fetch_assoc()['total'] ?? 0;
+                $areas      = $conn->query("SELECT COUNT(*) as total FROM exp_areas_evaluacion")->fetch_assoc()['total'] ?? 0;
+                $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
+                $db->closeConnection();
                 ?>
                 <!-- main header @e -->
                 <!-- content @s -->
@@ -35,140 +46,44 @@ include_once 'includes/head.php';
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
                                 <div class="row g-gs">
+                                    <!-- Tarjetas originales comentadas
+                                    <div class="col-lg-3 col-sm-6"> ... </div>
+                                    <div class="col-lg-3 col-sm-6"> ... </div>
+                                    <div class="col-lg-3 col-sm-6"> ... </div>
+                                    <div class="col-lg-3 col-sm-6"> ... </div>
+                                    -->
                                     <div class="col-lg-3 col-sm-6">
                                         <div class="card h-100 bg-primary">
-                                            <div class="nk-cmwg nk-cmwg1">
-                                                <div class="card-inner pt-3">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="flex-item">
-                                                            <div class="text-white d-flex flex-wrap">
-                                                                <span class="fs-2 me-1">56.8K</span>
-                                                                <span class="align-self-end fs-14px pb-1"><em class="icon ni ni-arrow-long-up"></em>12.4%</span>
-                                                            </div>
-                                                            <h6 class="text-white">Running Campaign</h6>
-                                                        </div>
-                                                        <div class="card-tools me-n1">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-toggle btn btn-icon btn-sm btn-trigger on-dark" data-bs-toggle="dropdown"><em class="icon ni ni-more-v"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a href="#" class="active"><span>15 Days</span></a></li>
-                                                                        <li><a href="#"><span>30 Days</span></a></li>
-                                                                        <li><a href="#"><span>3 Months</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- .card-inner -->
-                                                <div class="nk-ck-wrap mt-auto overflow-hidden rounded-bottom">
-                                                    <div class="nk-cmwg1-ck">
-                                                        <canvas class="campaign-line-chart-s1 rounded-bottom" id="runningCampaign"></canvas>
-                                                    </div>
-                                                </div>
-                                            </div><!-- .nk-cmwg -->
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
+                                            <div class="card-inner text-center py-4">
+                                                <div class="fs-2 text-white mb-1"><?php echo $pacientes; ?></div>
+                                                <h6 class="text-white">Pacientes</h6>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-lg-3 col-sm-6">
                                         <div class="card h-100 bg-info">
-                                            <div class="nk-cmwg nk-cmwg1">
-                                                <div class="card-inner pt-3">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="flex-item">
-                                                            <div class="text-white d-flex flex-wrap">
-                                                                <span class="fs-2 me-1">857.6K</span>
-                                                                <span class="align-self-end fs-14px pb-1"><em class="icon ni ni-arrow-long-up"></em>12.4%</span>
-                                                            </div>
-                                                            <h6 class="text-white">Total Audience</h6>
-                                                        </div>
-                                                        <div class="card-tools me-n1">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-toggle btn btn-icon btn-sm btn-trigger on-dark" data-bs-toggle="dropdown"><em class="icon ni ni-more-v"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a href="#" class="active"><span>15 Days</span></a></li>
-                                                                        <li><a href="#"><span>30 Days</span></a></li>
-                                                                        <li><a href="#"><span>3 Months</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- .card-inner -->
-                                                <div class="nk-cmwg1-ck mt-auto">
-                                                    <canvas class="campaign-line-chart-s1 rounded-bottom" id="totalAudience"></canvas>
-                                                </div>
-                                            </div><!-- .nk-cmwg -->
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
+                                            <div class="card-inner text-center py-4">
+                                                <div class="fs-2 text-white mb-1"><?php echo $citas; ?></div>
+                                                <h6 class="text-white">Citas</h6>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-lg-3 col-sm-6">
                                         <div class="card h-100 bg-warning">
-                                            <div class="nk-cmwg nk-cmwg1">
-                                                <div class="card-inner pt-3">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="flex-item">
-                                                            <div class="text-white d-flex flex-wrap">
-                                                                <span class="fs-2 me-1">9.3K</span>
-                                                                <span class="align-self-end fs-14px pb-1"><em class="icon ni ni-arrow-long-up"></em>12.4%</span>
-                                                            </div>
-                                                            <h6 class="text-white">Avg. Rating</h6>
-                                                        </div>
-                                                        <div class="card-tools me-n1">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-toggle btn btn-icon btn-sm btn-trigger on-dark" data-bs-toggle="dropdown"><em class="icon ni ni-more-v"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a href="#" class="active"><span>15 Days</span></a></li>
-                                                                        <li><a href="#"><span>30 Days</span></a></li>
-                                                                        <li><a href="#"><span>3 Months</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- .card-inner -->
-                                                <div class="nk-ck-wrap mt-auto overflow-hidden rounded-bottom">
-                                                    <div class="nk-cmwg1-ck">
-                                                        <canvas class="campaign-bar-chart-s1 rounded-bottom" id="avgRating"></canvas>
-                                                    </div>
-                                                </div>
-                                            </div><!-- .nk-cmwg -->
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
+                                            <div class="card-inner text-center py-4">
+                                                <div class="fs-2 text-white mb-1"><?php echo $areas; ?></div>
+                                                <h6 class="text-white">Áreas</h6>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-lg-3 col-sm-6">
                                         <div class="card h-100 bg-danger">
-                                            <div class="nk-cmwg nk-cmwg1">
-                                                <div class="card-inner pt-3">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="flex-item">
-                                                            <div class="text-white d-flex flex-wrap">
-                                                                <span class="fs-2 me-1">175.2K</span>
-                                                                <span class="align-self-end fs-14px pb-1"><em class="icon ni ni-arrow-long-up"></em>12.4%</span>
-                                                            </div>
-                                                            <h6 class="text-white">Subscriber</h6>
-                                                        </div>
-                                                        <div class="card-tools me-n1">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-toggle btn btn-icon btn-sm btn-trigger on-dark" data-bs-toggle="dropdown"><em class="icon ni ni-more-v"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a href="#" class="active"><span>15 Days</span></a></li>
-                                                                        <li><a href="#"><span>30 Days</span></a></li>
-                                                                        <li><a href="#"><span>3 Months</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- .card-inner -->
-                                                <div class="nk-ck-wrap mt-auto overflow-hidden rounded-bottom">
-                                                    <div class="nk-cmwg1-ck">
-                                                        <canvas class="campaign-line-chart-s1 rounded-bottom" id="newSubscriber"></canvas>
-                                                    </div>
-                                                </div>
-                                            </div><!-- .nk-cmwg -->
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
+                                            <div class="card-inner text-center py-4">
+                                                <div class="fs-2 text-white mb-1"><?php echo $evaluaciones; ?></div>
+                                                <h6 class="text-white">Evaluaciones</h6>
+                                            </div>
+                                        </div>
+                                    </div>
                                    
                                     <div class="col-xxl-8">
                                         <div class="card card-full">
