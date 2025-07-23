@@ -13,32 +13,42 @@
                     <input type="hidden" name="id_usuario" value="1">
                     <div class="form-group">
                         <label class="form-label" for="lenguaje">Lenguaje</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="lenguaje" name="lenguaje" min="1" max="10" required>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button" class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" id="lenguaje" name="lenguaje" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="motricidad">Motricidad</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="motricidad" name="motricidad" min="1" max="10" required>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button" class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" id="motricidad" name="motricidad" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="atencion_pg">Atención</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="atencion_pg" name="atencion" min="1" max="10" required>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button" class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" id="atencion_pg" name="atencion" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="memoria">Memoria</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="memoria" name="memoria" min="1" max="10" required>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button" class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" id="memoria" name="memoria" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="social">Social</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="social" name="social" min="1" max="10" required>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button" class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" id="social" name="social" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
                     </div>
                     <div class="form-group">
