@@ -12,21 +12,23 @@
                     <input type="hidden" name="id_nino" value="<?php echo $id ?? 0; ?>">
                     <input type="hidden" name="id_usuario" value="1">
                     <div class="form-group">
-                        <label class="form-label" for="participacion">Participación</label>
-                        <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="participacion" name="participacion" min="1" max="10" required>
+                        <label class="form-label">Number Spinner Basic</label>
+                        <div class="form-control-wrap number-spinner-wrap">
+                            <button type="button"  class="btn btn-icon btn-warning number-spinner-btn number-minus" data-number="minus"><em class="icon ni ni-minus"></em></button>
+                            <input type="number" class="form-control number-spinner" value="5" id="participacion" name="participacion" min="1" max="10" required>
+                            <button type="button" class="btn btn-icon btn-success number-spinner-btn number-plus" data-number="plus"><em class="icon ni ni-plus"></em></button>
                         </div>
-                    </div>
+                    </div> 
                     <div class="form-group">
                         <label class="form-label" for="atencion">Atención</label>
                         <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="atencion" name="atencion" min="1" max="10" required>
+                            <input type="number" class="form-control number-spinner" value="5" id="atencion" name="atencion" min="1" max="10" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="tarea_casa">Tarea en casa</label>
                         <div class="form-control-wrap">
-                            <input type="number" class="form-control" id="tarea_casa" name="tarea_casa" min="1" max="10" required>
+                            <input type="number" class="form-control number-spinner" value="5" id="tarea_casa" name="tarea_casa" min="1" max="10" required>
                         </div>
                     </div>
                     <div class="form-group">

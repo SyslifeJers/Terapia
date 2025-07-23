@@ -5,9 +5,9 @@
                                 <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
                             </div>
                             <div class="nk-header-brand d-xl-none">
-                                <a href="html/index.html" class="logo-link">
-                                    <img class="logo-light logo-img" src="./images/logo.png" srcset="./images/logo2x.png 2x" alt="logo">
-                                    <img class="logo-dark logo-img" src="./images/logo-dark.png" srcset="./images/logo-dark2x.png 2x" alt="logo-dark">
+                                <a href="/index.php" class="logo-link">
+                                    <img class="logo-light logo-img" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo">
+                                    <img class="logo-dark logo-img" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo-dark">
                                 </a>
                             </div><!-- .nk-header-brand -->
                             <div class="nk-header-menu is-light">
@@ -15,7 +15,7 @@
                                     <!-- Menu -->
                                     <ul class="nk-menu nk-menu-main">
                                         <li class="nk-menu-item">
-                                            <a href="html/citas.html" class="nk-menu-link">
+                                            <a href="/citas.php" class="nk-menu-link">
                                                 <span class="nk-menu-text">Citas</span>
                                             </a>
                                         </li><!-- .nk-menu-item -->
