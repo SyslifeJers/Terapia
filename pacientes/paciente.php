@@ -26,13 +26,19 @@ date_default_timezone_set('America/Mexico_City');
     $grafica_data = [
         'primera' => null,
         'ultima' => null,
-        'promedio' => ['participacion' => 0, 'atencion' => 0, 'tarea_casa' => 0],
+        'promedio' => [
+            'lenguaje' => 0,
+            'motricidad' => 0,
+            'atencion' => 0,
+            'memoria' => 0,
+            'social' => 0,
+        ],
     ];
 
-    $sql = "SELECT participacion, atencion, tarea_casa, fecha_valoracion 
-        FROM exp_valoraciones_sesion 
+    $sql = "SELECT lenguaje, motricidad, atencion, memoria, social, fecha_registro
+        FROM exp_progreso_general
         WHERE id_nino = ?
-        ORDER BY fecha_valoracion ASC";
+        ORDER BY fecha_registro ASC";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $id);
@@ -40,7 +46,13 @@ date_default_timezone_set('America/Mexico_City');
     $result = $stmt->get_result();
 
     $total = 0;
-    $suma = ['participacion' => 0, 'atencion' => 0, 'tarea_casa' => 0];
+    $suma = [
+        'lenguaje' => 0,
+        'motricidad' => 0,
+        'atencion' => 0,
+        'memoria' => 0,
+        'social' => 0,
+    ];
 
     while ($row = $result->fetch_assoc()) {
         if (!$grafica_data['primera']) {
@@ -48,18 +60,22 @@ date_default_timezone_set('America/Mexico_City');
         }
         $grafica_data['ultima'] = $row;
 
-        $suma['participacion'] += (int)$row['participacion'];
+        $suma['lenguaje'] += (int)$row['lenguaje'];
+        $suma['motricidad'] += (int)$row['motricidad'];
         $suma['atencion'] += (int)$row['atencion'];
-        $suma['tarea_casa'] += (int)$row['tarea_casa'];
+        $suma['memoria'] += (int)$row['memoria'];
+        $suma['social'] += (int)$row['social'];
         $total++;
     }
 
     if ($total > 0) {
         $grafica_data['promedio'] = [
-            'participacion' => round($suma['participacion'] / $total, 2),
+            'lenguaje' => round($suma['lenguaje'] / $total, 2),
+            'motricidad' => round($suma['motricidad'] / $total, 2),
             'atencion' => round($suma['atencion'] / $total, 2),
-            'tarea_casa' => round($suma['tarea_casa'] / $total, 2),
-            'fecha_valoracion' => 'Promedio'
+            'memoria' => round($suma['memoria'] / $total, 2),
+            'social' => round($suma['social'] / $total, 2),
+            'fecha_registro' => 'Promedio'
         ];
     }
 
@@ -144,6 +160,9 @@ date_default_timezone_set('America/Mexico_City');
                                     </ul>
                                     <div class="team-view">
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalForm">Nueva evaluación</button>
+                                    </div>
+                                    <div class="team-view mt-2">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
                                     </div>
                                     <div class="team-view mt-4">
                                         <h6>Promedio de las últimas 15 evaluaciones</h6>
@@ -257,16 +276,18 @@ date_default_timezone_set('America/Mexico_City');
 <script>
     const datos = <?php echo json_encode($grafica_data); ?>;
 
-    const labels = ["Participación", "Atención", "Tarea en casa"];
+    const labels = ["Lenguaje", "Motricidad", "Atención", "Memoria", "Social"];
 
     const dataRadar = {
         labels: labels,
         datasets: [{
-                label: "Primera sesión (" + datos.primera.fecha_valoracion + ")",
+                label: "Primera sesión (" + datos.primera.fecha_registro + ")",
                 data: [
-                    parseFloat(datos.primera.participacion),
+                    parseFloat(datos.primera.lenguaje),
+                    parseFloat(datos.primera.motricidad),
                     parseFloat(datos.primera.atencion),
-                    parseFloat(datos.primera.tarea_casa)
+                    parseFloat(datos.primera.memoria),
+                    parseFloat(datos.primera.social)
                 ],
                 borderColor: "rgba(54, 162, 235, 1)",
                 backgroundColor: "rgba(54, 162, 235, 0.2)",
@@ -275,20 +296,24 @@ date_default_timezone_set('America/Mexico_City');
             {
                 label: "Promedio",
                 data: [
-                    parseFloat(datos.promedio.participacion),
+                    parseFloat(datos.promedio.lenguaje),
+                    parseFloat(datos.promedio.motricidad),
                     parseFloat(datos.promedio.atencion),
-                    parseFloat(datos.promedio.tarea_casa)
+                    parseFloat(datos.promedio.memoria),
+                    parseFloat(datos.promedio.social)
                 ],
                 borderColor: "rgba(75, 192, 192, 1)",
                 backgroundColor: "rgba(75, 192, 192, 0.2)",
                 fill: true
             },
             {
-                label: "Última sesión (" + datos.ultima.fecha_valoracion + ")",
+                label: "Última sesión (" + datos.ultima.fecha_registro + ")",
                 data: [
-                    parseFloat(datos.ultima.participacion),
+                    parseFloat(datos.ultima.lenguaje),
+                    parseFloat(datos.ultima.motricidad),
                     parseFloat(datos.ultima.atencion),
-                    parseFloat(datos.ultima.tarea_casa)
+                    parseFloat(datos.ultima.memoria),
+                    parseFloat(datos.ultima.social)
                 ],
                 borderColor: "rgba(255, 99, 132, 1)",
                 backgroundColor: "rgba(255, 99, 132, 0.2)",
@@ -323,6 +348,7 @@ date_default_timezone_set('America/Mexico_City');
     new Chart(document.getElementById('graficaRadar'), configRadar);
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
+<?php include_once '../includes/modalProgreso.php'; ?>
 
 <?php include_once '../includes/footer.php'; ?>
 
