@@ -599,19 +599,41 @@
   };
 
   // Dark Mode Switch @since v2.0
-  NioApp.ModeSwitch = function () {
+NioApp.ModeSwitch = function () {
     var toggle = $('.dark-switch');
-    if ($body.hasClass('dark-mode')) {
-      toggle.addClass('active');
+
+    // Establece el estado inicial según localStorage
+    var theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+        $body.addClass("dark-mode").removeClass("light-mode");
+        $body.attr("theme", "dark");
+        toggle.addClass("active");
     } else {
-      toggle.removeClass('active');
+        $body.addClass("light-mode").removeClass("dark-mode");
+        $body.attr("theme", "");
+        toggle.removeClass("active");
     }
-    toggle.on('click', function (e) {
-      e.preventDefault();
-      $(this).toggleClass('active');
-      $body.toggleClass('dark-mode');
+
+    // Evento toggle manual
+    toggle.on("click", function (e) {
+        debugger
+        e.preventDefault();
+        const isDark = $body.hasClass("dark-mode");
+
+        if (isDark) {
+            $body.removeClass("dark-mode").addClass("light-mode");
+            $body.attr("theme", "");
+            toggle.removeClass("active");
+            localStorage.setItem("theme", "light");
+        } else {
+            $body.removeClass("light-mode").addClass("dark-mode");
+            $body.attr("theme", "dark");
+            toggle.addClass("active");
+            localStorage.setItem("theme", "dark");
+        }
     });
-  };
+};
+
 
   // Knob @v1.0
   NioApp.Knob = function (elm, opt) {

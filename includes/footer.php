@@ -28,6 +28,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 50); // Pequeño delay para que se ejecute después de otros scripts
 });
 </script>
+<script>
+  window.addEventListener("load", function () {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove("loading");
+
+      const loader = document.getElementById("mainPreloader");
+      if (loader) loader.remove();
+
+      const mainContent = document.getElementById("mainContent");
+      if (mainContent) mainContent.style.visibility = "visible";
+    });
+  });
+</script>
+
 </body>
 
 </html>

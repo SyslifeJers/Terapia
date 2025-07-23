@@ -15,7 +15,9 @@ date_default_timezone_set('America/Mexico_City');
                 $conn = $db->getConnection();
 
                 $citasProximas = [];
-                $result = $conn->query("SELECT id_cita, fecha, hora FROM Cita WHERE fecha >= CURDATE() ORDER BY fecha ASC");
+                $result = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id as id_nino FROM Cita
+                INNER JOIN nino ON Cita.IdNino = nino.id
+                 WHERE Programado >= CURDATE() ORDER BY Programado ASC");
                 if ($result) {
                     $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
                 }
@@ -52,16 +54,20 @@ date_default_timezone_set('America/Mexico_City');
                                                 <div class="nk-tb-col"><span>ID</span></div>
                                                 <div class="nk-tb-col tb-col-md"><span>Fecha</span></div>
                                                 <div class="nk-tb-col tb-col-md"><span>Hora</span></div>
+                                                <div class="nk-tb-col tb-col-md"><span>Nombre</span></div>
+                                                <div class="nk-tb-col tb-col-md"><span>Ver más</span></div>
                                             </div>
                                             <?php foreach ($citasProximas as $cita):
-                                                $dt = new DateTime(($cita['fecha'] ?? '') . ' ' . ($cita['hora'] ?? ''), new DateTimeZone('America/Mexico_City'));
+                                                $dt = new DateTime(($cita['Programado'] ?? '') , new DateTimeZone('America/Mexico_City'));
                                                 $fecha = $dt->format('Y-m-d');
                                                 $hora  = $dt->format('H:i');
                                             ?>
                                             <div class="nk-tb-item">
-                                                <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['id_cita']); ?></span></div>
+                                                <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['Id']); ?></span></div>
                                                 <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($fecha); ?></span></div>
                                                 <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($hora); ?></span></div>
+                                                <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($cita['name'] ?? ''); ?></span></div>
+                                                <div class="nk-tb-col tb-col-md"><a class="btn btn-sm btn-primary" href="ver_cita.php?id=<?php echo htmlspecialchars($cita['id_nino']); ?>">Ver</a></div>
                                             </div>
                                             <?php endforeach; ?>
                                             <?php if (empty($citasProximas)): ?>

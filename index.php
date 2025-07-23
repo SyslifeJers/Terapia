@@ -20,7 +20,9 @@ date_default_timezone_set('America/Mexico_City');
                 $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
 
                 $citasProximas = [];
-                $result = $conn->query("SELECT id_cita, fecha, hora FROM Cita WHERE fecha >= CURDATE() ORDER BY fecha ASC LIMIT 15");
+                $result = $conn->query("SELECT Cita.Id, Programado, nino.name FROM Cita
+                INNER JOIN nino ON Cita.IdNino = nino.id
+                 WHERE Programado >= CURDATE() ORDER BY Programado ASC LIMIT 15");
                 if ($result) {
                     $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
                 }
@@ -106,18 +108,20 @@ date_default_timezone_set('America/Mexico_City');
                                                 <div class="nk-tb-list nk-tb-flush nk-tb-dashed">
                                                     <div class="nk-tb-item nk-tb-head">
                                                         <div class="nk-tb-col"><span>ID</span></div>
-                                                        <div class="nk-tb-col tb-col-md"><span>Fecha</span></div>
-                                                        <div class="nk-tb-col tb-col-md"><span>Hora</span></div>
+                                                        <div class="nk-tb-col "><span>Fecha</span></div>
+                                                        <div class="nk-tb-col "><span>Hora</span></div>
+                                                        <div class="nk-tb-col "><span>Nombre</span></div>
                                                     </div>
                                                     <?php foreach ($citasProximas as $cita):
-                                                        $dt = new DateTime(($cita['fecha'] ?? '') . ' ' . ($cita['hora'] ?? ''), new DateTimeZone('America/Mexico_City'));
+                                                        $dt = new DateTime(($cita['Programado'] ?? '') , new DateTimeZone('America/Mexico_City'));
                                                         $fecha = $dt->format('Y-m-d');
                                                         $hora  = $dt->format('H:i');
                                                     ?>
                                                     <div class="nk-tb-item">
-                                                        <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['id_cita'] ?? ''); ?></span></div>
-                                                        <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($fecha); ?></span></div>
-                                                        <div class="nk-tb-col tb-col-md"><span><?php echo htmlspecialchars($hora); ?></span></div>
+                                                        <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['Id'] ?? ''); ?></span></div>
+                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars($fecha); ?></span></div>
+                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars($dt->format('h:i A')); ?></span></div>
+                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars(ucwords(strtolower($cita['name'] ?? ''))); ?></span></div>
                                                     </div>
                                                     <?php endforeach; ?>
                                                     <?php if (empty($citasProximas)): ?>

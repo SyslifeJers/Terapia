@@ -34,7 +34,7 @@ function isActive($page) {
                                     <h6 class="overline-title text-primary-alt">Menú</h6>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item">
-                                    <a href="pacientes.php" class="nk-menu-link">
+                                    <a href="/pacientes/pacientes.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-user-group-fill"></em></span>
                                         <span class="nk-menu-text">Pacientes</span>
                                     </a>
