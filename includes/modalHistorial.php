@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="histEvalTable">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -34,7 +34,7 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="histProgTable">
                         <thead>
                             <tr>
                                 <th>Fecha</th>

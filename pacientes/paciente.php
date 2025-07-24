@@ -390,8 +390,11 @@ date_default_timezone_set('America/Mexico_City');
                     data.forEach(row => {
                         if (tipo === 'evaluacion') {
                             tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
+                            new DataTable('#histEvalTable');
+
                         } else {
                             tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+                            new DataTable('#histProgTable');
                         }
                     });
                 }
