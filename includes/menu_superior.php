@@ -64,7 +64,7 @@
                                                             </div>
                                                             <div class="chat-info">
                                                                 <div class="chat-from">
-                                                                    <div class="name">Abu Bin Ishtiyak</div>
+                                                                    <div class="name"><?php echo $_SESSION['name']; ?></div>
                                                                     <span class="time">4:49 AM</span>
                                                                 </div>
                                                                 <div class="chat-context">
@@ -236,8 +236,7 @@
                                                         <span>AB</span>
                                                     </div>
                                                     <div class="user-info">
-                                                        <span class="lead-text">Abu Bin Ishtiyak</span>
-                                                        <span class="sub-text">info@softnio.com</span>
+                                                        <span class="lead-text"><?php echo $_SESSION['name']; ?></span>
                                                     </div>
                                                 </div>
                                             </div>

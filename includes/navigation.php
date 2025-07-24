@@ -7,7 +7,7 @@ function isActive($page) {
            <div class="nk-sidebar is-light nk-sidebar-fixed is-light " data-content="sidebarMenu">
                 <div class="nk-sidebar-element nk-sidebar-head">
                     <div class="nk-sidebar-brand">
-                        <a href="html/index.html" class="logo-link nk-sidebar-logo">
+                        <a href="./index.php" class="logo-link nk-sidebar-logo">
                             <img class="logo-light logo-img" src="./assets/imagen/logoC.png"  alt="logo">
                             <img class="logo-dark logo-img" src="./assets/imagen/logoC.png"  alt="logo-dark">
                             <img class="logo-small logo-img logo-img-small" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo-small">

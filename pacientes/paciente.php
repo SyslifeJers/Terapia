@@ -171,15 +171,7 @@ date_default_timezone_set('America/Mexico_City');
                                     <div class="team-view">
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalForm">Nueva evaluación</button>
                                     </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
-                                    </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
-                                    </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
-                                    </div>
+
                                     <div class="team-view mt-4">
                                         <h6>Promedio de las últimas 15 evaluaciones</h6>
                                     </div>
@@ -195,6 +187,18 @@ date_default_timezone_set('America/Mexico_City');
                                         <p>Atención: <?php echo $avgAt; ?></p>
                                         <p>Tarea en casa: <?php echo $avgTarea; ?></p>
                                     </div>
+                                                                        <div class="team-view mt-2">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
+                                    </div>
+                                     <div class="team-statistics">
+                                            <div class="team-view mt-2">
+                                                <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
+                                            </div>
+                                            <div class="team-view mt-2">
+                                                <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
+                                            </div>
+                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -373,7 +377,7 @@ date_default_timezone_set('America/Mexico_City');
     const btnHistProg = document.getElementById('btnHistProg');
 
     function cargarHistorial(tipo, tbodyId, modalId) {
-        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+        fetch(`pacientes/get_historial.php?tipo=${tipo}&id=${idPaciente}`)
             .then(r => r.json())
             .then(data => {
                 const tbody = document.getElementById(tbodyId);

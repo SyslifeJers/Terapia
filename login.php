@@ -1,4 +1,7 @@
 <?php
+//ver errores
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 require_once 'database/conexion.php';
 
@@ -10,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username !== '' && $password !== '') {
         $db = new Database();
         $conn = $db->getConnection();
-        $stmt = $conn->prepare('SELECT `name` FROM `Usuarios` WHERE `user` = ? AND `pass` = ?');
+        $stmt = $conn->prepare('SELECT `name`,id FROM `Usuarios` WHERE `user` = ? AND `pass` = ?');
         $stmt->bind_param('ss', $username, $password);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result && $result->num_rows === 1) {
             $row = $result->fetch_assoc();
-            $_SESSION['user'] = $username;
+            $_SESSION['id'] = $row['id'];
             $_SESSION['name'] = $row['name'];
             header('Location: index.php');
             exit;
