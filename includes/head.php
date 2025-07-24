@@ -1,6 +1,13 @@
 <?php
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
+
+session_start();
+$currentPage = basename($_SERVER['PHP_SELF']);
+if (!isset($_SESSION['user']) && $currentPage !== 'login.php') {
+    header('Location: /login.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="zxx" class="js">
