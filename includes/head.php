@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 
 session_start();
 $currentPage = basename($_SERVER['PHP_SELF']);
-if (!isset($_SESSION['user']) && $currentPage !== 'login.php') {
+if (!isset($_SESSION['id']) && $currentPage !== 'login.php') {
     header('Location: /login.php');
     exit;
 }

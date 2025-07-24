@@ -171,15 +171,7 @@ date_default_timezone_set('America/Mexico_City');
                                     <div class="team-view">
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalForm">Nueva evaluación</button>
                                     </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
-                                    </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
-                                    </div>
-                                    <div class="team-view mt-2">
-                                        <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
-                                    </div>
+
                                     <div class="team-view mt-4">
                                         <h6>Promedio de las últimas 15 evaluaciones</h6>
                                     </div>
@@ -195,6 +187,21 @@ date_default_timezone_set('America/Mexico_City');
                                         <p>Atención: <?php echo $avgAt; ?></p>
                                         <p>Tarea en casa: <?php echo $avgTarea; ?></p>
                                     </div>
+                                                                        <div class="team-view mt-2">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
+                                    </div>
+                                     <div class="team-statistics">
+                                            <div class="team-view mt-2">
+                                                <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
+                                            </div>
+                                            <div class="team-view mt-2">
+                                                <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
+                                            </div>
+                                            <div class="team-view mt-2">
+                                                <a href="reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
+                                            </div>
+                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -371,9 +378,10 @@ date_default_timezone_set('America/Mexico_City');
     const idPaciente = <?php echo $id; ?>;
     const btnHistEval = document.getElementById('btnHistEval');
     const btnHistProg = document.getElementById('btnHistProg');
+    let lastFocusedElement = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
-        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+        fetch(`pacientes/get_historial.php?tipo=${tipo}&id=${idPaciente}`)
             .then(r => r.json())
             .then(data => {
                 const tbody = document.getElementById(tbodyId);
@@ -385,15 +393,33 @@ date_default_timezone_set('America/Mexico_City');
                     data.forEach(row => {
                         if (tipo === 'evaluacion') {
                             tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
+                            new DataTable('#histEvalTable');
+
                         } else {
                             tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+                            new DataTable('#histProgTable');
                         }
                     });
                 }
-                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                const modalEl = document.getElementById(modalId);
+                const modal = new bootstrap.Modal(modalEl);
+                lastFocusedElement = document.activeElement;
                 modal.show();
             });
     }
+
+    const modalHistEvalEl = document.getElementById('modalHistEval');
+    const modalHistProgEl = document.getElementById('modalHistProg');
+
+    [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                }
+            });
+        }
+    });
 
     if (btnHistEval) {
         btnHistEval.addEventListener('click', () => {

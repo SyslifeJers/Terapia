@@ -1,16 +1,14 @@
 <div class="modal fade" id="modalProgreso" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="POST" action="guardar_progreso.php" class="form-validate">
+            <form method="POST" action="pacientes/guardar_progreso.php" class="form-validate">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo progreso</h5>
-                    <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <em class="icon ni ni-cross"></em>
-                    </a>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="id_nino" value="<?php echo $id ?? 0; ?>">
-                    <input type="hidden" name="id_usuario" value="1">
+                    <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id'] ?? 0; ?>">
                     <div class="form-group">
                         <label class="form-label" for="lenguaje">Lenguaje</label>
                         <div class="form-control-wrap number-spinner-wrap">
