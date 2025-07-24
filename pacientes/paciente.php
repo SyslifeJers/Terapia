@@ -375,6 +375,7 @@ date_default_timezone_set('America/Mexico_City');
     const idPaciente = <?php echo $id; ?>;
     const btnHistEval = document.getElementById('btnHistEval');
     const btnHistProg = document.getElementById('btnHistProg');
+    let lastFocusedElement = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
         fetch(`pacientes/get_historial.php?tipo=${tipo}&id=${idPaciente}`)
@@ -394,10 +395,25 @@ date_default_timezone_set('America/Mexico_City');
                         }
                     });
                 }
-                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                const modalEl = document.getElementById(modalId);
+                const modal = new bootstrap.Modal(modalEl);
+                lastFocusedElement = document.activeElement;
                 modal.show();
             });
     }
+
+    const modalHistEvalEl = document.getElementById('modalHistEval');
+    const modalHistProgEl = document.getElementById('modalHistProg');
+
+    [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                }
+            });
+        }
+    });
 
     if (btnHistEval) {
         btnHistEval.addEventListener('click', () => {
