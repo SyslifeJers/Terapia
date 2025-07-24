@@ -197,9 +197,11 @@ date_default_timezone_set('America/Mexico_City');
                                             <div class="team-view mt-2">
                                                 <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
                                             </div>
+
                                             <div class="team-view mt-2">
                                                 <a href="reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
                                             </div>
+
                                      </div>
 
                                 </div>
