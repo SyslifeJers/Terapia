@@ -4,9 +4,7 @@
             <form method="POST" action="guardar_evaluacion.php" class="form-validate">
                 <div class="modal-header">
                     <h5 class="modal-title">Nueva evaluación</h5>
-                    <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <em class="icon ni ni-cross"></em>
-                    </a>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="id_nino" value="<?php echo $id ?? 0; ?>">
