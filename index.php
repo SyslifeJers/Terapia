@@ -37,10 +37,54 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="nk-block-head nk-block-head-sm">
                                 <div class="nk-block-between">
                                     <div class="nk-block-head-content">
-                                        <h3 class="nk-block-title page-title">Expendientes</h3>
-                                        <div class="nk-block-des text-soft">
-                                            <p>Bienvenido al panel de gestión de expedientes.</p>
-                                        </div>
+                                        <?php
+                                        $frases = [
+                                            "¡Hoy es un gran día para ayudar a alguien a crecer!",
+                                            "Cada pequeño paso cuenta en el camino al éxito.",
+                                            "Tu dedicación transforma vidas.",
+                                            "La empatía es la clave para sanar corazones.",
+                                            "El cambio comienza con una sonrisa.",
+                                            "Tu trabajo deja huella en el mundo.",
+                                            "La paciencia es el arte de la esperanza.",
+                                            "Cada sesión es una oportunidad para aprender.",
+                                            "El esfuerzo de hoy será el logro de mañana.",
+                                            "La confianza se construye con cada palabra.",
+                                            "Ayudar es el mayor acto de generosidad.",
+                                            "La motivación es contagiosa, compártela.",
+                                            "El futuro se crea con acciones presentes.",
+                                            "Tu vocación inspira a quienes te rodean.",
+                                            "La perseverancia vence cualquier obstáculo.",
+                                            "El respeto abre puertas al entendimiento.",
+                                            "La escucha activa es el primer paso para sanar.",
+                                            "El apoyo emocional es un regalo invaluable.",
+                                            "La gratitud transforma la rutina en alegría.",
+                                            "Cada niño es una historia de esperanza.",
+                                            "El aprendizaje es un viaje, no un destino.",
+                                            "La comprensión abre caminos a la solución.",
+                                            "Un gesto amable puede cambiar un día.",
+                                            "La creatividad es la puerta a nuevas posibilidades.",
+                                            "El amor propio es el primer paso para crecer.",
+                                            "La resiliencia se fortalece con cada desafío.",
+                                            "El acompañamiento hace la diferencia.",
+                                            "La honestidad construye relaciones sólidas.",
+                                            "La alegría se multiplica cuando se comparte.",
+                                            "El optimismo ilumina el camino.",
+                                            "La curiosidad impulsa el descubrimiento.",
+                                            "El respeto por la diversidad enriquece a todos.",
+                                            "La confianza en uno mismo es fundamental.",
+                                            "El apoyo familiar potencia el desarrollo.",
+                                            "La comunicación efectiva une corazones.",
+                                            "El esfuerzo constante trae resultados.",
+                                            "La esperanza es el motor del cambio.",
+                                            "La solidaridad crea comunidades fuertes.",
+                                            "El aprendizaje colaborativo es poderoso.",
+                                            "La humildad permite crecer y aprender.",
+                                            "El reconocimiento motiva a seguir adelante."
+                                        ];
+                                        $fraseAleatoria = $frases[array_rand($frases)];
+                                        ?>
+                                        <h3 class="nk-block-title page-title"><?php echo 'Hola '. htmlspecialchars($_SESSION['name']); ?></h3>
+                                        <h4><?php echo $fraseAleatoria; ?></h4>
                                     </div><!-- .nk-block-head-content -->
                                     <div class="nk-block-head-content">
                                         <div class="toggle-wrap nk-block-tools-toggle">
