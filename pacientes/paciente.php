@@ -368,60 +368,54 @@ date_default_timezone_set('America/Mexico_City');
     new Chart(document.getElementById('graficaRadar'), configRadar);
 </script>
 <script>
-    const idPaciente = <?php echo $id; ?>;
-    const btnHistEval = document.getElementById('btnHistEval');
-    const btnHistProg = document.getElementById('btnHistProg');
-    let lastFocusedElement = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        const idPaciente = <?php echo $id; ?>;
+        const btnHistEval = document.getElementById('btnHistEval');
+        const btnHistProg = document.getElementById('btnHistProg');
+        let lastFocusedElement = null;
 
-    function cargarHistorial(tipo, tbodyId, modalId) {
-        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
-            .then(r => r.json())
-            .then(data => {
-                const tbody = document.getElementById(tbodyId);
-                tbody.innerHTML = '';
-                if (data.length === 0) {
-                    const cols = tbodyId === 'histEvalBody' ? 5 : 7;
-                    tbody.innerHTML = `<tr><td colspan="${cols}">Sin registros</td></tr>`;
-                } else {
-                    data.forEach(row => {
-                        if (tipo === 'evaluacion') {
-                            tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
-                        } else {
-                            tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+        function cargarHistorial(tipo, tbodyId, modalId) {
+            fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById(tbodyId);
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        const cols = tbodyId === 'histEvalBody' ? 5 : 7;
+                        tbody.innerHTML = `<tr><td colspan="${cols}">Sin registros</td></tr>`;
+                    } else {
+                        data.forEach(row => {
+                            if (tipo === 'evaluacion') {
+                                tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
+                            } else {
+                                tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+                            }
+                        });
+                    }
+                    const modalEl = document.getElementById(modalId);
+                    lastFocusedElement = document.activeElement;
+                    const modal = new bootstrap.Modal(modalEl);
+                    modalEl.addEventListener('hidden.bs.modal', () => {
+                        if (lastFocusedElement) {
+                            lastFocusedElement.focus();
                         }
-                    });
-                }
-                const modalEl = document.getElementById(modalId);
-                const modal = new bootstrap.Modal(modalEl);
-                lastFocusedElement = document.activeElement;
-                modal.show();
+                    }, { once: true });
+                    modal.show();
+                });
+        }
+
+        if (btnHistEval) {
+            btnHistEval.addEventListener('click', () => {
+                cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
             });
-    }
+        }
 
-    const modalHistEvalEl = document.getElementById('modalHistEval');
-    const modalHistProgEl = document.getElementById('modalHistProg');
-
-    [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
-        if (modalEl) {
-            modalEl.addEventListener('hidden.bs.modal', () => {
-                if (lastFocusedElement) {
-                    lastFocusedElement.focus();
-                }
+        if (btnHistProg) {
+            btnHistProg.addEventListener('click', () => {
+                cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
             });
         }
     });
-
-    if (btnHistEval) {
-        btnHistEval.addEventListener('click', () => {
-            cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
-        });
-    }
-
-    if (btnHistProg) {
-        btnHistProg.addEventListener('click', () => {
-            cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
-        });
-    }
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>
