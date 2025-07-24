@@ -1,3 +1,35 @@
+<?php
+session_start();
+require_once 'database/conexion.php';
+
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+
+    if ($username !== '' && $password !== '') {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare('SELECT `name` FROM `Usuarios` WHERE `user` = ? AND `pass` = ?');
+        $stmt->bind_param('ss', $username, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result && $result->num_rows === 1) {
+            $row = $result->fetch_assoc();
+            $_SESSION['user'] = $username;
+            $_SESSION['name'] = $row['name'];
+            header('Location: index.php');
+            exit;
+        } else {
+            $error = 'Credenciales incorrectas';
+        }
+        $stmt->close();
+        $db->closeConnection();
+    } else {
+        $error = 'Por favor completa todos los campos';
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="zxx" class="js">
 
@@ -41,14 +73,19 @@
                                         </div>
                                     </div>
                                 </div><!-- .nk-block-head -->
-                                <form action="#">
+                                <?php if ($error): ?>
+                                    <div class="alert alert-danger">
+                                        <?php echo $error; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <form action="login.php" method="POST">
                                     <div class="form-group">
                                         <div class="form-label-group">
                                             <label class="form-label" for="default-01">Correo electrónico o usuario</label>
                                             <a class="link link-primary link-sm" tabindex="-1" href="#">¿Necesitas ayuda?</a>
                                         </div>
                                         <div class="form-control-wrap">
-                                            <input type="text" class="form-control form-control-lg" id="default-01" placeholder="Ingresa tu correo electrónico o usuario">
+                                            <input type="text" name="username" class="form-control form-control-lg" id="default-01" placeholder="Ingresa tu correo electrónico o usuario" required>
                                         </div>
                                     </div><!-- .form-group -->
                                     <div class="form-group">
@@ -60,12 +97,12 @@
                                                 <em class="passcode-icon icon-show icon ni ni-eye"></em>
                                                 <em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
                                             </a>
-                                            <input type="password" class="form-control form-control-lg" id="password" placeholder="Enter your passcode">
-                                        </div>
-                                    </div><!-- .form-group -->
-                                    <div class="form-group">
-                                        <button class="btn btn-lg btn-primary btn-block">Ingresar</button>
+                                            <input type="password" name="password" class="form-control form-control-lg" id="password" placeholder="Enter your passcode" required>
                                     </div>
+                                </div><!-- .form-group -->
+                                <div class="form-group">
+                                    <button class="btn btn-lg btn-primary btn-block">Ingresar</button>
+                                </div>
                                 </form><!-- form -->
 
 
