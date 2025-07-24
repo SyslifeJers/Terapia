@@ -77,6 +77,16 @@ date_default_timezone_set('America/Mexico_City');
             'social' => round($suma['social'] / $total, 2),
             'fecha_registro' => 'Promedio'
         ];
+    } else {
+        $grafica_data['primera'] = [
+            'lenguaje' => 0,
+            'motricidad' => 0,
+            'atencion' => 0,
+            'memoria' => 0,
+            'social' => 0,
+            'fecha_registro' => 'Sin datos'
+        ];
+        $grafica_data['ultima'] = $grafica_data['primera'];
     }
 
     $ultimas_evaluaciones = [];
@@ -164,16 +174,26 @@ date_default_timezone_set('America/Mexico_City');
                                     <div class="team-view mt-2">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
                                     </div>
+                                    <div class="team-view mt-2">
+                                        <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
+                                    </div>
+                                    <div class="team-view mt-2">
+                                        <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
+                                    </div>
                                     <div class="team-view mt-4">
                                         <h6>Promedio de las últimas 15 evaluaciones</h6>
                                     </div>
 
                                     <div class="team-statistics">
-
-                                        <p>Participación: <?php echo round(array_sum(array_column($ultimas_evaluaciones, 'participacion')) / count($ultimas_evaluaciones), 2); ?></p>
-                                        <p>Atención: <?php echo round(array_sum(array_column($ultimas_evaluaciones, 'atencion')) / count($ultimas_evaluaciones), 2); ?></p>
-                                        <p>Tarea en casa: <?php echo round(array_sum(array_column($ultimas_evaluaciones, 'tarea_casa')) / count($ultimas_evaluaciones), 2); ?></p>
-
+                                        <?php
+                                            $evalCount = count($ultimas_evaluaciones);
+                                            $avgPart = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'participacion')) / $evalCount, 2) : 0;
+                                            $avgAt = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'atencion')) / $evalCount, 2) : 0;
+                                            $avgTarea = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'tarea_casa')) / $evalCount, 2) : 0;
+                                        ?>
+                                        <p>Participación: <?php echo $avgPart; ?></p>
+                                        <p>Atención: <?php echo $avgAt; ?></p>
+                                        <p>Tarea en casa: <?php echo $avgTarea; ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -347,8 +367,49 @@ date_default_timezone_set('America/Mexico_City');
 
     new Chart(document.getElementById('graficaRadar'), configRadar);
 </script>
+<script>
+    const idPaciente = <?php echo $id; ?>;
+    const btnHistEval = document.getElementById('btnHistEval');
+    const btnHistProg = document.getElementById('btnHistProg');
+
+    function cargarHistorial(tipo, tbodyId, modalId) {
+        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById(tbodyId);
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    const cols = tbodyId === 'histEvalBody' ? 5 : 7;
+                    tbody.innerHTML = `<tr><td colspan="${cols}">Sin registros</td></tr>`;
+                } else {
+                    data.forEach(row => {
+                        if (tipo === 'evaluacion') {
+                            tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
+                        } else {
+                            tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+                        }
+                    });
+                }
+                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                modal.show();
+            });
+    }
+
+    if (btnHistEval) {
+        btnHistEval.addEventListener('click', () => {
+            cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
+        });
+    }
+
+    if (btnHistProg) {
+        btnHistProg.addEventListener('click', () => {
+            cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
+        });
+    }
+</script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>
+<?php include_once '../includes/modalHistorial.php'; ?>
 
 <?php include_once '../includes/footer.php'; ?>
 
