@@ -199,7 +199,7 @@ date_default_timezone_set('America/Mexico_City');
                                             </div>
 
                                             <div class="team-view mt-2">
-                                                <a href="reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
+                                                <a href="./pacientes/reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
                                             </div>
 
                                      </div>
