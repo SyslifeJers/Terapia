@@ -233,8 +233,10 @@ date_default_timezone_set('America/Mexico_City');
                     <div class="card-inner">
                         <h5 class="title">Exámenes</h5>
                         <form id="examUploadForm" class="mb-3">
-                            <input type="file" name="file" id="examFile" class="form-control" required>
-                            <button type="submit" class="btn btn-primary mt-2">Subir</button>
+                            <input type="file" name="file" id="examFile" class="form-control mb-2" required>
+                            <textarea name="note" id="examNote" class="form-control mb-2" placeholder="Nota"></textarea>
+                            <button type="submit" class="btn btn-primary">Subir</button>
+
                         </form>
                         <div id="examFiles" class="nk-files nk-files-view-grid">
                             <div class="nk-files-list">
@@ -243,10 +245,17 @@ date_default_timezone_set('America/Mexico_City');
                                 if (is_dir($dir)) {
                                     $files = array_diff(scandir($dir), ['.', '..']);
                                     foreach ($files as $f) {
+                                        if (substr($f, -4) === '.txt') continue;
                                         $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
                                         $icon = in_array($ext, ['png','jpg','jpeg','gif']) ? 'ni-file-img' : 'ni-file-pdf';
                                         $url = '/uploads/exams/' . $id . '/' . rawurlencode($f);
-                                        echo '<div class="nk-file-item nk-file"><div class="nk-file-info"><a href="'. $url .'" class="nk-file-link" target="_blank"><div class="nk-file-title"><div class="nk-file-icon"><span class="nk-file-icon-type"><em class="icon ni '. $icon .'"></em></span></div><div class="nk-file-name"><div class="nk-file-name-text"><span class="title">'. htmlspecialchars($f) .'</span></div></div></div></a></div></div>';
+                                        $note = '';
+                                        $noteFile = $dir . '/' . $f . '.txt';
+                                        if (is_file($noteFile)) {
+                                            $note = '<div class="mt-1 small text-muted">Nota: '. nl2br(htmlspecialchars(trim(file_get_contents($noteFile)))) .'</div>';
+                                        }
+                                        echo '<div class="nk-file-item nk-file"><div class="nk-file-info"><a href="'. $url .'" class="nk-file-link" target="_blank"><div class="nk-file-title"><div class="nk-file-icon"><span class="nk-file-icon-type"><em class="icon ni '. $icon .'"></em></span></div><div class="nk-file-name"><div class="nk-file-name-text"><span class="title">'. htmlspecialchars($f) .'</span></div></div></div></a>'. $note .'</div><div class="nk-file-actions"><a href="#" class="btn btn-sm btn-icon btn-trigger delete-exam" data-file="'. htmlspecialchars($f) .'"><em class="icon ni ni-trash"></em></a></div></div>';
+
                                     }
                                 } else {
                                     echo '<p>No hay exámenes.</p>';
@@ -409,6 +418,7 @@ date_default_timezone_set('America/Mexico_City');
     const btnHistEval = document.getElementById('btnHistEval');
     const btnHistProg = document.getElementById('btnHistProg');
     const examForm = document.getElementById('examUploadForm');
+    const examNote = document.getElementById('examNote');
     let lastFocusedElement = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
@@ -472,6 +482,10 @@ date_default_timezone_set('America/Mexico_City');
             const data = new FormData();
             data.append('file', input.files[0]);
             data.append('id', idPaciente);
+            if (examNote) {
+                data.append('note', examNote.value);
+            }
+
             fetch('pacientes/upload_exam.php', { method: 'POST', body: data })
                 .then(r => r.json())
                 .then(res => {
@@ -484,6 +498,36 @@ date_default_timezone_set('America/Mexico_City');
                 .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
         });
     }
+
+    document.querySelectorAll('.delete-exam').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const file = this.getAttribute('data-file');
+            Swal.fire({
+                title: '¿Eliminar archivo?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const fd = new FormData();
+                    fd.append('id', idPaciente);
+                    fd.append('file', file);
+                    fetch('pacientes/delete_exam.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(resp => {
+                            if (resp.success) {
+                                Swal.fire('Eliminado', '', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
+                            }
+                        })
+                        .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+                }
+            });
+        });
+    });
+
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>
