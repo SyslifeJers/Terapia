@@ -199,7 +199,7 @@ date_default_timezone_set('America/Mexico_City');
                                             </div>
 
                                             <div class="team-view mt-2">
-                                                <a href="reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
+                                                <a href="./pacientes/reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
                                             </div>
 
                                      </div>
@@ -236,6 +236,7 @@ date_default_timezone_set('America/Mexico_City');
                             <input type="file" name="file" id="examFile" class="form-control mb-2" required>
                             <textarea name="note" id="examNote" class="form-control mb-2" placeholder="Nota"></textarea>
                             <button type="submit" class="btn btn-primary">Subir</button>
+
                         </form>
                         <div id="examFiles" class="nk-files nk-files-view-grid">
                             <div class="nk-files-list">
@@ -254,6 +255,7 @@ date_default_timezone_set('America/Mexico_City');
                                             $note = '<div class="mt-1 small text-muted">Nota: '. nl2br(htmlspecialchars(trim(file_get_contents($noteFile)))) .'</div>';
                                         }
                                         echo '<div class="nk-file-item nk-file"><div class="nk-file-info"><a href="'. $url .'" class="nk-file-link" target="_blank"><div class="nk-file-title"><div class="nk-file-icon"><span class="nk-file-icon-type"><em class="icon ni '. $icon .'"></em></span></div><div class="nk-file-name"><div class="nk-file-name-text"><span class="title">'. htmlspecialchars($f) .'</span></div></div></div></a>'. $note .'</div><div class="nk-file-actions"><a href="#" class="btn btn-sm btn-icon btn-trigger delete-exam" data-file="'. htmlspecialchars($f) .'"><em class="icon ni ni-trash"></em></a></div></div>';
+
                                     }
                                 } else {
                                     echo '<p>No hay exámenes.</p>';
@@ -483,6 +485,7 @@ date_default_timezone_set('America/Mexico_City');
             if (examNote) {
                 data.append('note', examNote.value);
             }
+
             fetch('pacientes/upload_exam.php', { method: 'POST', body: data })
                 .then(r => r.json())
                 .then(res => {
@@ -524,6 +527,7 @@ date_default_timezone_set('America/Mexico_City');
             });
         });
     });
+
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>
