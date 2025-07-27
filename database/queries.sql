@@ -40,3 +40,29 @@ CREATE TABLE `exp_progreso_general` (
     FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`),
     FOREIGN KEY (`id_usuario`) REFERENCES `Usuarios`(`id_usuario`)
 );
+
+CREATE TABLE `exp_evaluaciones` (
+  `id_evaluacion` int(11) NOT NULL,
+  `id_nino` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_area` int(11) NOT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
+  `observaciones` text DEFAULT NULL
+) ;
+
+
+CREATE TABLE `exp_opciones_pregunta` (
+  `id_opcion` int(11) NOT NULL,
+  `id_pregunta` int(11) NOT NULL,
+  `texto_opcion` varchar(255) NOT NULL,
+  `es_correcta` tinyint(1) DEFAULT 0
+) ;
+
+
+CREATE TABLE `exp_preguntas_evaluacion` (
+  `id_pregunta` int(11) NOT NULL,
+  `id_area` int(11) NOT NULL,
+  `texto_pregunta` text NOT NULL,
+  `tipo_respuesta` varchar(50) DEFAULT 'texto',
+  `es_multiple` tinyint(1) DEFAULT 0
+) ;
