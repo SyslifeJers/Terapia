@@ -152,7 +152,7 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
                                     <div class="user-card user-card-s2">
                                         <div class="user-avatar md bg-info">
-                                              <img src="/assets/imagen/dinosaurio.png" alt="">
+                                            <img src="/assets/imagen/dinosaurio.png" alt="">
                                             <div class="status dot dot-lg dot-success"></div>
                                         </div>
                                         <div class="user-info">
@@ -178,31 +178,31 @@ date_default_timezone_set('America/Mexico_City');
 
                                     <div class="team-statistics">
                                         <?php
-                                            $evalCount = count($ultimas_evaluaciones);
-                                            $avgPart = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'participacion')) / $evalCount, 2) : 0;
-                                            $avgAt = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'atencion')) / $evalCount, 2) : 0;
-                                            $avgTarea = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'tarea_casa')) / $evalCount, 2) : 0;
+                                        $evalCount = count($ultimas_evaluaciones);
+                                        $avgPart = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'participacion')) / $evalCount, 2) : 0;
+                                        $avgAt = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'atencion')) / $evalCount, 2) : 0;
+                                        $avgTarea = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'tarea_casa')) / $evalCount, 2) : 0;
                                         ?>
                                         <p>Participación: <?php echo $avgPart; ?></p>
                                         <p>Atención: <?php echo $avgAt; ?></p>
                                         <p>Tarea en casa: <?php echo $avgTarea; ?></p>
                                     </div>
-                                                                        <div class="team-view mt-2">
+                                    <div class="team-view mt-2">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
                                     </div>
-                                     <div class="team-statistics">
-                                            <div class="team-view mt-2">
-                                                <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
-                                            </div>
-                                            <div class="team-view mt-2">
-                                                <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
-                                            </div>
+                                    <div class="team-statistics">
+                                        <div class="team-view mt-2">
+                                            <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
+                                        </div>
+                                        <div class="team-view mt-2">
+                                            <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
+                                        </div>
 
-                                            <div class="team-view mt-2">
-                                                <a href="./pacientes/reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
-                                            </div>
+                                        <div class="team-view mt-2">
+                                            <a href="./pacientes/reporte_paciente.php?id=<?php echo $id; ?>" class="btn btn-outline-success">Descargar reporte</a>
+                                        </div>
 
-                                     </div>
+                                    </div>
 
                                 </div>
                             </div>
@@ -231,13 +231,14 @@ date_default_timezone_set('America/Mexico_City');
 
                 <div class="card mt-4">
                     <div class="card-inner">
-                        <h5 class="title">Exámenes</h5>
-                        <form id="examUploadForm" class="mb-3">
-                            <input type="file" name="file" id="examFile" class="form-control mb-2" required>
-                            <textarea name="note" id="examNote" class="form-control mb-2" placeholder="Nota"></textarea>
-                            <button type="submit" class="btn btn-primary">Subir</button>
-
-                        </form>
+                        <!-- Botón para abrir el modal -->
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="title mb-0 me-3">Archivos</h5>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalExamUpload">
+                                <em class="icon ni ni-plus"></em> Subir archivo
+                            </button>
+                        </div>
+                        <hr class="my-4">
                         <div id="examFiles" class="nk-files nk-files-view-grid">
                             <div class="nk-files-list">
                                 <?php
@@ -247,18 +248,58 @@ date_default_timezone_set('America/Mexico_City');
                                     foreach ($files as $f) {
                                         if (substr($f, -4) === '.txt') continue;
                                         $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-                                        $icon = in_array($ext, ['png','jpg','jpeg','gif']) ? 'ni-file-img' : 'ni-file-pdf';
+                                        $icon = in_array($ext, ['png', 'jpg', 'jpeg', 'gif']) ? 'ni-file-img' : 'ni-file-pdf';
                                         $url = '/uploads/exams/' . $id . '/' . rawurlencode($f);
                                         $note = '';
                                         $noteFile = $dir . '/' . $f . '.txt';
                                         if (is_file($noteFile)) {
-                                            $note = '<div class="mt-1 small text-muted">Nota: '. nl2br(htmlspecialchars(trim(file_get_contents($noteFile)))) .'</div>';
+                                            $note = '<div class="mt-1 small text-muted">Nota: ' . nl2br(htmlspecialchars(trim(file_get_contents($noteFile)))) . '</div>';
+                                        } else {
+                                            $note = '';
                                         }
-                                        echo '<div class="nk-file-item nk-file"><div class="nk-file-info"><a href="'. $url .'" class="nk-file-link" target="_blank"><div class="nk-file-title"><div class="nk-file-icon"><span class="nk-file-icon-type"><em class="icon ni '. $icon .'"></em></span></div><div class="nk-file-name"><div class="nk-file-name-text"><span class="title">'. htmlspecialchars($f) .'</span></div></div></div></a>'. $note .'</div><div class="nk-file-actions"><a href="#" class="btn btn-sm btn-icon btn-trigger delete-exam" data-file="'. htmlspecialchars($f) .'"><em class="icon ni ni-trash"></em></a></div></div>';
 
+                                        echo '
+<div class="nk-file-item nk-file">
+    <div class="nk-file-info">
+        <div class="nk-file-title">
+            <div class="nk-file-icon">
+                <a class="nk-file-icon-link" href="' . $url . '" target="_blank">
+                    <span class="nk-file-icon-type">
+                        <em class="icon ni ' . $icon . '"></em>
+                    </span>
+                </a>
+            </div>
+            <div class="nk-file-name">
+                <div class="nk-file-name-text">
+                    <a href="' . $url . '" class="title" target="_blank">' . htmlspecialchars($f) . '</a>
+                </div>
+            </div>
+        </div>
+        <ul class="nk-file-desc">
+            <li class="date">' . date("d M", filemtime($noteFile)) . '</li>
+            <li class="size">' . round(filesize($noteFile) / 1048576, 2) . ' MB</li>
+            <li class="members">1 Usuario</li>
+        </ul>
+        ' . $note . '
+    </div>
+    <div class="nk-file-actions">
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown">
+                <em class="icon ni ni-more-h"></em>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+                <ul class="link-list-plain no-bdr">
+                    <li><a href="' . $url . '" target="_blank"><em class="icon ni ni-eye"></em><span>Ver</span></a></li>
+                    <li><a href="' . $url . '" download><em class="icon ni ni-download"></em><span>Descargar</span></a></li>
+                    <li><a href="#" class="delete-exam" data-file="' . htmlspecialchars($f) . '"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>';
                                     }
                                 } else {
-                                    echo '<p>No hay exámenes.</p>';
+                                    echo '<p>No hay archivos.</p>';
                                 }
                                 ?>
                             </div>
@@ -269,7 +310,36 @@ date_default_timezone_set('America/Mexico_City');
         </div>
     </div>
 </div>
-
+<!-- Agregar el <div class="loading-animation tri-ring"></div> para cuando este cargando la subida del archivo -->
+<div class="modal fade" id="modalExamUpload" tabindex="-1" aria-labelledby="modalExamUploadLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="min-height: 14em;">
+            <div id="examUploadLoading" class="loading-animation tri-ring" style="display:none; margin: 0 auto; position: static !important;"></div>
+            <form id="examUploadForm" class="mb-0">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalExamUploadLabel">Subir archivo de examen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="file" name="file" id="examFile" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="note" id="examNote" class="form-control" placeholder="Nota"></textarea>
+                    </div>
+                    <!-- Animación de carga al subir archivo -->
+                
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <em class="icon ni ni-upload-cloud"></em> <span class="ms-1">Subir archivo</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -419,6 +489,7 @@ date_default_timezone_set('America/Mexico_City');
     const btnHistProg = document.getElementById('btnHistProg');
     const examForm = document.getElementById('examUploadForm');
     const examNote = document.getElementById('examNote');
+    const examLoading = document.getElementById('examUploadLoading');
     let lastFocusedElement = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
@@ -475,7 +546,7 @@ date_default_timezone_set('America/Mexico_City');
     }
 
     if (examForm) {
-        examForm.addEventListener('submit', function (e) {
+        examForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const input = document.getElementById('examFile');
             if (!input.files.length) return;
@@ -485,22 +556,41 @@ date_default_timezone_set('America/Mexico_City');
             if (examNote) {
                 data.append('note', examNote.value);
             }
+            // Mostrar animación de carga
+            if (examLoading){
+                examLoading.style.display = 'block';
+                examForm.style.display = 'none';
+            } 
 
-            fetch('pacientes/upload_exam.php', { method: 'POST', body: data })
+            fetch('pacientes/upload_exam.php', {
+                    method: 'POST',
+                    body: data
+                })
                 .then(r => r.json())
                 .then(res => {
+                    // Ocultar animación de carga
+                    if (examLoading) examLoading.style.display = 'none';
                     if (res.success) {
                         Swal.fire('Archivo subido', '', 'success').then(() => location.reload());
                     } else {
                         Swal.fire('Error', res.message || 'Ocurrió un error', 'error');
                     }
                 })
-                .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+                .catch(() => {
+                    if (examLoading) examLoading.style.display = 'none';
+                    Swal.fire('Error', 'Ocurrió un error', 'error');
+                })
+                .finally(() => {
+                    if (examLoading){
+                        examLoading.style.display = 'none';
+                        examForm.style.display = 'block';
+                    } 
+                });
         });
     }
 
     document.querySelectorAll('.delete-exam').forEach(btn => {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
             const file = this.getAttribute('data-file');
             Swal.fire({
@@ -513,7 +603,10 @@ date_default_timezone_set('America/Mexico_City');
                     const fd = new FormData();
                     fd.append('id', idPaciente);
                     fd.append('file', file);
-                    fetch('pacientes/delete_exam.php', { method: 'POST', body: fd })
+                    fetch('pacientes/delete_exam.php', {
+                            method: 'POST',
+                            body: fd
+                        })
                         .then(r => r.json())
                         .then(resp => {
                             if (resp.success) {
@@ -527,11 +620,9 @@ date_default_timezone_set('America/Mexico_City');
             });
         });
     });
-
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>
 <?php include_once '../includes/modalHistorial.php'; ?>
 
 <?php include_once '../includes/footer.php'; ?>
-
