@@ -33,25 +33,25 @@ function isActive($page) {
                                 <li class="nk-menu-heading">
                                     <h6 class="overline-title text-primary-alt">Menú</h6>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-item">
-                                    <a href="/pacientes/pacientes.php" class="nk-menu-link">
+                                <li class="nk-menu-item" id="menu-pacientes">
+                                    <a href="pacientes/pacientes.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-user-group-fill"></em></span>
                                         <span class="nk-menu-text">Pacientes</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-item">
+                                <li class="nk-menu-item" id="menu-citas">
                                     <a href="citas.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-calendar-alt"></em></span>
                                         <span class="nk-menu-text">Cítas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-item">
-                                    <a href="areas.php" class="nk-menu-link">
+                                <li class="nk-menu-item" id="menu-areas">
+                                    <a href="areas/index.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-color-palette"></em></span>
                                         <span class="nk-menu-text">Áreas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-item">
+                                <li class="nk-menu-item" id="menu-evaluaciones">
                                     <a href="evaluaciones.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-clipboad-check"></em></span>
                                         <span class="nk-menu-text">Evaluaciones</span>
