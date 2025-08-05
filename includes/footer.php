@@ -8,16 +8,16 @@
                 <script>
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
-        const currentPath = window.location.pathname.split('/').pop() || 'index.php';
+        const currentPath = window.location.pathname.replace(/^\/+/, '');
         const menuItems = {
             'index.php': 'menu-casa',
-            'pacientes.php': 'menu-pacientes',
-            'paciente.php': 'menu-pacientes',
+            'pacientes/pacientes.php': 'menu-pacientes',
+            'pacientes/paciente.php': 'menu-pacientes',
             'citas.php': 'menu-citas',
-            'areas.php': 'menu-areas',
+            'areas/index.php': 'menu-areas',
             'evaluaciones.php': 'menu-evaluaciones'
         };
-        
+
         const activeItemId = menuItems[currentPath];
         if (activeItemId) {
             const activeElement = document.getElementById(activeItemId);

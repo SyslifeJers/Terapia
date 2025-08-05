@@ -1,5 +1,5 @@
 <?php
-include_once 'includes/head.php';
+include_once '../includes/head.php';
 date_default_timezone_set('America/Mexico_City');
 ?>
             <!-- sidebar @e -->
@@ -7,10 +7,10 @@ date_default_timezone_set('America/Mexico_City');
             <div class="nk-wrap ">
                 <!-- main header @s -->
             <?php
-                include_once 'includes/menu_superior.php';
+                include_once '../includes/menu_superior.php';
 
                 // Conexion a la base de datos
-                require_once 'database/conexion.php';
+                require_once '../database/conexion.php';
                 $db = new Database();
                 $conn = $db->getConnection();
 
@@ -40,12 +40,16 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="nk-block">
                                 <div class="card card-full">
                                     <div class="card-inner table-responsive">
+                                        <div class="mb-3">
+                                            <a href="form.php" class="btn btn-primary">Nueva área</a>
+                                        </div>
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
                                                     <th>ID</th>
                                                     <th>Nombre</th>
                                                     <th>Descripción</th>
+                                                    <th>Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -54,10 +58,14 @@ date_default_timezone_set('America/Mexico_City');
                                                     <td><?php echo htmlspecialchars($a['id_area'] ?? ''); ?></td>
                                                     <td><?php echo htmlspecialchars($a['nombre_area'] ?? ''); ?></td>
                                                     <td><?php echo htmlspecialchars($a['descripcion'] ?? ''); ?></td>
+                                                    <td>
+                                                        <a href="form.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-secondary">Editar</a>
+                                                        <a href="delete.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar área?');">Eliminar</a>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                             <?php if (empty($areas)): ?>
-                                                <tr><td colspan="3">No hay áreas.</td></tr>
+                                                <tr><td colspan="4">No hay áreas.</td></tr>
                                             <?php endif; ?>
                                             </tbody>
                                         </table>
@@ -72,5 +80,5 @@ date_default_timezone_set('America/Mexico_City');
             </div>
             <!-- wrap @e -->
        <?php
-include_once 'includes/footer.php';
+include_once '../includes/footer.php';
 ?>
