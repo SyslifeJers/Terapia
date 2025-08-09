@@ -54,6 +54,7 @@ date_default_timezone_set('America/Mexico_City');
                                                         <div class="nk-file-info">
                                                             <div class="nk-file-title">
                                                                 <div class="nk-file-icon">
+
                                                                     <a class="nk-file-icon-link" href="/areas/examenes.php?id=<?php echo urlencode($a['id_area']); ?>">
                                                                         <span class="nk-file-icon-type"><em class="icon ni ni-folder"></em></span>
                                                                     </a>
@@ -61,6 +62,7 @@ date_default_timezone_set('America/Mexico_City');
                                                                 <div class="nk-file-name">
                                                                     <div class="nk-file-name-text">
                                                                         <a href="/areas/examenes.php?id=<?php echo urlencode($a['id_area']); ?>" class="title"><?php echo htmlspecialchars($a['nombre_area'] ?? ''); ?></a>
+
                                                                     </div>
                                                                 </div>
                                                             </div>
