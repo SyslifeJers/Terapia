@@ -2,10 +2,10 @@
 
 class Database
 {
-    private $servername = "localhost";
-    private $username = "clini234_cerene";
-    private $password = "tu{]ScpQ-Vcg";
-    private $dbname = "clini234_cerene";
+    private $servername = 'localhost';
+    private $dbname = 'u529445062_cenere';
+    private $username = 'u529445062_jers';
+    private $password = 'Rtx2080_';
     private $conn;
 
 

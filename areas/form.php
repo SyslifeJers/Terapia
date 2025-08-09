@@ -35,7 +35,9 @@ date_default_timezone_set('America/Mexico_City');
                     }
 
                     $db->closeConnection();
-                    header('Location: index.php');
+                    $mensaje = $id ? 'Área actualizada correctamente.' : 'Área agregada correctamente.';
+                    echo "<p>$mensaje Redirigiendo en 3 segundos...</p>";
+                    echo "<script>setTimeout(function(){ window.location.href='/areas/index.php'; }, 3000);</script>";
                     exit;
                 } elseif ($id) {
                     $stmt = $conn->prepare("SELECT nombre_area, descripcion FROM exp_areas_evaluacion WHERE id_area = ?");

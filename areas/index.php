@@ -36,12 +36,12 @@ date_default_timezone_set('America/Mexico_City');
                                         </div>
                                     </div><!-- .nk-block-head-content -->
                                 </div><!-- .nk-block-between -->
-                            </div><!-- .nk-block-head -->
+                            </div><!-- .nk-block-head --> 
                             <div class="nk-block">
                                 <div class="card card-full">
                                     <div class="card-inner table-responsive">
                                         <div class="mb-3">
-                                            <a href="form.php" class="btn btn-primary">Nueva área</a>
+                                            <a href="/areas/form.php" class="btn btn-primary">Nueva área</a>
                                         </div>
                                         <table class="table table-striped">
                                             <thead>
@@ -59,8 +59,8 @@ date_default_timezone_set('America/Mexico_City');
                                                     <td><?php echo htmlspecialchars($a['nombre_area'] ?? ''); ?></td>
                                                     <td><?php echo htmlspecialchars($a['descripcion'] ?? ''); ?></td>
                                                     <td>
-                                                        <a href="form.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-secondary">Editar</a>
-                                                        <a href="delete.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar área?');">Eliminar</a>
+                                                        <a href="/areas/form.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-secondary">Editar</a>
+                                                        <a href="/areas/delete.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar área?');">Eliminar</a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
