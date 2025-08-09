@@ -39,36 +39,54 @@ date_default_timezone_set('America/Mexico_City');
                             </div><!-- .nk-block-head --> 
                             <div class="nk-block">
                                 <div class="card card-full">
-                                    <div class="card-inner table-responsive">
-                                        <div class="mb-3">
-                                            <a href="/areas/form.php" class="btn btn-primary">Nueva área</a>
+                                    <div class="card-inner">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <h5 class="title mb-0 me-3">Áreas</h5>
+                                            <a href="/areas/form.php" class="btn btn-outline-primary btn-sm">
+                                                <em class="icon ni ni-plus"></em> Nueva área
+                                            </a>
                                         </div>
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Nombre</th>
-                                                    <th>Descripción</th>
-                                                    <th>Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            <?php foreach ($areas as $a): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($a['id_area'] ?? ''); ?></td>
-                                                    <td><?php echo htmlspecialchars($a['nombre_area'] ?? ''); ?></td>
-                                                    <td><?php echo htmlspecialchars($a['descripcion'] ?? ''); ?></td>
-                                                    <td>
-                                                        <a href="/areas/form.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-secondary">Editar</a>
-                                                        <a href="/areas/delete.php?id=<?php echo urlencode($a['id_area']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar área?');">Eliminar</a>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                            <?php if (empty($areas)): ?>
-                                                <tr><td colspan="4">No hay áreas.</td></tr>
-                                            <?php endif; ?>
-                                            </tbody>
-                                        </table>
+                                        <hr class="my-4">
+                                        <div id="areaFiles" class="nk-files nk-files-view-grid">
+                                            <div class="nk-files-list">
+                                                <?php foreach ($areas as $a): ?>
+                                                    <div class="nk-file-item nk-file">
+                                                        <div class="nk-file-info">
+                                                            <div class="nk-file-title">
+                                                                <div class="nk-file-icon">
+                                                                    <span class="nk-file-icon-type"><em class="icon ni ni-folder"></em></span>
+                                                                </div>
+                                                                <div class="nk-file-name">
+                                                                    <div class="nk-file-name-text">
+                                                                        <span class="title"><?php echo htmlspecialchars($a['nombre_area'] ?? ''); ?></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <ul class="nk-file-desc">
+                                                                <li class="date">ID: <?php echo htmlspecialchars($a['id_area'] ?? ''); ?></li>
+                                                                <li class="members"><?php echo htmlspecialchars($a['descripcion'] ?? ''); ?></li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="nk-file-actions">
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown">
+                                                                    <em class="icon ni ni-more-h"></em>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <ul class="link-list-plain no-bdr">
+                                                                        <li><a href="/areas/form.php?id=<?php echo urlencode($a['id_area']); ?>"><em class="icon ni ni-edit"></em><span>Editar</span></a></li>
+                                                                        <li><a href="/areas/delete.php?id=<?php echo urlencode($a['id_area']); ?>" onclick="return confirm('¿Eliminar área?');"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                                <?php if (empty($areas)): ?>
+                                                    <p>No hay áreas.</p>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div><!-- .card -->
                             </div><!-- .nk-block -->
