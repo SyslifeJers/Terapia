@@ -17,6 +17,7 @@ date_default_timezone_set('America/Mexico_City');
                 $exam_id = 0;
                 $section_id = 0;
 
+
                 if ($question_id > 0) {
                     $stmt = $conn->prepare("SELECT pregunta, id_seccion FROM exp_preguntas_evaluacion WHERE id_pregunta = ? LIMIT 1");
                     $stmt->bind_param('i', $question_id);
@@ -38,14 +39,17 @@ date_default_timezone_set('America/Mexico_City');
                     }
                 }
 
+
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $action = $_POST['action'] ?? '';
                     switch ($action) {
                         case 'add_option':
                             $text = trim($_POST['option_text'] ?? '');
+
                             if ($question_id > 0 && $text !== '' && $exam_id > 0) {
                                 $stmt = $conn->prepare("INSERT INTO exp_opciones_pregunta (texto, id_exam) VALUES (?, ?)");
                                 $stmt->bind_param('si', $text, $exam_id);
+
                                 $stmt->execute();
                                 $option_id = $conn->insert_id;
                                 $stmt->close();
@@ -56,6 +60,7 @@ date_default_timezone_set('America/Mexico_City');
                                 $stmt->close();
                             }
                             break;
+
                         case 'add_existing_option':
                             $option_id = (int)($_POST['existing_option_id'] ?? 0);
                             if ($question_id > 0 && $option_id > 0) {
@@ -65,6 +70,7 @@ date_default_timezone_set('America/Mexico_City');
                                 $stmt->close();
                             }
                             break;
+
                         case 'delete_option':
                             $option_id = (int)($_POST['option_id'] ?? 0);
                             if ($question_id > 0 && $option_id > 0) {
@@ -78,6 +84,7 @@ date_default_timezone_set('America/Mexico_City');
                 }
 
                 if ($question_id > 0) {
+
                     $stmt = $conn->prepare("SELECT o.id_opcion, o.texto, o.id_exam FROM exp_opciones_pregunta o JOIN exp_pregunta_opcion po ON o.id_opcion = po.id_opcion WHERE po.id_pregunta = ? ORDER BY o.id_opcion ASC");
                     $stmt->bind_param('i', $question_id);
                     $stmt->execute();
@@ -98,6 +105,7 @@ date_default_timezone_set('America/Mexico_City');
                 } else {
                     $options = [];
                     $available_options = [];
+
                 }
 
                 $db->closeConnection();
@@ -144,6 +152,7 @@ date_default_timezone_set('America/Mexico_City');
                                     </tbody>
                                 </table>
                                 <form method="post" class="mt-3">
+
                                     <input type="hidden" name="action" value="add_existing_option">
                                     <div class="input-group">
                                         <select name="existing_option_id" class="form-select form-select-sm" <?php echo empty($available_options) ? 'disabled' : ''; ?>>
@@ -158,6 +167,7 @@ date_default_timezone_set('America/Mexico_City');
                                     <?php endif; ?>
                                 </form>
                                 <form method="post" class="mt-3">
+
                                     <input type="hidden" name="action" value="add_option">
                                     <div class="input-group">
                                         <input type="text" name="option_text" class="form-control form-control-sm" placeholder="Nueva opción">

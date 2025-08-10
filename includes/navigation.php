@@ -7,10 +7,10 @@ function isActive($page) {
            <div class="nk-sidebar is-light nk-sidebar-fixed is-light " data-content="sidebarMenu">
                 <div class="nk-sidebar-element nk-sidebar-head">
                     <div class="nk-sidebar-brand">
-                        <a href="./index.php" class="logo-link nk-sidebar-logo">
-                            <img class="logo-light logo-img" src="./assets/imagen/logoC.png"  alt="logo">
-                            <img class="logo-dark logo-img" src="./assets/imagen/logoC.png"  alt="logo-dark">
-                            <img class="logo-small logo-img logo-img-small" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo-small">
+                        <a href="/index.php" class="logo-link nk-sidebar-logo">
+                            <img class="logo-light logo-img" src="/assets/imagen/logoC.png"  alt="logo">
+                            <img class="logo-dark logo-img" src="/assets/imagen/logoC.png"  alt="logo-dark">
+                            <img class="logo-small logo-img logo-img-small" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo-small">
                         </a>
                     </div>
                     <div class="nk-menu-trigger me-n2">
@@ -34,25 +34,25 @@ function isActive($page) {
                                     <h6 class="overline-title text-primary-alt">Menú</h6>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item" id="menu-pacientes">
-                                    <a href="pacientes/pacientes.php" class="nk-menu-link">
+                                    <a href="/pacientes/pacientes.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-user-group-fill"></em></span>
                                         <span class="nk-menu-text">Pacientes</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item" id="menu-citas">
-                                    <a href="citas.php" class="nk-menu-link">
+                                    <a href="/citas.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-calendar-alt"></em></span>
                                         <span class="nk-menu-text">Cítas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item" id="menu-areas">
-                                    <a href="areas/index.php" class="nk-menu-link">
+                                    <a href="/areas/index.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-color-palette"></em></span>
                                         <span class="nk-menu-text">Áreas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item" id="menu-evaluaciones">
-                                    <a href="evaluaciones.php" class="nk-menu-link">
+                                    <a href="/evaluaciones.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-clipboad-check"></em></span>
                                         <span class="nk-menu-text">Evaluaciones</span>
                                     </a>

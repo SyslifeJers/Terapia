@@ -2,16 +2,17 @@
 include_once '../includes/head.php';
 date_default_timezone_set('America/Mexico_City');
 ?>
-            <!-- sidebar @e -->
-            <!-- wrap @s -->
-            <div class="nk-wrap ">
-                <!-- main header @s -->
-            <?php
-                include_once '../includes/menu_superior.php';
+<!-- sidebar @e -->
+<!-- wrap @s -->
+<div class="nk-wrap ">
+    <!-- main header @s -->
+    <?php
+    include_once '../includes/menu_superior.php';
 
-                require_once '../database/conexion.php';
-                $db = new Database();
-                $conn = $db->getConnection();
+    require_once '../database/conexion.php';
+    $db = new Database();
+    $conn = $db->getConnection();
+
 
                 $exam_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -105,6 +106,7 @@ date_default_timezone_set('America/Mexico_City');
                             $s['preguntas'] = $resQ ? $resQ->fetch_all(MYSQLI_ASSOC) : [];
                             $stmtQ->close();
                         }
+                         unset($s);
                     }
                     $stmt->close();
                 }
@@ -136,7 +138,7 @@ date_default_timezone_set('America/Mexico_City');
                                 </form>
                                 <div class="row g-gs">
                                     <?php foreach ($sections as $s): ?>
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <div class="card card-full">
                                                 <div class="card-inner">
                                                     <div class="mb-2 d-flex align-items-center">
@@ -201,15 +203,21 @@ date_default_timezone_set('America/Mexico_City');
                                     <?php if (empty($sections)): ?>
                                         <p>No hay secciones.</p>
                                     <?php endif; ?>
+
                                 </div>
                             </div>
-                        </div>
+                        <?php if (empty($sections)): ?>
+                            <p>No hay secciones.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <!-- content @e -->
-
             </div>
-            <!-- wrap @e -->
-       <?php
-       include_once '../includes/footer.php';
-       ?>
+        </div>
+    </div>
+    <!-- content @e -->
+
+</div>
+<!-- wrap @e -->
+<?php
+include_once '../includes/footer.php';
+?>
