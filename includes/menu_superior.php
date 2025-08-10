@@ -2,12 +2,12 @@
                     <div class="container-xl wide-xl">
                         <div class="nk-header-wrap">
                             <div class="nk-menu-trigger d-xl-none ms-n1 me-3">
-                                <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+                                <a href="/index.php" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
                             </div>
                             <div class="nk-header-brand d-xl-none">
                                 <a href="/index.php" class="logo-link">
-                                    <img class="logo-light logo-img" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo">
-                                    <img class="logo-dark logo-img" src="./assets/imagen/logoC.png" srcset="./assets/imagen/logoC.png 2x" alt="logo-dark">
+                                    <img class="logo-light logo-img" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo">
+                                    <img class="logo-dark logo-img" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo-dark">
                                 </a>
                             </div><!-- .nk-header-brand -->
                             <div class="nk-header-menu is-light">
@@ -79,7 +79,7 @@
                                                     <li class="chat-item">
                                                         <a class="chat-link" href="html/apps-chats.html">
                                                             <div class="chat-media user-avatar">
-                                                                <img src="./images/avatar/b-sm.jpg" alt="">
+                                                                <img src="/images/avatar/b-sm.jpg" alt="">
                                                             </div>
                                                             <div class="chat-info">
                                                                 <div class="chat-from">
@@ -96,7 +96,7 @@
                                                         <a class="chat-link" href="html/apps-chats.html">
                                                             <div class="chat-media user-avatar user-avatar-multiple">
                                                                 <div class="user-avatar">
-                                                                    <img src="./images/avatar/c-sm.jpg" alt="">
+                                                                    <img src="/images/avatar/c-sm.jpg" alt="">
                                                                 </div>
                                                                 <div class="user-avatar">
                                                                     <span>AB</span>
@@ -119,7 +119,7 @@
                                                     <li class="chat-item">
                                                         <a class="chat-link" href="html/apps-chats.html">
                                                             <div class="chat-media user-avatar">
-                                                                <img src="./images/avatar/a-sm.jpg" alt="">
+                                                                <img src="/images/avatar/a-sm.jpg" alt="">
                                                                 <span class="status dot dot-lg dot-success"></span>
                                                             </div>
                                                             <div class="chat-info">
@@ -216,7 +216,7 @@
                                     <li class="dropdown language-dropdown d-none d-sm-block me-n1">
 
                                             <div class="quick-icon border border-light">
-                                                <img class="icon" src="./images/flags/mexico.png" alt="">
+                                                <img class="icon" src="/images/flags/mexico.png" alt="">
                                             </div>
 
 

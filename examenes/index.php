@@ -106,6 +106,7 @@ date_default_timezone_set('America/Mexico_City');
                             $s['preguntas'] = $resQ ? $resQ->fetch_all(MYSQLI_ASSOC) : [];
                             $stmtQ->close();
                         }
+                         unset($s);
                     }
                     $stmt->close();
                 }
@@ -137,7 +138,7 @@ date_default_timezone_set('America/Mexico_City');
                                 </form>
                                 <div class="row g-gs">
                                     <?php foreach ($sections as $s): ?>
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <div class="card card-full">
                                                 <div class="card-inner">
                                                     <div class="mb-2 d-flex align-items-center">
@@ -205,7 +206,6 @@ date_default_timezone_set('America/Mexico_City');
 
                                 </div>
                             </div>
-                        <?php endforeach; ?>
                         <?php if (empty($sections)): ?>
                             <p>No hay secciones.</p>
                         <?php endif; ?>
