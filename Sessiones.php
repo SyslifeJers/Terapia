@@ -43,7 +43,7 @@
             <td>10:00 AM</td>
             <td>Lenguaje</td>
             <td>
-              <a href="Perfil.php" class="btn btn-sm btn-success">Perfil</a>
+              <a href="/Perfil.php" class="btn btn-sm btn-success">Perfil</a>
             </td>
           </tr>
           <tr>
@@ -54,7 +54,7 @@
             <td>11:30 AM</td>
             <td>Psicología</td>
             <td>
-              <a href="Perfil.php" class="btn btn-sm btn-success">Perfil</a>
+              <a href="/Perfil.php" class="btn btn-sm btn-success">Perfil</a>
 
             </td>
           </tr>

@@ -37,7 +37,7 @@
                                             <div class="dropdown-body">
                                                 <ul class="chat-list">
                                                     <li class="chat-item">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar">
                                                                 <span>IH</span>
                                                                 <span class="status dot dot-lg dot-gray"></span>
@@ -57,7 +57,7 @@
                                                         </a>
                                                     </li><!-- .chat-item -->
                                                     <li class="chat-item is-unread">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar bg-pink">
                                                                 <span>AB</span>
                                                                 <span class="status dot dot-lg dot-success"></span>
@@ -77,7 +77,7 @@
                                                         </a>
                                                     </li><!-- .chat-item -->
                                                     <li class="chat-item">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar">
                                                                 <img src="/images/avatar/b-sm.jpg" alt="">
                                                             </div>
@@ -93,7 +93,7 @@
                                                         </a>
                                                     </li><!-- .chat-item -->
                                                     <li class="chat-item">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar user-avatar-multiple">
                                                                 <div class="user-avatar">
                                                                     <img src="/images/avatar/c-sm.jpg" alt="">
@@ -117,7 +117,7 @@
                                                         </a>
                                                     </li><!-- .chat-item -->
                                                     <li class="chat-item">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar">
                                                                 <img src="/images/avatar/a-sm.jpg" alt="">
                                                                 <span class="status dot dot-lg dot-success"></span>
@@ -134,7 +134,7 @@
                                                         </a>
                                                     </li><!-- .chat-item -->
                                                     <li class="chat-item">
-                                                        <a class="chat-link" href="html/apps-chats.html">
+                                                        <a class="chat-link" href="/html/apps-chats.html">
                                                             <div class="chat-media user-avatar bg-purple">
                                                                 <span>TW</span>
                                                             </div>
@@ -155,7 +155,7 @@
                                                 </ul><!-- .chat-list -->
                                             </div><!-- .nk-dropdown-body -->
                                             <div class="dropdown-foot center">
-                                                <a href="html/apps-chats.html">View All</a>
+                                                <a href="/html/apps-chats.html">View All</a>
                                             </div>
                                         </div>
                                     </li>
@@ -242,9 +242,9 @@
                                             </div>
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
-                                                    <li><a href="html/user-profile-regular.html"><em class="icon ni ni-user-alt"></em><span>View Profile</span></a></li>
-                                                    <li><a href="html/user-profile-setting.html"><em class="icon ni ni-setting-alt"></em><span>Account Setting</span></a></li>
-                                                    <li><a href="html/user-profile-activity.html"><em class="icon ni ni-activity-alt"></em><span>Login Activity</span></a></li>
+                                                    <li><a href="/html/user-profile-regular.html"><em class="icon ni ni-user-alt"></em><span>View Profile</span></a></li>
+                                                    <li><a href="/html/user-profile-setting.html"><em class="icon ni ni-setting-alt"></em><span>Account Setting</span></a></li>
+                                                    <li><a href="/html/user-profile-activity.html"><em class="icon ni ni-activity-alt"></em><span>Login Activity</span></a></li>
                                                     <li><a class="dark-switch" href="#"><em class="icon ni ni-moon"></em><span>Dark Mode</span></a></li>
                                                 </ul>
                                             </div> 
