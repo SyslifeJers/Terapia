@@ -17,35 +17,6 @@ date_default_timezone_set('America/Mexico_City');
                 $exam_id = 0;
                 $section_id = 0;
 
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $action = $_POST['action'] ?? '';
-                    switch ($action) {
-                        case 'add_option':
-                            $text = trim($_POST['option_text'] ?? '');
-                            if ($question_id > 0 && $text !== '') {
-                                $stmt = $conn->prepare("INSERT INTO exp_opciones_pregunta (texto) VALUES (?)");
-                                $stmt->bind_param('s', $text);
-                                $stmt->execute();
-                                $option_id = $conn->insert_id;
-                                $stmt->close();
-
-                                $stmt = $conn->prepare("INSERT INTO exp_pregunta_opcion (id_pregunta, id_opcion) VALUES (?, ?)");
-                                $stmt->bind_param('ii', $question_id, $option_id);
-                                $stmt->execute();
-                                $stmt->close();
-                            }
-                            break;
-                        case 'delete_option':
-                            $option_id = (int)($_POST['option_id'] ?? 0);
-                            if ($question_id > 0 && $option_id > 0) {
-                                $stmt = $conn->prepare("DELETE FROM exp_pregunta_opcion WHERE id_pregunta = ? AND id_opcion = ?");
-                                $stmt->bind_param('ii', $question_id, $option_id);
-                                $stmt->execute();
-                                $stmt->close();
-                            }
-                            break;
-                    }
-                }
 
                 if ($question_id > 0) {
                     $stmt = $conn->prepare("SELECT pregunta, id_seccion FROM exp_preguntas_evaluacion WHERE id_pregunta = ? LIMIT 1");
@@ -66,15 +37,75 @@ date_default_timezone_set('America/Mexico_City');
                         $exam_id = $row['id_examen'] ?? 0;
                         $stmt->close();
                     }
+                }
 
-                    $stmt = $conn->prepare("SELECT o.id_opcion, o.texto FROM exp_opciones_pregunta o JOIN exp_pregunta_opcion po ON o.id_opcion = po.id_opcion WHERE po.id_pregunta = ? ORDER BY o.id_opcion ASC");
+
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $action = $_POST['action'] ?? '';
+                    switch ($action) {
+                        case 'add_option':
+                            $text = trim($_POST['option_text'] ?? '');
+
+                            if ($question_id > 0 && $text !== '' && $exam_id > 0) {
+                                $stmt = $conn->prepare("INSERT INTO exp_opciones_pregunta (texto, id_exam) VALUES (?, ?)");
+                                $stmt->bind_param('si', $text, $exam_id);
+
+                                $stmt->execute();
+                                $option_id = $conn->insert_id;
+                                $stmt->close();
+
+                                $stmt = $conn->prepare("INSERT INTO exp_pregunta_opcion (id_pregunta, id_opcion) VALUES (?, ?)");
+                                $stmt->bind_param('ii', $question_id, $option_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+
+                        case 'add_existing_option':
+                            $option_id = (int)($_POST['existing_option_id'] ?? 0);
+                            if ($question_id > 0 && $option_id > 0) {
+                                $stmt = $conn->prepare("INSERT INTO exp_pregunta_opcion (id_pregunta, id_opcion) VALUES (?, ?)");
+                                $stmt->bind_param('ii', $question_id, $option_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+
+                        case 'delete_option':
+                            $option_id = (int)($_POST['option_id'] ?? 0);
+                            if ($question_id > 0 && $option_id > 0) {
+                                $stmt = $conn->prepare("DELETE FROM exp_pregunta_opcion WHERE id_pregunta = ? AND id_opcion = ?");
+                                $stmt->bind_param('ii', $question_id, $option_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                    }
+                }
+
+                if ($question_id > 0) {
+
+                    $stmt = $conn->prepare("SELECT o.id_opcion, o.texto, o.id_exam FROM exp_opciones_pregunta o JOIN exp_pregunta_opcion po ON o.id_opcion = po.id_opcion WHERE po.id_pregunta = ? ORDER BY o.id_opcion ASC");
                     $stmt->bind_param('i', $question_id);
                     $stmt->execute();
                     $res = $stmt->get_result();
                     $options = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
                     $stmt->close();
+
+                    if ($exam_id > 0) {
+                        $stmt = $conn->prepare("SELECT id_opcion, texto FROM exp_opciones_pregunta WHERE id_exam = ? AND id_opcion NOT IN (SELECT id_opcion FROM exp_pregunta_opcion WHERE id_pregunta = ?)");
+                        $stmt->bind_param('ii', $exam_id, $question_id);
+                        $stmt->execute();
+                        $res = $stmt->get_result();
+                        $available_options = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+                        $stmt->close();
+                    } else {
+                        $available_options = [];
+                    }
                 } else {
                     $options = [];
+                    $available_options = [];
+
                 }
 
                 $db->closeConnection();
@@ -121,6 +152,22 @@ date_default_timezone_set('America/Mexico_City');
                                     </tbody>
                                 </table>
                                 <form method="post" class="mt-3">
+
+                                    <input type="hidden" name="action" value="add_existing_option">
+                                    <div class="input-group">
+                                        <select name="existing_option_id" class="form-select form-select-sm" <?php echo empty($available_options) ? 'disabled' : ''; ?>>
+                                            <?php foreach ($available_options as $ao): ?>
+                                                <option value="<?php echo $ao['id_opcion']; ?>"><?php echo htmlspecialchars($ao['texto']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="btn btn-secondary btn-sm" <?php echo empty($available_options) ? 'disabled' : ''; ?>>Agregar existente</button>
+                                    </div>
+                                    <?php if (empty($available_options)): ?>
+                                        <div class="form-text">No hay opciones existentes para este examen.</div>
+                                    <?php endif; ?>
+                                </form>
+                                <form method="post" class="mt-3">
+
                                     <input type="hidden" name="action" value="add_option">
                                     <div class="input-group">
                                         <input type="text" name="option_text" class="form-control form-control-sm" placeholder="Nueva opción">
