@@ -14,6 +14,70 @@ date_default_timezone_set('America/Mexico_City');
                 $conn = $db->getConnection();
 
                 $exam_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $action = $_POST['action'] ?? '';
+                    switch ($action) {
+                        case 'add_section':
+                            $name = trim($_POST['section_name'] ?? '');
+                            if ($name !== '' && $exam_id > 0) {
+                                $stmt = $conn->prepare("INSERT INTO exp_secciones_examen (id_examen, nombre_seccion) VALUES (?, ?)");
+                                $stmt->bind_param('is', $exam_id, $name);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                        case 'edit_section':
+                            $section_id = (int)($_POST['section_id'] ?? 0);
+                            $name = trim($_POST['section_name'] ?? '');
+                            if ($section_id > 0 && $name !== '') {
+                                $stmt = $conn->prepare("UPDATE exp_secciones_examen SET nombre_seccion = ? WHERE id_seccion = ?");
+                                $stmt->bind_param('si', $name, $section_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                        case 'delete_section':
+                            $section_id = (int)($_POST['section_id'] ?? 0);
+                            if ($section_id > 0) {
+                                $stmt = $conn->prepare("DELETE FROM exp_secciones_examen WHERE id_seccion = ?");
+                                $stmt->bind_param('i', $section_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                        case 'add_question':
+                            $section_id = (int)($_POST['section_id'] ?? 0);
+                            $text = trim($_POST['question_text'] ?? '');
+                            if ($section_id > 0 && $text !== '') {
+                                $stmt = $conn->prepare("INSERT INTO exp_preguntas_evaluacion (id_seccion, pregunta) VALUES (?, ?)");
+                                $stmt->bind_param('is', $section_id, $text);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                        case 'edit_question':
+                            $question_id = (int)($_POST['question_id'] ?? 0);
+                            $text = trim($_POST['question_text'] ?? '');
+                            if ($question_id > 0 && $text !== '') {
+                                $stmt = $conn->prepare("UPDATE exp_preguntas_evaluacion SET pregunta = ? WHERE id_pregunta = ?");
+                                $stmt->bind_param('si', $text, $question_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                        case 'delete_question':
+                            $question_id = (int)($_POST['question_id'] ?? 0);
+                            if ($question_id > 0) {
+                                $stmt = $conn->prepare("DELETE FROM exp_preguntas_evaluacion WHERE id_pregunta = ?");
+                                $stmt->bind_param('i', $question_id);
+                                $stmt->execute();
+                                $stmt->close();
+                            }
+                            break;
+                    }
+                }
+
                 $exam_name = '';
                 if ($exam_id > 0) {
                     $stmt = $conn->prepare("SELECT nombre_examen FROM exp_examenes WHERE id_examen = ? LIMIT 1");
@@ -34,7 +98,7 @@ date_default_timezone_set('America/Mexico_City');
                     if ($res) {
                         $sections = $res->fetch_all(MYSQLI_ASSOC);
                         foreach ($sections as &$s) {
-                            $stmtQ = $conn->prepare("SELECT id_pregunta, pregunta FROM exp_preguntas_evaluacion WHERE id_seccion = ? ORDER BY id_pregunta ASC");
+                            $stmtQ = $conn->prepare("SELECT id_pregunta, pregunta, (SELECT COUNT(*) FROM exp_pregunta_opcion WHERE id_pregunta = exp_preguntas_evaluacion.id_pregunta) AS num_opciones FROM exp_preguntas_evaluacion WHERE id_seccion = ? ORDER BY id_pregunta ASC");
                             $stmtQ->bind_param('i', $s['id_seccion']);
                             $stmtQ->execute();
                             $resQ = $stmtQ->get_result();
@@ -63,21 +127,73 @@ date_default_timezone_set('America/Mexico_City');
                                 </div><!-- .nk-block-between -->
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
+                                <form method="post" class="mb-4">
+                                    <input type="hidden" name="action" value="add_section">
+                                    <div class="input-group">
+                                        <input type="text" name="section_name" class="form-control form-control-sm" placeholder="Nueva sección">
+                                        <button type="submit" class="btn btn-primary btn-sm">Agregar sección</button>
+                                    </div>
+                                </form>
                                 <div class="row g-gs">
                                     <?php foreach ($sections as $s): ?>
                                         <div class="col-md-6">
                                             <div class="card card-full">
                                                 <div class="card-inner">
-                                                    <h5 class="card-title"><?php echo htmlspecialchars($s['nombre_seccion']); ?></h5>
+                                                    <div class="mb-2 d-flex align-items-center">
+                                                        <form method="post" class="d-flex flex-grow-1">
+                                                            <input type="hidden" name="action" value="edit_section">
+                                                            <input type="hidden" name="section_id" value="<?php echo $s['id_seccion']; ?>">
+                                                            <input type="text" name="section_name" value="<?php echo htmlspecialchars($s['nombre_seccion']); ?>" class="form-control form-control-sm">
+                                                            <button type="submit" class="btn btn-success btn-sm ms-2">Guardar</button>
+                                                        </form>
+                                                        <form method="post" class="ms-2" onsubmit="return confirm('¿Eliminar sección?');">
+                                                            <input type="hidden" name="action" value="delete_section">
+                                                            <input type="hidden" name="section_id" value="<?php echo $s['id_seccion']; ?>">
+                                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                                        </form>
+                                                    </div>
                                                     <?php if (!empty($s['preguntas'])): ?>
-                                                        <ul class="list-group list-group-flush">
-                                                            <?php foreach ($s['preguntas'] as $p): ?>
-                                                                <li class="list-group-item"><?php echo htmlspecialchars($p['pregunta']); ?></li>
-                                                            <?php endforeach; ?>
-                                                        </ul>
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Pregunta</th>
+                                                                    <th>Tipo</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($s['preguntas'] as $p): ?>
+                                                                    <tr>
+                                                                        <td><a href="pregunta_opciones.php?id=<?php echo $p['id_pregunta']; ?>"><?php echo htmlspecialchars($p['pregunta']); ?></a></td>
+                                                                        <td><?php echo ($p['num_opciones'] > 1) ? 'Múltiple' : 'Única'; ?></td>
+                                                                        <td>
+                                                                            <form method="post" class="d-inline-flex align-items-center">
+                                                                                <input type="hidden" name="action" value="edit_question">
+                                                                                <input type="hidden" name="question_id" value="<?php echo $p['id_pregunta']; ?>">
+                                                                                <input type="text" name="question_text" value="<?php echo htmlspecialchars($p['pregunta']); ?>" class="form-control form-control-sm" style="width:150px;">
+                                                                                <button type="submit" class="btn btn-success btn-sm ms-2">Guardar</button>
+                                                                            </form>
+                                                                            <form method="post" class="d-inline ms-2" onsubmit="return confirm('¿Eliminar pregunta?');">
+                                                                                <input type="hidden" name="action" value="delete_question">
+                                                                                <input type="hidden" name="question_id" value="<?php echo $p['id_pregunta']; ?>">
+                                                                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                                                            </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            </tbody>
+                                                        </table>
                                                     <?php else: ?>
                                                         <p>No hay preguntas.</p>
                                                     <?php endif; ?>
+                                                    <form method="post" class="mt-2">
+                                                        <input type="hidden" name="action" value="add_question">
+                                                        <input type="hidden" name="section_id" value="<?php echo $s['id_seccion']; ?>">
+                                                        <div class="input-group">
+                                                            <input type="text" name="question_text" class="form-control form-control-sm" placeholder="Nueva pregunta">
+                                                            <button type="submit" class="btn btn-primary btn-sm">Agregar pregunta</button>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
