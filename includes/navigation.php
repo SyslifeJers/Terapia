@@ -25,7 +25,7 @@ function isActive($page) {
                                     <h6 class="overline-title text-primary-alt ">Início</h6>
                                 </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-item" id="menu-casa">
-                                    <a href="index.php" class="nk-menu-link ">
+                                    <a href="/index.php" class="nk-menu-link ">
                                         <span class="nk-menu-icon"><em class="icon ni ni-home"></em></span>
                                         <span class="nk-menu-text">Casa</span>
                                     </a>
@@ -67,13 +67,13 @@ function isActive($page) {
                                     </a>
                                     <ul class="nk-menu-sub">
                                         <li class="nk-menu-item">
-                                            <a href="html/index-profile.html" class="nk-menu-link"><span class="nk-menu-text">Perfil</span></a>
+                                            <a href="/html/index-profile.html" class="nk-menu-link"><span class="nk-menu-text">Perfil</span></a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-item">
-                                            <a href="html/index-profile-activity.html" class="nk-menu-link"><span class="nk-menu-text">Configuración</span></a>
+                                            <a href="/html/index-profile-activity.html" class="nk-menu-link"><span class="nk-menu-text">Configuración</span></a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-item">
-                                            <a href="html/index-profile-settings.html" class="nk-menu-link"><span class="nk-menu-text">
+                                            <a href="/html/index-profile-settings.html" class="nk-menu-link"><span class="nk-menu-text">
                                                 Salir
                                             </span></a>
                                         </li><!-- .nk-menu-item -->

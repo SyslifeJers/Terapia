@@ -37,18 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="zxx" class="js">
 
 <head>
-    <base href="../../../">
     <meta charset="utf-8">
     <meta name="author" content="JERS">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers.">
     <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="./images/favicon.png">
+    <link rel="shortcut icon" href="/images/favicon.png">
     <!-- Page Title  -->
     <title>Login | DashLite Admin Template</title>
     <!-- StyleSheets  -->
-    <link rel="stylesheet" href="./assets/css/dashlite.css?ver=3.3.0">
-    <link id="skin-default" rel="stylesheet" href="./assets/css/theme.css?ver=3.3.0">
+    <link rel="stylesheet" href="/assets/css/dashlite.css?ver=3.3.0">
+    <link id="skin-default" rel="stylesheet" href="/assets/css/theme.css?ver=3.3.0">
 </head>
 
 <body class="nk-body ui-rounder npc-general pg-auth">
@@ -63,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="nk-split-content nk-block-area nk-block-area-column nk-auth-container bg-white">
                             <div class="nk-block nk-block-middle nk-auth-body">
                                 <div class="brand-logo pb-5">
-                                    <a href="html/index.html" class="logo-link">
-                                        <img class="logo-light logo-img logo-img-lg" src="./images/logo.png" srcset="./images/logo2x.png 2x" alt="logo">
-                                        <img class="logo-dark logo-img logo-img-lg" src="./images/logo-dark.png" srcset="./images/logo-dark2x.png 2x" alt="logo-dark">
+                                    <a href="/html/index.html" class="logo-link">
+                                        <img class="logo-light logo-img logo-img-lg" src="/images/logo.png" srcset="/images/logo2x.png 2x" alt="logo">
+                                        <img class="logo-dark logo-img logo-img-lg" src="/images/logo-dark.png" srcset="/images/logo-dark2x.png 2x" alt="logo-dark">
                                     </a>
                                 </div>
                                 <div class="nk-block-head">
@@ -81,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php echo $error; ?>
                                     </div>
                                 <?php endif; ?>
-                                <form action="login.php" method="POST">
+                                <form action="/login.php" method="POST">
                                     <div class="form-group">
                                         <div class="form-label-group">
                                             <label class="form-label" for="default-01">Correo electrónico o usuario</label>
@@ -128,8 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <!-- app-root @e -->
     <!-- JavaScript -->
-    <script src="./assets/js/bundle.js?ver=3.3.0"></script>
-    <script src="./assets/js/scripts.js?ver=3.3.0"></script>
+    <script src="/assets/js/bundle.js?ver=3.3.0"></script>
+    <script src="/assets/js/scripts.js?ver=3.3.0"></script>
     <!-- select region modal -->
     <div class="modal fade" tabindex="-1" role="dialog" id="region">
         <div class="modal-dialog modal-lg" role="document">

@@ -61,7 +61,7 @@ include_once '../includes/head.php';
                                                     </div>
                                                     <div class="nk-tb-col tb-col-sm">
                                                         <span class="tb-product">
-                                                            <img src="./images/product/a.png" alt="" class="thumb">
+                                                            <img src="/images/product/a.png" alt="" class="thumb">
                                                             <span class="title">Pink Fitness Tracker</span>
                                                         </span>
                                                     </div>
