@@ -1,7 +1,7 @@
 <div class="modal fade" id="modalProgreso" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="POST" action="pacientes/guardar_progreso.php" class="form-validate">
+            <form method="POST" action="guardar_progreso.php" class="form-validate">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuevo progreso</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>

@@ -493,7 +493,7 @@ date_default_timezone_set('America/Mexico_City');
     let lastFocusedElement = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
-        fetch(`pacientes/get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
             .then(r => r.json())
             .then(data => {
                 const tbody = document.getElementById(tbodyId);
@@ -562,7 +562,7 @@ date_default_timezone_set('America/Mexico_City');
                 examForm.style.display = 'none';
             } 
 
-            fetch('pacientes/upload_exam.php', {
+            fetch('upload_exam.php', {
                     method: 'POST',
                     body: data
                 })
@@ -603,7 +603,7 @@ date_default_timezone_set('America/Mexico_City');
                     const fd = new FormData();
                     fd.append('id', idPaciente);
                     fd.append('file', file);
-                    fetch('pacientes/delete_exam.php', {
+                    fetch('delete_exam.php', {
                             method: 'POST',
                             body: fd
                         })
