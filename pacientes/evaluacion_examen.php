@@ -18,25 +18,56 @@ $conn = $db->getConnection();
             <div class="nk-content-body">
 <?php
 if ($id_examen === 0) {
-    $examenes = [];
-    $res = $conn->query("SELECT id_examen, nombre_examen FROM exp_examenes ORDER BY nombre_examen ASC");
+    $areas = [];
+    $res = $conn->query("SELECT id_area, nombre_area FROM exp_areas_evaluacion ORDER BY nombre_area ASC");
     if ($res) {
-        $examenes = $res->fetch_all(MYSQLI_ASSOC);
+        $areas = $res->fetch_all(MYSQLI_ASSOC);
     }
     echo '<h3 class="nk-block-title page-title mb-4">Selecciona evaluación</h3>';
-    if (!empty($examenes)) {
-        echo '<div class="row g-gs">';
-        foreach ($examenes as $ex) {
-            echo '<div class="col-md-6">';
-            echo '<div class="card card-full">';
-            echo '<div class="card-inner d-flex justify-content-between align-items-center">';
-            echo '<div>' . htmlspecialchars($ex['nombre_examen']) . '</div>';
-            echo '<a class="btn btn-primary btn-sm" href="evaluacion_examen.php?id=' . $id_nino . '&examen=' . $ex['id_examen'] . '">Iniciar</a>';
-            echo '</div></div></div>';
+    if (!empty($areas)) {
+        foreach ($areas as $area) {
+            echo '<h5 class="mb-3">' . htmlspecialchars($area['nombre_area']) . '</h5>';
+
+            $stmtEx = $conn->prepare("SELECT id_examen, nombre_examen FROM exp_examenes WHERE id_area=? ORDER BY nombre_examen ASC");
+            $stmtEx->bind_param('i', $area['id_area']);
+            $stmtEx->execute();
+            $resEx = $stmtEx->get_result();
+            $examenes = $resEx ? $resEx->fetch_all(MYSQLI_ASSOC) : [];
+            $stmtEx->close();
+
+            if (!empty($examenes)) {
+                echo '<div class="row g-gs mb-4">';
+                foreach ($examenes as $ex) {
+                    $stmtEval = $conn->prepare("SELECT id_eval FROM exp_evaluacion_examen WHERE id_nino=? AND id_examen=? ORDER BY fecha DESC LIMIT 1");
+                    $stmtEval->bind_param('ii', $id_nino, $ex['id_examen']);
+                    $stmtEval->execute();
+                    $resEval = $stmtEval->get_result();
+                    $eval = $resEval ? $resEval->fetch_assoc() : null;
+                    $stmtEval->close();
+                    $id_eval = $eval['id_eval'] ?? 0;
+
+                    echo '<div class="col-md-6">';
+                    echo '<div class="card card-full">';
+                    echo '<div class="card-inner d-flex justify-content-between align-items-center">';
+                    echo '<div>' . htmlspecialchars($ex['nombre_examen']);
+                    if ($id_eval > 0) {
+                        echo ' <span class="badge bg-success ms-1">Realizado</span>';
+                    }
+                    echo '</div>';
+                    if ($id_eval > 0) {
+                        echo '<a class="btn btn-success btn-sm" target="_blank" href="pdf_evaluacion_examen.php?id=' . $id_eval . '">Ver</a>';
+                    } else {
+                        echo '<a class="btn btn-primary btn-sm" href="evaluacion_examen.php?id=' . $id_nino . '&examen=' . $ex['id_examen'] . '">Iniciar</a>';
+                    }
+                    echo '</div></div></div>';
+                }
+                echo '</div>';
+            } else {
+                echo '<p class="mb-4">No hay evaluaciones en esta área.</p>';
+            }
         }
-        echo '</div>';
     } else {
-        echo '<p>No hay evaluaciones disponibles.</p>';
+        echo '<p>No hay áreas disponibles.</p>';
     }
 } else {
     $exam_name = '';
