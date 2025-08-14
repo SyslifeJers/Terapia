@@ -1,6 +1,6 @@
 <?php
 include_once '../includes/head.php';
-include_once '../includes/menu_superior.php';
+
 require_once '../database/conexion.php';
 
 $id_nino = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -10,6 +10,9 @@ $db = new Database();
 $conn = $db->getConnection();
 ?>
 <div class="nk-wrap ">
+    <?php
+    include_once '../includes/menu_superior.php';
+    ?>
     <div class="nk-content nk-content-fluid">
         <div class="container-xl wide-xl">
             <div class="nk-content-body">

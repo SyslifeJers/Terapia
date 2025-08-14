@@ -12,15 +12,15 @@ $conn = $db->getConnection();
 
 // Ejemplo de datos del JSON
 $data = json_decode(file_get_contents('php://input'), true);
+$id_examen = $data['id_examen'] ?? 0;
 
-
-$seccionesInsertadas = agregarSecciones($data['id_examen'], $data['secciones'], $conn);
+$seccionesInsertadas = agregarSecciones($id_examen, $data['secciones'], $conn);
 
 // Llamada al método 2: Insertar las preguntas asociadas con las secciones
 $preguntasInsertadas = agregarPreguntas($seccionesInsertadas, $data['preguntas'], $conn);
 
 // Llamada al método 1: Insertar las opciones
-$opcionesInsertadas = agregarOpciones($data['opciones'],$data['id_examen'], $conn);
+$opcionesInsertadas = agregarOpciones($data['opciones'],$id_examen, $conn);
 
 // Llamada al método 3: Relacionar las preguntas con las opciones
 $responseRelacion = relacionarPreguntasOpciones($preguntasInsertadas, $opcionesInsertadas, $conn);
@@ -106,7 +106,7 @@ function agregarOpciones($opcionesJson,$id_examen, $conn)
 
         if ($opcionTexto) {
             // Insertar la opción si no existe
-            $stmtOpcion = $conn->prepare('INSERT INTO exp_opciones_pregunta (texto,id_examen) VALUES (?,?)');
+            $stmtOpcion = $conn->prepare('INSERT INTO exp_opciones_pregunta (texto,id_exam) VALUES (?,?)');
             $stmtOpcion->bind_param('si', $opcionTexto, $id_examen);
             $stmtOpcion->execute();
             $id_opcion = $stmtOpcion->insert_id; // Obtener el ID de la base de datos

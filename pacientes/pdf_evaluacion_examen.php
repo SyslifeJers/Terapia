@@ -1,6 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once '../database/conexion.php';
-require_once '../lib/SimplePDF.php';
+require_once '../libreria/SimplePDF.php';
+
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $db = new Database();

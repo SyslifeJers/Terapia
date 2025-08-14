@@ -1,6 +1,6 @@
 <?php
 require_once '../database/conexion.php';
-require_once '../lib/SimplePDF.php';
+require_once '../libreria/SimplePDF.php';
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $db = new Database();
