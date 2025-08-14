@@ -121,7 +121,9 @@ date_default_timezone_set('America/Mexico_City');
     $ultimas_evaluaciones = array_reverse($ultimas_evaluaciones);
 
     $lista_examenes = [];
+
     $stmt = $conn->prepare("SELECT ee.id_eval, ee.fecha, u.name AS usuario, ex.nombre_examen FROM exp_evaluacion_examen ee JOIN Usuarios u ON ee.id_usuario = u.id JOIN exp_examenes ex ON ee.id_examen = ex.id_examen WHERE ee.id_nino = ? ORDER BY ee.fecha DESC");
+
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -324,19 +326,23 @@ date_default_timezone_set('America/Mexico_City');
                     <h5 class="title mb-3">Evaluaciones de examen</h5>
                     <table class="table table-striped">
                         <thead>
+
                             <tr><th>Fecha</th><th>Evaluación</th><th>Usuario</th><th>PDF</th></tr>
+
                         </thead>
                         <tbody>
                         <?php foreach ($lista_examenes as $ex): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($ex['fecha']); ?></td>
                                 <td><?php echo htmlspecialchars($ex['nombre_examen']); ?></td>
+
                                 <td><?php echo htmlspecialchars($ex['usuario']); ?></td>
                                 <td><a class="btn btn-sm btn-primary" target="_blank" href="pdf_evaluacion_examen.php?id=<?php echo $ex['id_eval']; ?>">Descargar</a></td>
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($lista_examenes)): ?>
                             <tr><td colspan="4">Sin evaluaciones</td></tr>
+
                         <?php endif; ?>
                         </tbody>
                     </table>

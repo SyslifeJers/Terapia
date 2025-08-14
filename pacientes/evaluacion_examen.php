@@ -118,6 +118,7 @@ if ($id_examen === 0) {
 $db->closeConnection();
 ?>
             </div>
+
         </div>
     </div>
 </div>
@@ -126,5 +127,6 @@ function nextSec(n){document.getElementById('sec'+n).style.display='none';docume
 function prevSec(n){document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n-1)).style.display='block';}
 const form=document.getElementById('evalForm');
 if(form){form.addEventListener('submit',function(e){const data=[];document.querySelectorAll('[data-pregunta]').forEach(sel=>{const id=sel.id;data.push({pregunta:sel.getAttribute('data-pregunta'),respuesta:sel.value,comentario:document.getElementById(id+'c').value});});document.getElementById('respuestas').value=JSON.stringify(data);});}
+
 </script>
 <?php include_once '../includes/footer.php'; ?>
