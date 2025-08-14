@@ -22,6 +22,7 @@ date_default_timezone_set('America/Mexico_City');
 
     $citas  = $conn->query("SELECT COUNT(*) as total FROM Cita WHERE IdNino = $id")->fetch_assoc()['total'] ?? 0;
     $evaluaciones  = $conn->query("SELECT COUNT(*) as total FROM exp_valoraciones_sesion WHERE id_nino = $id")->fetch_assoc()['total'] ?? 0;
+    $examenes = $conn->query("SELECT COUNT(*) as total FROM exp_evaluacion_examen WHERE id_nino = $id")->fetch_assoc()['total'] ?? 0;
 
     $grafica_data = [
         'primera' => null,
@@ -118,6 +119,16 @@ date_default_timezone_set('America/Mexico_City');
 
     // Ordenar por fecha ascendente para que se grafique cronológicamente
     $ultimas_evaluaciones = array_reverse($ultimas_evaluaciones);
+
+    $lista_examenes = [];
+    $stmt = $conn->prepare("SELECT ee.id_eval, ee.fecha, u.name AS usuario FROM exp_evaluacion_examen ee JOIN Usuarios u ON ee.id_usuario = u.id WHERE ee.id_nino = ? ORDER BY ee.fecha DESC");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+        $lista_examenes = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     $db->closeConnection();
     ?>
     <div class="nk-content nk-content-fluid">
@@ -166,10 +177,11 @@ date_default_timezone_set('America/Mexico_City');
                                     <ul class="team-statistics">
                                         <li><span><?php echo $citas; ?></span><span>Sesiones</span></li>
                                         <li><span><?php echo $evaluaciones; ?></span><span>Evaluaciones</span></li>
-                                        <li><span>0</span><span>Exámenes</span></li>
+                                        <li><span><?php echo $examenes; ?></span><span>Exámenes</span></li>
                                     </ul>
                                     <div class="team-view">
-                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalForm">Nueva evaluación</button>
+                                        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#modalForm">Nueva evaluación</button>
+                                        <a href="evaluacion_examen.php?id=<?php echo $id; ?>" class="btn btn-warning">Agregar examen</a>
                                     </div>
 
                                     <div class="team-view mt-4">
@@ -305,6 +317,28 @@ date_default_timezone_set('America/Mexico_City');
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-inner">
+                    <h5 class="title mb-3">Evaluaciones de examen</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th>Fecha</th><th>Usuario</th><th>PDF</th></tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($lista_examenes as $ex): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($ex['fecha']); ?></td>
+                                <td><?php echo htmlspecialchars($ex['usuario']); ?></td>
+                                <td><a class="btn btn-sm btn-primary" target="_blank" href="pdf_evaluacion_examen.php?id=<?php echo $ex['id_eval']; ?>">Descargar</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($lista_examenes)): ?>
+                            <tr><td colspan="3">Sin evaluaciones</td></tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
