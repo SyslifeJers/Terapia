@@ -92,10 +92,12 @@ CREATE TABLE `exp_pregunta_opcion` (
 -- evaluacion de examen aplicada
 CREATE TABLE `exp_evaluacion_examen` (
     `id_eval` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_examen` INT NOT NULL,
     `id_nino` INT NOT NULL,
     `id_usuario` INT NOT NULL,
     `respuestas` TEXT NOT NULL,
     `fecha` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`id_examen`) REFERENCES `exp_examenes`(`id_examen`),
     FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`),
     FOREIGN KEY (`id_usuario`) REFERENCES `Usuarios`(`id`)
 );

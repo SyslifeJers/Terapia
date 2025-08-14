@@ -6,7 +6,9 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $db = new Database();
 $conn = $db->getConnection();
 
-$stmt = $conn->prepare("SELECT ee.respuestas, ee.fecha, n.name AS paciente, u.name AS usuario FROM exp_evaluacion_examen ee JOIN nino n ON ee.id_nino=n.Id JOIN Usuarios u ON ee.id_usuario=u.id WHERE ee.id_eval=? LIMIT 1");
+
+$stmt = $conn->prepare("SELECT ee.respuestas, ee.fecha, n.name AS paciente, u.name AS usuario, ex.nombre_examen FROM exp_evaluacion_examen ee JOIN nino n ON ee.id_nino=n.Id JOIN Usuarios u ON ee.id_usuario=u.id JOIN exp_examenes ex ON ee.id_examen = ex.id_examen WHERE ee.id_eval=? LIMIT 1");
+
 $stmt->bind_param('i',$id);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -21,10 +23,13 @@ if(!$eval){
 $resp = json_decode($eval['respuestas'], true) ?: [];
 $pdf = new SimplePDF();
 $pdf->addPage();
-$pdf->text(40,40,'Evaluación de '.$eval['paciente']);
-$pdf->text(40,60,'Fecha: '.$eval['fecha']);
-$pdf->text(40,80,'Aplicó: '.$eval['usuario']);
-$y = 110;
+
+$pdf->text(40,40,'Evaluación: '.$eval['nombre_examen']);
+$pdf->text(40,60,'Paciente: '.$eval['paciente']);
+$pdf->text(40,80,'Fecha: '.$eval['fecha']);
+$pdf->text(40,100,'Aplicó: '.$eval['usuario']);
+$y = 130;
+
 $i=1;
 foreach($resp as $r){
     $pdf->text(40,$y,$i.'. '.$r['pregunta']);
