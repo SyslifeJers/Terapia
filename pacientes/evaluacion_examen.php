@@ -5,6 +5,7 @@ require_once '../database/conexion.php';
 
 $id_nino = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $id_examen = isset($_GET['examen']) ? intval($_GET['examen']) : 0;
+$id_eval = isset($_GET['eval']) ? intval($_GET['eval']) : 0;
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -38,24 +39,34 @@ if ($id_examen === 0) {
             if (!empty($examenes)) {
                 echo '<div class="row g-gs mb-4">';
                 foreach ($examenes as $ex) {
-                    $stmtEval = $conn->prepare("SELECT id_eval FROM exp_evaluacion_examen WHERE id_nino=? AND id_examen=? ORDER BY fecha DESC LIMIT 1");
+                    $stmtEval = $conn->prepare("SELECT id_eval, status FROM exp_evaluacion_examen WHERE id_nino=? AND id_examen=? ORDER BY fecha DESC LIMIT 1");
                     $stmtEval->bind_param('ii', $id_nino, $ex['id_examen']);
                     $stmtEval->execute();
                     $resEval = $stmtEval->get_result();
                     $eval = $resEval ? $resEval->fetch_assoc() : null;
                     $stmtEval->close();
                     $id_eval = $eval['id_eval'] ?? 0;
+                    $status_eval = intval($eval['status'] ?? 0);
 
                     echo '<div class="col-md-6">';
                     echo '<div class="card card-full">';
                     echo '<div class="card-inner d-flex justify-content-between align-items-center">';
                     echo '<div>' . htmlspecialchars($ex['nombre_examen']);
                     if ($id_eval > 0) {
-                        echo ' <span class="badge bg-success ms-1">Realizado</span>';
+                        if ($status_eval === 1) {
+                            echo ' <span class="badge bg-success ms-1">Finalizado</span>';
+                        } else {
+                            echo ' <span class="badge bg-warning ms-1">En progreso</span>';
+                        }
                     }
                     echo '</div>';
                     if ($id_eval > 0) {
+                        echo '<div class="d-flex gap-1">';
+                        if ($status_eval !== 1) {
+                            echo '<a class="btn btn-warning btn-sm" href="evaluacion_examen.php?id=' . $id_nino . '&examen=' . $ex['id_examen'] . '&eval=' . $id_eval . '">Editar</a>';
+                        }
                         echo '<a class="btn btn-success btn-sm" target="_blank" href="pdf_evaluacion_examen.php?id=' . $id_eval . '">Ver</a>';
+                        echo '</div>';
                     } else {
                         echo '<a class="btn btn-primary btn-sm" href="evaluacion_examen.php?id=' . $id_nino . '&examen=' . $ex['id_examen'] . '">Iniciar</a>';
                     }
@@ -106,32 +117,64 @@ if ($id_examen === 0) {
     }
     $stmt->close();
 
+    $saved = [];
+    $status_eval = 0;
+    if ($id_eval > 0) {
+        $stmt = $conn->prepare("SELECT respuestas, status FROM exp_evaluacion_examen WHERE id_eval=? AND id_examen=? AND id_nino=? LIMIT 1");
+        $stmt->bind_param('iii', $id_eval, $id_examen, $id_nino);
+        $stmt->execute();
+        $stmt->bind_result($respJson, $status_eval);
+        if ($stmt->fetch()) {
+            $arr = json_decode($respJson, true);
+            if (is_array($arr)) {
+                foreach ($arr as $item) {
+                    if (isset($item['id'])) {
+                        $saved[$item['id']] = $item;
+                    }
+                }
+            }
+        }
+        $stmt->close();
+    }
+
     echo '<h3 class="nk-block-title page-title mb-4">' . htmlspecialchars($exam_name) . '</h3>';
-    echo '<form id="evalForm" method="POST" action="guardar_examen_evaluacion.php">';
-    echo '<input type="hidden" name="id_nino" value="' . $id_nino . '">';
-    echo '<input type="hidden" name="id_examen" value="' . $id_examen . '">';
-    echo '<input type="hidden" name="respuestas" id="respuestas">';
-    $secIndex = 1;
-    $totalSections = count($sections);
-    foreach ($sections as $section) {
-        $display = ($secIndex === 1) ? '' : 'style="display:none;"';
-        echo '<div id="sec' . $secIndex . '" ' . $display . '>';
-        echo '<h5 class="mb-3">' . htmlspecialchars($section['nombre_seccion']) . '</h5>';
+    if ($status_eval === 1) {
+        echo '<p>Esta evaluación ha sido finalizada y no puede editarse.</p>';
+        echo '<a class="btn btn-success" target="_blank" href="pdf_evaluacion_examen.php?id=' . $id_eval . '">Ver</a>';
+    } else {
+        echo '<form id="evalForm" method="POST" action="guardar_examen_evaluacion.php">';
+        echo '<input type="hidden" name="id_nino" value="' . $id_nino . '">';
+        echo '<input type="hidden" name="id_examen" value="' . $id_examen . '">';
+        echo '<input type="hidden" name="id_eval" id="id_eval" value="' . $id_eval . '">';
+        echo '<input type="hidden" name="status" id="status" value="0">';
+        echo '<input type="hidden" name="respuestas" id="respuestas">';
+        $secIndex = 1;
+        $totalSections = count($sections);
+        foreach ($sections as $section) {
+            $display = ($secIndex === 1) ? '' : 'style="display:none;"';
+            echo '<div id="sec' . $secIndex . '" ' . $display . '>';
+            echo '<h5 class="mb-3">' . htmlspecialchars($section['nombre_seccion']) . '</h5>';
         foreach ($section['preguntas'] as $q) {
             $qid = 'q' . $q['id_pregunta'];
+            $selVal = htmlspecialchars($saved[$qid]['respuesta'] ?? '', ENT_QUOTES);
+            $txtVal = htmlspecialchars($saved[$qid]['comentario'] ?? '', ENT_QUOTES);
             echo '<div class="form-group">';
             echo '<label class="form-label">' . htmlspecialchars($q['pregunta']) . '</label>';
-            echo '<select class="form-select" id="' . $qid . '" data-pregunta="' . htmlspecialchars($q['pregunta']) . '" required>';
-            echo '<option value="">Selecciona</option>';
+            echo '<select class="form-select" id="' . $qid . '" data-pregunta="' . htmlspecialchars($q['pregunta']) . '">';
+            echo '<option value=""' . ($selVal === '' ? ' selected' : '') . '>Selecciona</option>';
             if (!empty($q['opciones'])) {
                 foreach ($q['opciones'] as $op) {
-                    echo '<option value="' . htmlspecialchars($op['texto']) . '">' . htmlspecialchars($op['texto']) . '</option>';
+                    $opt = htmlspecialchars($op['texto']);
+                    $sel = ($selVal === $opt) ? ' selected' : '';
+                    echo '<option value="' . $opt . '"' . $sel . '>' . $opt . '</option>';
                 }
             } else {
-                echo '<option value="Si">Sí</option><option value="Parcial">Parcial</option><option value="No">No</option>';
+                echo '<option value="Si"' . ($selVal === 'Si' ? ' selected' : '') . '>Sí</option>';
+                echo '<option value="Parcial"' . ($selVal === 'Parcial' ? ' selected' : '') . '>Parcial</option>';
+                echo '<option value="No"' . ($selVal === 'No' ? ' selected' : '') . '>No</option>';
             }
             echo '</select>';
-            echo '<textarea id="' . $qid . 'c" class="form-control mt-2" placeholder="Comentario"></textarea>';
+            echo '<textarea id="' . $qid . 'c" class="form-control mt-2" placeholder="Comentario">' . $txtVal . '</textarea>';
             echo '</div>';
         }
         echo '<div class="mt-3">';
@@ -141,15 +184,17 @@ if ($id_examen === 0) {
         if ($secIndex < $totalSections) {
             echo '<button type="button" class="btn btn-primary" onclick="nextSec(' . $secIndex . ')">Siguiente</button>';
         } else {
-            echo '<button type="submit" class="btn btn-success">Guardar</button>';
+            echo '<button type="submit" class="btn btn-success me-2">Guardar</button>';
+            echo '<button type="button" class="btn btn-danger" onclick="finalizeExam()">Finalizar</button>';
         }
         echo '</div>';
         echo '</div>';
         $secIndex++;
     }
-    echo '</form>';
-}
-$db->closeConnection();
+      echo '</form>';
+      }
+  }
+  $db->closeConnection();
 ?>
             </div>
 
@@ -157,10 +202,12 @@ $db->closeConnection();
     </div>
 </div>
 <script>
-function nextSec(n){document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n+1)).style.display='block';}
-function prevSec(n){document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n-1)).style.display='block';}
 const form=document.getElementById('evalForm');
-if(form){form.addEventListener('submit',function(e){const data=[];document.querySelectorAll('[data-pregunta]').forEach(sel=>{const id=sel.id;data.push({pregunta:sel.getAttribute('data-pregunta'),respuesta:sel.value,comentario:document.getElementById(id+'c').value});});document.getElementById('respuestas').value=JSON.stringify(data);});}
-
+function collectData(){const data=[];document.querySelectorAll('[data-pregunta]').forEach(sel=>{const id=sel.id;data.push({id,pregunta:sel.getAttribute('data-pregunta'),respuesta:sel.value,comentario:document.getElementById(id+'c').value});});return data;}
+function saveProgress(cb){const data=collectData();const params=new URLSearchParams();params.append('autosave','1');params.append('id_eval',document.getElementById('id_eval').value);params.append('id_nino','<?php echo $id_nino; ?>');params.append('id_examen','<?php echo $id_examen; ?>');params.append('respuestas',JSON.stringify(data));fetch('guardar_examen_evaluacion.php',{method:'POST',body:params}).then(r=>r.json()).then(res=>{if(res.id_eval){document.getElementById('id_eval').value=res.id_eval;}if(cb)cb();}).catch(()=>{if(cb)cb();});}
+function nextSec(n){saveProgress(()=>{document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n+1)).style.display='block';});}
+function prevSec(n){saveProgress(()=>{document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n-1)).style.display='block';});}
+function finalizeExam(){document.getElementById('status').value=1;const data=collectData();document.getElementById('respuestas').value=JSON.stringify(data);form.submit();}
+if(form){form.addEventListener('submit',function(){const data=collectData();document.getElementById('respuestas').value=JSON.stringify(data);});}
 </script>
 <?php include_once '../includes/footer.php'; ?>

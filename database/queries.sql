@@ -96,6 +96,7 @@ CREATE TABLE `exp_evaluacion_examen` (
     `id_nino` INT NOT NULL,
     `id_usuario` INT NOT NULL,
     `respuestas` TEXT NOT NULL,
+    `status` TINYINT DEFAULT 0,
     `fecha` DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`id_examen`) REFERENCES `exp_examenes`(`id_examen`),
     FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`),
