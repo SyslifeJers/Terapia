@@ -9,6 +9,16 @@ $id_eval = isset($_GET['eval']) ? intval($_GET['eval']) : 0;
 
 $db = new Database();
 $conn = $db->getConnection();
+
+$nombre_nino = '';
+if ($id_nino > 0) {
+    $stmtN = $conn->prepare("SELECT name FROM nino WHERE Id=? LIMIT 1");
+    $stmtN->bind_param('i', $id_nino);
+    $stmtN->execute();
+    $stmtN->bind_result($nombre_nino);
+    $stmtN->fetch();
+    $stmtN->close();
+}
 ?>
 <div class="nk-wrap ">
     <?php
@@ -24,7 +34,7 @@ if ($id_examen === 0) {
     if ($res) {
         $areas = $res->fetch_all(MYSQLI_ASSOC);
     }
-    echo '<h3 class="nk-block-title page-title mb-4">Selecciona evaluación</h3>';
+    echo '<h3 class="nk-block-title page-title mb-4">Selecciona evaluación para ' . htmlspecialchars($nombre_nino) . '</h3>';
     if (!empty($areas)) {
         foreach ($areas as $area) {
             echo '<h5 class="mb-3">' . htmlspecialchars($area['nombre_area']) . '</h5>';
@@ -137,7 +147,8 @@ if ($id_examen === 0) {
         $stmt->close();
     }
 
-    echo '<h3 class="nk-block-title page-title mb-4">' . htmlspecialchars($exam_name) . '</h3>';
+    echo '<h3 class="nk-block-title page-title mb-1">' . htmlspecialchars($exam_name) . '</h3>';
+    echo '<p class="mb-4">Paciente: ' . htmlspecialchars($nombre_nino) . '</p>';
     if ($status_eval === 1) {
         echo '<p>Esta evaluación ha sido finalizada y no puede editarse.</p>';
         echo '<a class="btn btn-success" target="_blank" href="pdf_evaluacion_examen.php?id=' . $id_eval . '">Ver</a>';
