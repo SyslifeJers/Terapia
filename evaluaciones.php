@@ -35,6 +35,9 @@ date_default_timezone_set('America/Mexico_City');
                                             <p>Listado de evaluaciones realizadas.</p>
                                         </div>
                                     </div><!-- .nk-block-head-content -->
+                                    <div class="nk-block-head-content">
+                                        <a href="subir_evaluacion.php" class="btn btn-primary">Nueva evaluación fotográfica</a>
+                                    </div>
                                 </div><!-- .nk-block-between -->
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
@@ -73,6 +76,49 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
                                 </div><!-- .card -->
                             </div><!-- .nk-block -->
+                            <div class="nk-block">
+                                <h4 class="nk-block-title">Evaluaciones fotográficas</h4>
+                                <div class="card card-full">
+                                    <div class="card-inner table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Título</th>
+                                                    <th>Fecha</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $dir = __DIR__ . '/uploads/evaluaciones';
+                                                $items = [];
+                                                if (is_dir($dir)) {
+                                                    foreach (scandir($dir) as $d) {
+                                                        if ($d === '.' || $d === '..') continue;
+                                                        $metaFile = $dir . '/' . $d . '/meta.json';
+                                                        if (is_file($metaFile)) {
+                                                            $meta = json_decode(file_get_contents($metaFile), true);
+                                                            $items[] = ['id' => $d, 'titulo' => $meta['titulo'] ?? $d, 'fecha' => $meta['fecha'] ?? ''];
+                                                        }
+                                                    }
+                                                }
+                                                foreach ($items as $it):
+                                                ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($it['titulo']); ?></td>
+                                                    <td><?php echo htmlspecialchars($it['fecha']); ?></td>
+                                                    <td><a href="ver_evaluacion.php?id=<?php echo urlencode($it['id']); ?>" class="btn btn-sm btn-info">Ver</a></td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                                <?php if (empty($items)): ?>
+                                                <tr><td colspan="3">No hay evaluaciones fotográficas.</td></tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
