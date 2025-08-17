@@ -102,3 +102,19 @@ CREATE TABLE `exp_evaluacion_examen` (
     FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`),
     FOREIGN KEY (`id_usuario`) REFERENCES `Usuarios`(`id`)
 );
+
+-- evaluaciones fotográficas de paciente
+CREATE TABLE `exp_evaluacion_fotos` (
+    `id_eval_foto` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_nino` INT NOT NULL,
+    `titulo` VARCHAR(255) NOT NULL,
+    `fecha` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`)
+);
+
+CREATE TABLE `exp_evaluacion_fotos_imagenes` (
+    `id_imagen` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_eval_foto` INT NOT NULL,
+    `ruta` VARCHAR(255) NOT NULL,
+    FOREIGN KEY (`id_eval_foto`) REFERENCES `exp_evaluacion_fotos`(`id_eval_foto`)
+);
