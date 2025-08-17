@@ -131,6 +131,16 @@ date_default_timezone_set('America/Mexico_City');
         $lista_examenes = $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    $evaluaciones_fotos = [];
+    $stmt = $conn->prepare("SELECT ef.id_eval_foto, ef.titulo, ef.fecha, GROUP_CONCAT(ei.ruta) AS imagenes FROM exp_evaluacion_fotos ef LEFT JOIN exp_evaluacion_fotos_imagenes ei ON ef.id_eval_foto = ei.id_eval_foto WHERE ef.id_nino = ? GROUP BY ef.id_eval_foto ORDER BY ef.fecha DESC");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+        $evaluaciones_fotos = $result->fetch_all(MYSQLI_ASSOC);
+    }
+    $stmt->close();
+
     $db->closeConnection();
     ?>
     <div class="nk-content nk-content-fluid">
@@ -346,6 +356,57 @@ date_default_timezone_set('America/Mexico_City');
                         <?php endif; ?>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-inner">
+                    <h5 class="title mb-3">Evaluaciones fotográficas</h5>
+                    <form action="guardar_evaluacion_fotos.php" method="POST" enctype="multipart/form-data" class="mb-4">
+                        <input type="hidden" name="id_nino" value="<?php echo $id; ?>">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="titulo_eval">Título</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" class="form-control" id="titulo_eval" name="titulo" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="fotos_eval">Fotos</label>
+                                    <div class="form-control-wrap">
+                                        <input type="file" class="form-control" id="fotos_eval" name="fotos[]" accept="image/*" multiple required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row g-gs">
+                        <?php foreach ($evaluaciones_fotos as $ev): ?>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="card card-bordered">
+                                <div class="card-inner">
+                                    <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
+                                    <div class="row g-2">
+                                        <?php foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
+                                        <div class="col-6">
+                                            <img src="../uploads/pacientes/<?php echo $id; ?>/evaluaciones/<?php echo $ev['id_eval_foto'] . '/' . htmlspecialchars($img); ?>" class="img-fluid" alt="">
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($evaluaciones_fotos)): ?>
+                        <div class="col-12"><p>No hay evaluaciones fotográficas.</p></div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
