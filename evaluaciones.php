@@ -36,7 +36,7 @@ date_default_timezone_set('America/Mexico_City');
                                         </div>
                                     </div><!-- .nk-block-head-content -->
                                     <div class="nk-block-head-content">
-                                        <a href="subir_evaluacion.php" class="btn btn-primary">Nueva evaluación fotográfica</a>
+                                        <a href="subir_evaluacion.php" class="btn btn-primary">Nuevo archivo de evaluación</a>
                                     </div>
                                 </div><!-- .nk-block-between -->
                             </div><!-- .nk-block-head -->
@@ -77,7 +77,7 @@ date_default_timezone_set('America/Mexico_City');
                                 </div><!-- .card -->
                             </div><!-- .nk-block -->
                             <div class="nk-block">
-                                <h4 class="nk-block-title">Evaluaciones fotográficas</h4>
+                                <h4 class="nk-block-title">Archivos de evaluaciones</h4>
                                 <div class="card card-full">
                                     <div class="card-inner table-responsive">
                                         <table class="table table-striped">
@@ -111,7 +111,7 @@ date_default_timezone_set('America/Mexico_City');
                                                 </tr>
                                                 <?php endforeach; ?>
                                                 <?php if (empty($items)): ?>
-                                                <tr><td colspan="3">No hay evaluaciones fotográficas.</td></tr>
+                                                <tr><td colspan="3">No hay archivos de evaluaciones.</td></tr>
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>

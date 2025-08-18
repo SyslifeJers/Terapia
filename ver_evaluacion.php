@@ -8,7 +8,7 @@ if (!is_file($metaFile)) {
     die('Evaluación no encontrada');
 }
 $meta = json_decode(file_get_contents($metaFile), true);
-$imagenes = $meta['imagenes'] ?? [];
+$archivos = $meta['archivos'] ?? ($meta['imagenes'] ?? []);
 ?>
             <!-- sidebar @e -->
             <!-- wrap @s -->
@@ -31,20 +31,18 @@ $imagenes = $meta['imagenes'] ?? [];
                                 </div>
                             </div>
                             <div class="nk-block">
-                                <div class="row g-gs">
-                                    <?php foreach ($imagenes as $img): ?>
-                                    <div class="col-sm-6 col-lg-4">
-                                        <div class="card card-bordered">
-                                            <img src="<?php echo '/uploads/evaluaciones/' . htmlspecialchars($id) . '/' . htmlspecialchars($img); ?>" class="card-img-top" alt="">
-                                        </div>
-                                    </div>
+                                <ul class="list-group">
+                                    <?php foreach ($archivos as $file): ?>
+                                    <li class="list-group-item">
+                                        <a href="<?php echo '/uploads/evaluaciones/' . htmlspecialchars($id) . '/' . htmlspecialchars($file); ?>" target="_blank">
+                                            <?php echo htmlspecialchars($file); ?>
+                                        </a>
+                                    </li>
                                     <?php endforeach; ?>
-                                    <?php if (empty($imagenes)): ?>
-                                    <div class="col-12">
-                                        <p>No hay imágenes para esta evaluación.</p>
-                                    </div>
+                                    <?php if (empty($archivos)): ?>
+                                    <li class="list-group-item">No hay archivos para esta evaluación.</li>
                                     <?php endif; ?>
-                                </div>
+                                </ul>
                             </div>
                         </div>
                     </div>
