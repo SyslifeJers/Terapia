@@ -1,5 +1,5 @@
 <?php
-// Procesa el formulario de subir evaluaciones fotográficas
+// Procesa el formulario de subir archivos de evaluaciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = trim($_POST['titulo'] ?? '');
     if ($titulo === '') {
@@ -16,14 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('No se pudo crear el directorio de la evaluación');
     }
 
-    $imagenes = [];
-    if (!empty($_FILES['fotos']['name'][0])) {
-        foreach ($_FILES['fotos']['tmp_name'] as $i => $tmpName) {
-            if ($_FILES['fotos']['error'][$i] === UPLOAD_ERR_OK) {
-                $ext = strtolower(pathinfo($_FILES['fotos']['name'][$i], PATHINFO_EXTENSION));
-                $filename = 'img' . ($i + 1) . '.' . $ext;
+    $archivos = [];
+    if (!empty($_FILES['archivos']['name'][0])) {
+        foreach ($_FILES['archivos']['tmp_name'] as $i => $tmpName) {
+            if ($_FILES['archivos']['error'][$i] === UPLOAD_ERR_OK) {
+                $info = pathinfo($_FILES['archivos']['name'][$i]);
+                $base = preg_replace('/[^A-Za-z0-9_-]/', '_', $info['filename']);
+                $ext = strtolower($info['extension'] ?? '');
+                $filename = $base . '_' . time() . '_' . $i . '.' . $ext;
                 move_uploaded_file($tmpName, $folder . '/' . $filename);
-                $imagenes[] = $filename;
+                $archivos[] = $filename;
             }
         }
     }
@@ -31,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $meta = [
         'titulo' => $titulo,
         'fecha' => date('Y-m-d H:i:s'),
-        'imagenes' => $imagenes
+        'archivos' => $archivos
     ];
     file_put_contents($folder . '/meta.json', json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 

@@ -14,9 +14,9 @@ include_once 'includes/head.php';
                             <div class="nk-block-head nk-block-head-sm">
                                 <div class="nk-block-between">
                                     <div class="nk-block-head-content">
-                                        <h3 class="nk-block-title page-title">Subir evaluación fotográfica</h3>
+                                        <h3 class="nk-block-title page-title">Subir archivos de evaluación</h3>
                                         <div class="nk-block-des text-soft">
-                                            <p>Capture una o varias fotos y asigne un título.</p>
+                                            <p>Seleccione uno o varios archivos y asigne un título.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -42,15 +42,13 @@ include_once 'includes/head.php';
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="form-group">
-                                                        <label class="form-label" for="fotos">Fotos</label>
+                                                        <label class="form-label" for="archivos">Archivos</label>
                                                         <div class="form-control-wrap">
                                                             <input
                                                                 type="file"
                                                                 class="form-control"
-                                                                id="fotos"
-                                                                name="fotos[]"
-                                                                accept="image/*"
-                                                                capture="environment"
+                                                                id="archivos"
+                                                                name="archivos[]"
                                                                 multiple
                                                                 required
                                                             >
