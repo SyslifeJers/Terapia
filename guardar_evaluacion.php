@@ -1,5 +1,5 @@
 <?php
-// Procesa el formulario de subir archivos de evaluaciones
+// Procesa el formulario de subir archivos
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = trim($_POST['titulo'] ?? '');
     if ($titulo === '') {
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $folder = $baseDir . '/' . time();
     if (!mkdir($folder, 0777, true)) {
-        die('No se pudo crear el directorio de la evaluación');
+        die('No se pudo crear el directorio de los archivos');
     }
 
     $archivos = [];
