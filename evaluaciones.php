@@ -17,63 +17,71 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="nk-block-head nk-block-head-sm">
                                 <div class="nk-block-between">
                                     <div class="nk-block-head-content">
-                                        <h3 class="nk-block-title page-title">Archivos</h3>
+                                        <h3 class="nk-block-title page-title">Evaluaciones</h3>
                                         <div class="nk-block-des text-soft">
-                                            <p>Listado de archivos disponibles.</p>
+                                            <p>Listado de evaluaciones.</p>
                                         </div>
                                     </div><!-- .nk-block-head-content -->
-                                    <div class="nk-block-head-content">
-                                        <a href="subir_evaluacion.php" class="btn btn-primary">Subir archivo</a>
-                                    </div>
                                 </div><!-- .nk-block-between -->
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
                                 <div class="card card-full">
-                                    <div class="card-inner table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Título</th>
-                                                    <th>Fecha</th>
-                                                    <th>Archivos</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                                $dir = __DIR__ . '/uploads/evaluaciones';
-                                                $items = [];
-                                                if (is_dir($dir)) {
-                                                    foreach (scandir($dir) as $d) {
-                                                        if ($d === '.' || $d === '..') continue;
-                                                        $metaFile = $dir . '/' . $d . '/meta.json';
-                                                        if (is_file($metaFile)) {
-                                                            $meta = json_decode(file_get_contents($metaFile), true);
-                                                            $items[] = [
-                                                                'id' => $d,
-                                                                'titulo' => $meta['titulo'] ?? $d,
-                                                                'fecha' => $meta['fecha'] ?? '',
-                                                                'archivos' => $meta['archivos'] ?? ($meta['imagenes'] ?? [])
-                                                            ];
-                                                        }
-                                                    }
+                                    <div class="card-inner">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <h5 class="title mb-0 me-3">Evaluaciones</h5>
+                                            <a href="subir_evaluacion.php" class="btn btn-outline-primary btn-sm">
+                                                <em class="icon ni ni-plus"></em> Subir archivo
+                                            </a>
+                                        </div>
+                                        <hr class="my-4">
+                                        <?php
+                                        $dir = __DIR__ . '/uploads/evaluaciones';
+                                        $items = [];
+                                        if (is_dir($dir)) {
+                                            foreach (scandir($dir) as $d) {
+                                                if ($d === '.' || $d === '..') continue;
+                                                $metaFile = $dir . '/' . $d . '/meta.json';
+                                                if (is_file($metaFile)) {
+                                                    $meta = json_decode(file_get_contents($metaFile), true);
+                                                    $items[] = [
+                                                        'id' => $d,
+                                                        'titulo' => $meta['titulo'] ?? $d,
+                                                        'fecha' => $meta['fecha'] ?? '',
+                                                        'archivos' => $meta['archivos'] ?? ($meta['imagenes'] ?? [])
+                                                    ];
                                                 }
-                                                foreach ($items as $it):
-                                                ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($it['titulo']); ?></td>
-                                                    <td><?php echo htmlspecialchars($it['fecha']); ?></td>
-                                                    <td>
-                                                        <?php foreach ($it['archivos'] as $file): ?>
-                                                            <a href="<?php echo '/uploads/evaluaciones/' . rawurlencode($it['id']) . '/' . rawurlencode($file); ?>" target="_blank"><?php echo htmlspecialchars($file); ?></a><br>
-                                                        <?php endforeach; ?>
-                                                    </td>
-                                                </tr>
+                                            }
+                                        }
+                                        ?>
+                                        <div id="evaluacionFiles" class="nk-files nk-files-view-grid">
+                                            <div class="nk-files-list">
+                                                <?php foreach ($items as $it): ?>
+                                                <div class="nk-file-item nk-file">
+                                                    <div class="nk-file-info">
+                                                        <div class="nk-file-title">
+                                                            <div class="nk-file-icon">
+                                                                <a class="nk-file-icon-link" href="/ver_evaluacion.php?id=<?php echo urlencode($it['id']); ?>">
+                                                                    <span class="nk-file-icon-type"><em class="icon ni ni-folder"></em></span>
+                                                                </a>
+                                                            </div>
+                                                            <div class="nk-file-name">
+                                                                <div class="nk-file-name-text">
+                                                                    <a href="/ver_evaluacion.php?id=<?php echo urlencode($it['id']); ?>" class="title"><?php echo htmlspecialchars($it['titulo']); ?></a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <ul class="nk-file-desc">
+                                                            <li class="date"><?php echo htmlspecialchars($it['fecha']); ?></li>
+                                                            <li class="members"><?php echo count($it['archivos']); ?> archivo(s)</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                                 <?php endforeach; ?>
                                                 <?php if (empty($items)): ?>
-                                                <tr><td colspan="3">No hay archivos.</td></tr>
+                                                <p>No hay archivos.</p>
                                                 <?php endif; ?>
-                                            </tbody>
-                                        </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
