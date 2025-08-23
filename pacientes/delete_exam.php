@@ -1,5 +1,11 @@
 <?php
 header('Content-Type: application/json');
+session_start();
+if (!isset($_SESSION['rol']) || $_SESSION['rol'] == 2) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'No autorizado']);
+    exit;
+}
 
 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $file = $_POST['file'] ?? '';

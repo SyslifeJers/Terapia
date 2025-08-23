@@ -366,7 +366,7 @@ date_default_timezone_set('America/Mexico_City');
                 <ul class="link-list-plain no-bdr">
                     <li><a href="' . $url . '" target="_blank"><em class="icon ni ni-eye"></em><span>Ver</span></a></li>
                     <li><a href="' . $url . '" download><em class="icon ni ni-download"></em><span>Descargar</span></a></li>
-                    <li><a href="#" class="delete-exam" data-file="' . htmlspecialchars($f) . '"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>
+                    ' . (($_SESSION['rol'] != 2) ? '<li><a href="#" class="delete-exam" data-file="' . htmlspecialchars($f) . '"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>' : '') . '
                 </ul>
             </div>
         </div>
@@ -693,6 +693,7 @@ date_default_timezone_set('America/Mexico_City');
         });
     }
 
+    <?php if ($_SESSION['rol'] != 2): ?>
     document.querySelectorAll('.delete-exam').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -724,6 +725,7 @@ date_default_timezone_set('America/Mexico_City');
             });
         });
     });
+    <?php endif; ?>
 </script>
 <?php include_once '../includes/modalEvaluacion.php'; ?>
 <?php include_once '../includes/modalProgreso.php'; ?>

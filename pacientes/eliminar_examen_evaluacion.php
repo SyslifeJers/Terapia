@@ -1,5 +1,11 @@
 <?php
 header('Content-Type: application/json');
+session_start();
+if (!isset($_SESSION['rol']) || $_SESSION['rol'] == 2) {
+    http_response_code(403);
+    echo json_encode(['success' => false]);
+    exit;
+}
 require_once '../database/conexion.php';
 
 $id_eval = intval($_POST['id_eval'] ?? 0);
