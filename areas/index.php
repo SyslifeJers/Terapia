@@ -79,7 +79,9 @@ date_default_timezone_set('America/Mexico_City');
                                                                 <div class="dropdown-menu dropdown-menu-end">
                                                                     <ul class="link-list-plain no-bdr">
                                                                         <li><a href="/areas/form.php?id=<?php echo urlencode($a['id_area']); ?>"><em class="icon ni ni-edit"></em><span>Editar</span></a></li>
+                                                                        <?php if ($_SESSION['rol'] != 2): ?>
                                                                         <li><a href="/areas/delete.php?id=<?php echo urlencode($a['id_area']); ?>" onclick="return confirm('¿Eliminar área?');"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>
+                                                                        <?php endif; ?>
                                                                     </ul>
                                                                 </div>
                                                             </div>

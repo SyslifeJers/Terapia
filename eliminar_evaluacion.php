@@ -2,6 +2,12 @@
 // Script para eliminar una evaluación cargada.
 // Recibe el identificador del directorio de la evaluación a través del parámetro GET "id".
 
+session_start();
+if (!isset($_SESSION['rol']) || $_SESSION['rol'] == 2) {
+    header('Location: evaluaciones.php');
+    exit;
+}
+
 $id = isset($_GET['id']) ? basename($_GET['id']) : '';
 if ($id === '') {
     header('Location: evaluaciones.php');

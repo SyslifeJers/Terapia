@@ -39,12 +39,14 @@ date_default_timezone_set('America/Mexico_City');
                 }
                 break;
             case 'delete_section':
-                $section_id = (int)($_POST['section_id'] ?? 0);
-                if ($section_id > 0) {
-                    $stmt = $conn->prepare("DELETE FROM exp_secciones_examen WHERE id_seccion = ?");
-                    $stmt->bind_param('i', $section_id);
-                    $stmt->execute();
-                    $stmt->close();
+                if ($_SESSION['rol'] != 2) {
+                    $section_id = (int)($_POST['section_id'] ?? 0);
+                    if ($section_id > 0) {
+                        $stmt = $conn->prepare("DELETE FROM exp_secciones_examen WHERE id_seccion = ?");
+                        $stmt->bind_param('i', $section_id);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
                 }
                 break;
             case 'add_question':
@@ -68,12 +70,14 @@ date_default_timezone_set('America/Mexico_City');
                 }
                 break;
             case 'delete_question':
-                $question_id = (int)($_POST['question_id'] ?? 0);
-                if ($question_id > 0) {
-                    $stmt = $conn->prepare("DELETE FROM exp_preguntas_evaluacion WHERE id_pregunta = ?");
-                    $stmt->bind_param('i', $question_id);
-                    $stmt->execute();
-                    $stmt->close();
+                if ($_SESSION['rol'] != 2) {
+                    $question_id = (int)($_POST['question_id'] ?? 0);
+                    if ($question_id > 0) {
+                        $stmt = $conn->prepare("DELETE FROM exp_preguntas_evaluacion WHERE id_pregunta = ?");
+                        $stmt->bind_param('i', $question_id);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
                 }
                 break;
         }
@@ -148,11 +152,13 @@ date_default_timezone_set('America/Mexico_City');
                                                 <input type="text" name="section_name" value="<?php echo htmlspecialchars($s['nombre_seccion']); ?>" class="form-control form-control-sm">
                                                 <button type="submit" class="btn btn-success btn-sm ms-2">Guardar</button>
                                             </form>
+                                            <?php if ($_SESSION['rol'] != 2): ?>
                                             <form method="post" class="ms-2" onsubmit="return confirm('¿Eliminar sección?');">
                                                 <input type="hidden" name="action" value="delete_section">
                                                 <input type="hidden" name="section_id" value="<?php echo $s['id_seccion']; ?>">
                                                 <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                             </form>
+                                            <?php endif; ?>
                                         </div>
                                         <?php if (!empty($s['preguntas'])): ?>
                                             <table class="table table-striped">
@@ -186,12 +192,14 @@ date_default_timezone_set('America/Mexico_City');
                                                                                         </button>
                                                                                     </form>
                                                                                 </li>
+                                                                                <?php if ($_SESSION['rol'] != 2): ?>
                                                                                 <li class="divider"></li>
                                                                                 <li>                                                                <form method="post" class="d-inline ms-2" onsubmit="return confirm('¿Eliminar pregunta?');">
                                                                     <input type="hidden" name="action" value="delete_question">
                                                                     <input type="hidden" name="question_id" value="<?php echo $p['id_pregunta']; ?>">
                                                                     <button type="submit" class="btn btn-danger btn-sm"> <em class="icon ni ni-download"></em> Eliminar</button>
                                                                 </form></li>
+                                                                                <?php endif; ?>
                                                                               
                                                                             </ul>
                                                                         </div>
