@@ -74,6 +74,7 @@ if ($id_examen === 0) {
                         echo '<div class="d-flex gap-1">';
                         if ($status_eval !== 1) {
                             echo '<a class="btn btn-warning btn-sm" href="evaluacion_examen.php?id=' . $id_nino . '&examen=' . $ex['id_examen'] . '&eval=' . $id_eval . '">Editar</a>';
+                            echo '<button type="button" class="btn btn-danger btn-sm delete-eval" data-id="' . $id_eval . '">Eliminar</button>';
                         }
                         echo '<a class="btn btn-success btn-sm" target="_blank" href="pdf_evaluacion_examen.php?id=' . $id_eval . '">Ver</a>';
                         echo '</div>';
@@ -196,6 +197,9 @@ if ($id_examen === 0) {
             echo '<button type="button" class="btn btn-primary" onclick="nextSec(' . $secIndex . ')">Siguiente</button>';
         } else {
             echo '<button type="submit" class="btn btn-success me-2">Guardar</button>';
+            if ($id_eval > 0) {
+                echo '<button type="button" class="btn btn-outline-danger me-2" onclick="deleteEval(' . $id_eval . ')">Eliminar</button>';
+            }
             echo '<button type="button" class="btn btn-danger" onclick="finalizeExam()">Finalizar</button>';
         }
         echo '</div>';
@@ -220,5 +224,7 @@ function nextSec(n){saveProgress(()=>{document.getElementById('sec'+n).style.dis
 function prevSec(n){saveProgress(()=>{document.getElementById('sec'+n).style.display='none';document.getElementById('sec'+(n-1)).style.display='block';});}
 function finalizeExam(){document.getElementById('status').value=1;const data=collectData();document.getElementById('respuestas').value=JSON.stringify(data);form.submit();}
 if(form){form.addEventListener('submit',function(){const data=collectData();document.getElementById('respuestas').value=JSON.stringify(data);});}
+function deleteEval(id){if(!confirm('¿Eliminar evaluación?'))return;const params=new URLSearchParams();params.append('id_eval',id);params.append('id_nino','<?php echo $id_nino; ?>');fetch('eliminar_examen_evaluacion.php',{method:'POST',body:params}).then(r=>r.json()).then(res=>{if(res.success){window.location.href='evaluacion_examen.php?id=<?php echo $id_nino; ?>';}else{alert('No se pudo eliminar');}});}
+document.querySelectorAll('.delete-eval').forEach(btn=>{btn.addEventListener('click',()=>deleteEval(btn.getAttribute('data-id')));});
 </script>
 <?php include_once '../includes/footer.php'; ?>
