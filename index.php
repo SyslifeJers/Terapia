@@ -19,6 +19,19 @@ date_default_timezone_set('America/Mexico_City');
                 $areas      = $conn->query("SELECT COUNT(*) as total FROM exp_areas_evaluacion")->fetch_assoc()['total'] ?? 0;
                 $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
 
+                $ninos = [];
+                $result2 = $conn->query("SELECT 
+    b.id, 
+    UPPER(b.name) AS name
+FROM Cita a
+INNER JOIN nino b ON a.IdNino = b.id
+WHERE a.IdUsuario = ". $conn->real_escape_string($_SESSION['id']) . "
+GROUP BY b.id, b.name
+ORDER BY b.name DESC;");
+                if ($result2) {
+                    $ninos = $result2->fetch_all(MYSQLI_ASSOC);
+                }
+
                 $citasProximas = [];
                 $result = $conn->query("SELECT Cita.Id, Programado, nino.name FROM Cita
                 INNER JOIN nino ON Cita.IdNino = nino.id
@@ -199,80 +212,26 @@ date_default_timezone_set('America/Mexico_City');
                                                 </div>
                                             </div>
                                             <div class="card-inner pt-0">
-                                                <ul class="gy-4">
-                                                    <li class="border-bottom border-0 border-dashed">
-                                                        <div class="mb-1">
-                                                            <span class="fs-2 lh-1 mb-1 text-head">85.6K</span>
-                                                            <div class="sub-text">Average Like</div>
-                                                        </div>
-                                                        <div class="align-center">
-                                                            <div class="small text-primary me-2">54%</div>
-                                                            <div class="progress progress-md rounded-pill w-100 bg-primary-dim">
-                                                                <div class="progress-bar bg-primary rounded-pill" data-progress="54"></div>
-                                                            </div>
-                                                            <div class="dropdown ms-3">
-                                                                <a class="dropdown-toggle dropdown-indicator sub-text" href="#" type="button" data-bs-toggle="dropdown" data-bs-offset="0, 10">Dec 22 - Feb 22</a>
-                                                                <div class="dropdown-menu dropdown-menu-end text-right">
-                                                                    <ul class="link-list-opt">
-                                                                        <li><a href="#"><span>Dec 22 - Feb 22</span></a></li>
-                                                                        <li><a href="#"><span>Oct 22 - Dec 22</span></a></li>
-                                                                        <li><a href="#"><span>Aug 22 - Oct 22</span></a></li>
-                                                                        <li><a href="#"><span>Jun 22 - Aug 22</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li><!-- li -->
-                                                    <li class="border-bottom border-0 border-dashed">
-                                                        <div class="mb-1">
-                                                            <span class="fs-2 lh-1 mb-1 text-head">42.7K</span>
-                                                            <div class="sub-text">Average Comments</div>
-                                                        </div>
-                                                        <div class="align-center">
-                                                            <div class="small text-danger me-2">84%</div>
-                                                            <div class="progress progress-md rounded-pill w-100 bg-danger-dim">
-                                                                <div class="progress-bar bg-danger rounded-pill" data-progress="84"></div>
-                                                            </div>
-                                                            <div class="dropdown ms-3">
-                                                                <a class="dropdown-toggle dropdown-indicator sub-text" href="#" type="button" data-bs-toggle="dropdown" data-bs-offset="0, 10">Dec 22 - Feb 22</a>
-                                                                <div class="dropdown-menu dropdown-menu-end text-right">
-                                                                    <ul class="link-list-opt">
-                                                                        <li><a href="#"><span>Dec 22 - Feb 22</span></a></li>
-                                                                        <li><a href="#"><span>Oct 22 - Dec 22</span></a></li>
-                                                                        <li><a href="#"><span>Aug 22 - Oct 22</span></a></li>
-                                                                        <li><a href="#"><span>Jun 22 - Aug 22</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li><!-- li -->
-                                                    <li>
-                                                        <div class="mb-1">
-                                                            <span class="fs-2 lh-1 mb-1 text-head">25.4K</span>
-                                                            <div class="sub-text">Average Shares</div>
-                                                        </div>
-                                                        <div class="align-center">
-                                                            <div class="small text-success me-2">62%</div>
-                                                            <div class="progress progress-md rounded-pill w-100 bg-success-dim">
-                                                                <div class="progress-bar bg-success rounded-pill" data-progress="62"></div>
-                                                            </div>
-                                                            <div class="dropdown ms-3">
-                                                                <a class="dropdown-toggle dropdown-indicator sub-text" href="#" type="button" data-bs-toggle="dropdown" data-bs-offset="0, 10">Dec 22 - Feb 22</a>
-                                                                <div class="dropdown-menu dropdown-menu-end text-right">
-                                                                    <ul class="link-list-opt">
-                                                                        <li><a href="#"><span>Dec 22 - Feb 22</span></a></li>
-                                                                        <li><a href="#"><span>Oct 22 - Dec 22</span></a></li>
-                                                                        <li><a href="#"><span>Aug 22 - Oct 22</span></a></li>
-                                                                        <li><a href="#"><span>Jun 22 - Aug 22</span></a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li><!-- li -->
-                                                </ul>
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Nombre</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($ninos as $index => $nino): ?>
+                                                                    <tr>
+                                                                        <td><?php echo $index + 1; ?></td>
+                                                                        <td><?php echo htmlspecialchars($nino['name']); ?></td>
+                                                                        <td><a href="pacientes/paciente.php?id=<?php echo $nino['id']; ?>">Ver Detalles</a></td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            </tbody>
+                                                        </table>
                                             </div>
                                         </div><!-- .card -->
-                                    </di                                             v><!-- .col -->
+                                    </div><!-- .col -->
                                    
 
                                 </div><!-- .row -->

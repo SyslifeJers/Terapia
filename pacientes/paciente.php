@@ -285,6 +285,9 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="card card-bordered">
                                 <div class="card-inner">
                                     <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
+                                    <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
+                                        <em class="icon ni ni-eye"></em> Ver
+                                    </a>
                                     <!--
                                     <div class="row g-2">
                                         <?php //foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
