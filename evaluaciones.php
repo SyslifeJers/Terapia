@@ -36,6 +36,7 @@ date_default_timezone_set('America/Mexico_City');
                                                     <th>Título</th>
                                                     <th>Fecha</th>
                                                     <th>Archivos</th>
+                                                    <th>Eliminar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -67,10 +68,13 @@ date_default_timezone_set('America/Mexico_City');
                                                             <a href="<?php echo '/uploads/evaluaciones/' . rawurlencode($it['id']) . '/' . rawurlencode($file); ?>" target="_blank"><?php echo htmlspecialchars($file); ?></a><br>
                                                         <?php endforeach; ?>
                                                     </td>
+                                                    <td>
+                                                        <a href="eliminar_evaluacion.php?id=<?php echo rawurlencode($it['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta evaluación?');">Eliminar</a>
+                                                    </td>
                                                 </tr>
                                                 <?php endforeach; ?>
                                                 <?php if (empty($items)): ?>
-                                                <tr><td colspan="3">No hay archivos.</td></tr>
+                                                <tr><td colspan="4">No hay archivos.</td></tr>
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>
