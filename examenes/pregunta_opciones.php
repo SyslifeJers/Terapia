@@ -72,12 +72,14 @@ date_default_timezone_set('America/Mexico_City');
                             break;
 
                         case 'delete_option':
-                            $option_id = (int)($_POST['option_id'] ?? 0);
-                            if ($question_id > 0 && $option_id > 0) {
-                                $stmt = $conn->prepare("DELETE FROM exp_pregunta_opcion WHERE id_pregunta = ? AND id_opcion = ?");
-                                $stmt->bind_param('ii', $question_id, $option_id);
-                                $stmt->execute();
-                                $stmt->close();
+                            if ($_SESSION['rol'] != 2) {
+                                $option_id = (int)($_POST['option_id'] ?? 0);
+                                if ($question_id > 0 && $option_id > 0) {
+                                    $stmt = $conn->prepare("DELETE FROM exp_pregunta_opcion WHERE id_pregunta = ? AND id_opcion = ?");
+                                    $stmt->bind_param('ii', $question_id, $option_id);
+                                    $stmt->execute();
+                                    $stmt->close();
+                                }
                             }
                             break;
                     }
@@ -138,11 +140,13 @@ date_default_timezone_set('America/Mexico_City');
                                             <tr>
                                                 <td><?php echo htmlspecialchars($o['texto']); ?></td>
                                                 <td>
+                                                    <?php if ($_SESSION['rol'] != 2): ?>
                                                     <form method="post" class="d-inline" onsubmit="return confirm('¿Eliminar opción?');">
                                                         <input type="hidden" name="action" value="delete_option">
                                                         <input type="hidden" name="option_id" value="<?php echo $o['id_opcion']; ?>">
                                                         <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                                     </form>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

@@ -36,7 +36,9 @@ date_default_timezone_set('America/Mexico_City');
                                                     <th>Título</th>
                                                     <th>Fecha</th>
                                                     <th>Archivos</th>
+                                                    <?php if ($_SESSION['rol'] != 2): ?>
                                                     <th>Eliminar</th>
+                                                    <?php endif; ?>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -68,13 +70,15 @@ date_default_timezone_set('America/Mexico_City');
                                                             <a href="<?php echo '/uploads/evaluaciones/' . rawurlencode($it['id']) . '/' . rawurlencode($file); ?>" target="_blank"><?php echo htmlspecialchars($file); ?></a><br>
                                                         <?php endforeach; ?>
                                                     </td>
+                                                    <?php if ($_SESSION['rol'] != 2): ?>
                                                     <td>
                                                         <a href="eliminar_evaluacion.php?id=<?php echo rawurlencode($it['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta evaluación?');">Eliminar</a>
                                                     </td>
+                                                    <?php endif; ?>
                                                 </tr>
                                                 <?php endforeach; ?>
                                                 <?php if (empty($items)): ?>
-                                                <tr><td colspan="4">No hay archivos.</td></tr>
+                                                <tr><td colspan="<?php echo ($_SESSION['rol'] != 2) ? 4 : 3; ?>">No hay archivos.</td></tr>
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>
