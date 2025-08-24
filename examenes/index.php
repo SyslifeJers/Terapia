@@ -161,6 +161,9 @@ date_default_timezone_set('America/Mexico_City');
                                 </div>
                             </form>
                         </div><!-- .nk-block-head-content -->
+                        <div class="nk-block-head-content">
+                            <a href="/areas/examenes.php?id=<?php echo urlencode($exam_area); ?>" class="btn btn-secondary"><em class="icon ni ni-arrow-left"></em><span>Atrás</span></a>
+                        </div>
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
                 <div class="nk-block">
