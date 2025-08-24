@@ -14,6 +14,18 @@ date_default_timezone_set('America/Mexico_City');
                 $db = new Database();
                 $conn = $db->getConnection();
 
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $area_id = (int)($_POST['id_area'] ?? 0);
+                    $nombre_examen = trim($_POST['nombre_examen'] ?? '');
+                    $id_usuario = intval($_SESSION['id'] ?? 0);
+                    if ($area_id > 0 && $nombre_examen !== '' && $id_usuario > 0) {
+                        $stmt = $conn->prepare("INSERT INTO exp_examenes (id_area, id_usuario, nombre_examen) VALUES (?, ?, ?)");
+                        $stmt->bind_param('iis', $area_id, $id_usuario, $nombre_examen);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
+                }
+
                 $areas = [];
                 $result = $conn->query("SELECT id_area, nombre_area, descripcion FROM exp_areas_evaluacion ORDER BY nombre_area ASC");
                 if ($result) {
@@ -47,6 +59,24 @@ date_default_timezone_set('America/Mexico_City');
                                             </a>
                                         </div>
                                         <hr class="my-4">
+                                        <form method="post" class="mb-4">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-md-5">
+                                                    <select name="id_area" class="form-select form-select-sm" required>
+                                                        <option value="">Seleccione un área</option>
+                                                        <?php foreach ($areas as $a): ?>
+                                                            <option value="<?php echo $a['id_area']; ?>"><?php echo htmlspecialchars($a['nombre_area']); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <input type="text" name="nombre_examen" class="form-control form-control-sm" placeholder="Nombre del examen" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm w-100">Agregar examen</button>
+                                                </div>
+                                            </div>
+                                        </form>
                                         <div id="areaFiles" class="nk-files nk-files-view-grid">
                                             <div class="nk-files-list">
                                                 <?php foreach ($areas as $a): ?>

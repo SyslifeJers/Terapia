@@ -80,19 +80,39 @@ date_default_timezone_set('America/Mexico_City');
                     }
                 }
                 break;
+            case 'change_area':
+                $area_id = (int)($_POST['area_id'] ?? 0);
+                if ($exam_id > 0 && $area_id > 0) {
+                    $stmt = $conn->prepare("UPDATE exp_examenes SET id_area = ? WHERE id_examen = ?");
+                    $stmt->bind_param('ii', $area_id, $exam_id);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                break;
         }
     }
 
     $exam_name = '';
+    $exam_area = 0;
     if ($exam_id > 0) {
-        $stmt = $conn->prepare("SELECT nombre_examen FROM exp_examenes WHERE id_examen = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT id_area, nombre_examen FROM exp_examenes WHERE id_examen = ? LIMIT 1");
         $stmt->bind_param('i', $exam_id);
         $stmt->execute();
         $res = $stmt->get_result();
         $row = $res ? $res->fetch_assoc() : null;
         $exam_name = $row['nombre_examen'] ?? '';
+        $exam_area = (int)($row['id_area'] ?? 0);
         $stmt->close();
     }
+
+    $areas = [];
+    $stmt = $conn->prepare("SELECT id_area, nombre_area FROM exp_areas_evaluacion ORDER BY nombre_area ASC");
+    $stmt->execute();
+    $resAreas = $stmt->get_result();
+    if ($resAreas) {
+        $areas = $resAreas->fetch_all(MYSQLI_ASSOC);
+    }
+    $stmt->close();
 
     $sections = [];
     if ($exam_id > 0) {
@@ -129,6 +149,17 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="nk-block-des text-soft">
                                 <p>Secciones y preguntas del examen: <?php echo htmlspecialchars($exam_name); ?></p>
                             </div>
+                            <form method="post" class="mt-2 d-inline-block">
+                                <input type="hidden" name="action" value="change_area">
+                                <div class="input-group input-group-sm">
+                                    <select name="area_id" class="form-select form-select-sm">
+                                        <?php foreach ($areas as $a): ?>
+                                            <option value="<?php echo $a['id_area']; ?>" <?php echo ($a['id_area'] == $exam_area) ? 'selected' : ''; ?>><?php echo htmlspecialchars($a['nombre_area']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm ms-2">Cambiar área</button>
+                                </div>
+                            </form>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
