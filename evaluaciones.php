@@ -22,7 +22,8 @@ date_default_timezone_set('America/Mexico_City');
                                             <p>Listado de archivos disponibles.</p>
                                         </div>
                                     </div><!-- .nk-block-head-content -->
-                                    <div class="nk-block-head-content">
+                                    <div class="nk-block-head-content d-flex align-items-center">
+                                        <a href="javascript:history.back()" class="btn btn-secondary me-2"><em class="icon ni ni-arrow-left"></em><span>Atrás</span></a>
                                         <a href="subir_evaluacion.php" class="btn btn-primary">Subir archivo</a>
                                     </div>
                                 </div><!-- .nk-block-between -->

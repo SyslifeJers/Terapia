@@ -52,6 +52,9 @@ date_default_timezone_set('America/Mexico_City');
                                             <p>Exámenes del área: <?php echo htmlspecialchars($area_nombre); ?></p>
                                         </div>
                                     </div><!-- .nk-block-head-content -->
+                                    <div class="nk-block-head-content">
+                                        <a href="javascript:history.back()" class="btn btn-secondary"><em class="icon ni ni-arrow-left"></em><span>Atrás</span></a>
+                                    </div>
                                 </div><!-- .nk-block-between -->
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
@@ -82,6 +85,20 @@ date_default_timezone_set('America/Mexico_City');
                                                                 <li class="date">ID: <?php echo htmlspecialchars($e['id_examen']); ?></li>
                                                             </ul>
                                                         </div>
+                                                        <?php if ($_SESSION['rol'] != 2): ?>
+                                                        <div class="nk-file-actions">
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown">
+                                                                    <em class="icon ni ni-more-h"></em>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <ul class="link-list-plain no-bdr">
+                                                                        <li><a href="/areas/delete_examen.php?id=<?php echo urlencode($e['id_examen']); ?>&area_id=<?php echo urlencode($area_id); ?>" onclick="return confirm('¿Eliminar examen?');"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 <?php endforeach; ?>
                                                 <?php if (empty($examenes)): ?>
