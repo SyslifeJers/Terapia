@@ -309,6 +309,11 @@ date_default_timezone_set('America/Mexico_City');
                                         <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
                                             <em class="icon ni ni-eye"></em> Ver
                                         </a>
+                                        <?php if ($_SESSION['rol'] != 2): ?>
+                                        <a href="#" class="btn btn-sm btn-outline-danger delete-eval-foto" data-id="<?php echo $ev['id_eval_foto']; ?>">
+                                            <em class="icon ni ni-trash"></em> Eliminar
+                                        </a>
+                                        <?php endif; ?>
                                         <!--
                                         <div class="row g-2">
                                             <?php //foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
@@ -719,6 +724,37 @@ date_default_timezone_set('America/Mexico_City');
     }
 
     <?php if ($_SESSION['rol'] != 2): ?>
+    document.querySelectorAll('.delete-eval-foto').forEach(btn => {
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            const idEval = this.getAttribute('data-id');
+            Swal.fire({
+                title: '¿Eliminar evaluación?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const fd = new FormData();
+                    fd.append('id_eval', idEval);
+                    fetch('eliminar_evaluacion_fotos.php', {
+                        method: 'POST',
+                        body: fd
+                    })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            Swal.fire('Eliminado', '', 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+                }
+            });
+        });
+    });
+
     document.querySelectorAll('.delete-exam').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
