@@ -80,6 +80,15 @@ date_default_timezone_set('America/Mexico_City');
                     }
                 }
                 break;
+            case 'rename_exam':
+                $name = trim($_POST['exam_name'] ?? '');
+                if ($exam_id > 0 && $name !== '') {
+                    $stmt = $conn->prepare("UPDATE exp_examenes SET nombre_examen = ? WHERE id_examen = ?");
+                    $stmt->bind_param('si', $name, $exam_id);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                break;
             case 'change_area':
                 $area_id = (int)($_POST['area_id'] ?? 0);
                 if ($exam_id > 0 && $area_id > 0) {
@@ -149,6 +158,13 @@ date_default_timezone_set('America/Mexico_City');
                             <div class="nk-block-des text-soft">
                                 <p>Secciones y preguntas del examen: <?php echo htmlspecialchars($exam_name); ?></p>
                             </div>
+                            <form method="post" class="mt-2 d-inline-block">
+                                <input type="hidden" name="action" value="rename_exam">
+                                <div class="input-group input-group-sm mb-2">
+                                    <input type="text" name="exam_name" class="form-control form-control-sm" value="<?php echo htmlspecialchars($exam_name); ?>">
+                                    <button type="submit" class="btn btn-primary btn-sm ms-2">Cambiar nombre</button>
+                                </div>
+                            </form>
                             <form method="post" class="mt-2 d-inline-block">
                                 <input type="hidden" name="action" value="change_area">
                                 <div class="input-group input-group-sm">
