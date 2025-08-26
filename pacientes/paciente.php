@@ -132,14 +132,20 @@ date_default_timezone_set('America/Mexico_City');
     }
 
     $evaluaciones_fotos = [];
-    $stmt = $conn->prepare("SELECT ef.id_eval_foto, ef.titulo, ef.fecha, GROUP_CONCAT(ei.ruta) AS imagenes FROM exp_evaluacion_fotos ef LEFT JOIN exp_evaluacion_fotos_imagenes ei ON ef.id_eval_foto = ei.id_eval_foto WHERE ef.id_nino = ? GROUP BY ef.id_eval_foto ORDER BY ef.fecha DESC");
+    $lista_secciones = [];
+    $stmt = $conn->prepare("SELECT ef.id_eval_foto, ef.titulo, ef.seccion, ef.fecha, GROUP_CONCAT(ei.ruta) AS imagenes FROM exp_evaluacion_fotos ef LEFT JOIN exp_evaluacion_fotos_imagenes ei ON ef.id_eval_foto = ei.id_eval_foto WHERE ef.id_nino = ? GROUP BY ef.id_eval_foto ORDER BY ef.fecha DESC");
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result) {
-        $evaluaciones_fotos = $result->fetch_all(MYSQLI_ASSOC);
+        while ($row = $result->fetch_assoc()) {
+            $sec = $row['seccion'] ?: 'General';
+            $evaluaciones_fotos[$sec][] = $row;
+            $lista_secciones[$sec] = true;
+        }
     }
     $stmt->close();
+    $lista_secciones = array_keys($lista_secciones);
 
     $db->closeConnection();
     ?>
@@ -268,6 +274,19 @@ date_default_timezone_set('America/Mexico_City');
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
+                                    <label class="form-label" for="seccion_eval">Sección</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" class="form-control" id="seccion_eval" name="seccion" list="secciones_list" required>
+                                        <datalist id="secciones_list">
+                                            <?php foreach ($lista_secciones as $sec): ?>
+                                                <option value="<?php echo htmlspecialchars($sec); ?>"></option>
+                                            <?php endforeach; ?>
+                                        </datalist>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
                                     <label class="form-label" for="fotos_eval">Fotos</label>
                                     <div class="form-control-wrap">
                                         <input type="file" class="form-control" id="fotos_eval" name="fotos[]" accept="image/*" multiple required>
@@ -280,26 +299,29 @@ date_default_timezone_set('America/Mexico_City');
                         </div>
                     </form>
                     <div class="row g-gs">
-                        <?php foreach ($evaluaciones_fotos as $ev): ?>
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="card card-bordered">
-                                <div class="card-inner">
-                                    <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
-                                    <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
-                                        <em class="icon ni ni-eye"></em> Ver
-                                    </a>
-                                    <!--
-                                    <div class="row g-2">
-                                        <?php //foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
-                                        <div class="col-6">
-                                            <img src="../uploads/pacientes/<?php //echo $id; ?>/evaluaciones/<?php //echo $ev['id_eval_foto'] . '/' . htmlspecialchars($img); ?>" class="img-fluid" alt="">
+                        <?php foreach ($evaluaciones_fotos as $sec => $lista): ?>
+                            <div class="col-12"><h5 class="mt-2"><?php echo htmlspecialchars($sec); ?></h5></div>
+                            <?php foreach ($lista as $ev): ?>
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="card card-bordered">
+                                    <div class="card-inner">
+                                        <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
+                                        <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
+                                            <em class="icon ni ni-eye"></em> Ver
+                                        </a>
+                                        <!--
+                                        <div class="row g-2">
+                                            <?php //foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
+                                            <div class="col-6">
+                                                <img src="../uploads/pacientes/<?php //echo $id; ?>/evaluaciones/<?php //echo $ev['id_eval_foto'] . '/' . htmlspecialchars($img); ?>" class="img-fluid" alt="">
+                                            </div>
+                                            <?php //endforeach; ?>
                                         </div>
-                                        <?php //endforeach; ?>
+                                        -->
                                     </div>
-                                    -->
                                 </div>
                             </div>
-                        </div>
+                            <?php endforeach; ?>
                         <?php endforeach; ?>
                         <?php if (empty($evaluaciones_fotos)): ?>
                         <div class="col-12"><p>No hay evaluaciones fotográficas.</p></div>
