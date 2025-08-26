@@ -6,21 +6,31 @@ $conn = $db->getConnection();
 
 $id_nino = intval($_POST['id_nino'] ?? 0);
 $titulo = trim($_POST['titulo'] ?? '');
+$seccion = trim($_POST['seccion'] ?? '');
+
+if ($seccion === '') {
+    $seccion = 'General';
+}
 
 if ($id_nino <= 0 || $titulo === '') {
     $db->closeConnection();
     header('Location: paciente.php?id=' . $id_nino);
     exit();
 }
+ 
+$seccion_dir = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($seccion));
+if ($seccion_dir === '') {
+    $seccion_dir = 'general';
+}
 
 // Insertar evaluacion
-$stmt = $conn->prepare("INSERT INTO exp_evaluacion_fotos (id_nino, titulo) VALUES (?, ?)");
-$stmt->bind_param('is', $id_nino, $titulo);
+$stmt = $conn->prepare("INSERT INTO exp_evaluacion_fotos (id_nino, titulo, seccion) VALUES (?, ?, ?)");
+$stmt->bind_param('iss', $id_nino, $titulo, $seccion);
 $stmt->execute();
 $id_eval = $stmt->insert_id;
 $stmt->close();
 
-$baseDir = __DIR__ . '/../uploads/pacientes/' . $id_nino . '/evaluaciones/' . $id_eval;
+$baseDir = __DIR__ . '/../uploads/pacientes/' . $id_nino . '/evaluaciones/' . $seccion_dir . '/' . $id_eval;
 if (!is_dir($baseDir)) {
     mkdir($baseDir, 0777, true);
 }
