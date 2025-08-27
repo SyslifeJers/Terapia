@@ -132,7 +132,6 @@ date_default_timezone_set('America/Mexico_City');
     }
 
     $evaluaciones_fotos = [];
-    $lista_secciones = [];
     $stmt = $conn->prepare("SELECT ef.id_eval_foto, ef.titulo, ef.seccion, ef.fecha, GROUP_CONCAT(ei.ruta) AS imagenes FROM exp_evaluacion_fotos ef LEFT JOIN exp_evaluacion_fotos_imagenes ei ON ef.id_eval_foto = ei.id_eval_foto WHERE ef.id_nino = ? GROUP BY ef.id_eval_foto ORDER BY ef.fecha DESC");
     $stmt->bind_param('i', $id);
     $stmt->execute();
@@ -141,10 +140,20 @@ date_default_timezone_set('America/Mexico_City');
         while ($row = $result->fetch_assoc()) {
             $sec = $row['seccion'] ?: 'General';
             $evaluaciones_fotos[$sec][] = $row;
-            $lista_secciones[$sec] = true;
         }
     }
     $stmt->close();
+
+    // Obtener todas las secciones existentes para el datalist
+    $lista_secciones = [];
+    $result = $conn->query("SELECT DISTINCT seccion FROM exp_evaluacion_fotos WHERE seccion IS NOT NULL AND seccion <> '' ORDER BY seccion ASC");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $sec = $row['seccion'] ?: 'General';
+            $lista_secciones[$sec] = true;
+        }
+    }
+    $lista_secciones['General'] = true; // Agregar opción por defecto
     $lista_secciones = array_keys($lista_secciones);
 
     $db->closeConnection();
