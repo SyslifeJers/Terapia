@@ -1,43 +1,43 @@
 <?php
-include_once '../includes/head.php';
+require_once '../database/conexion.php';
 date_default_timezone_set('America/Mexico_City');
+
+$db = new Database();
+$conn = $db->getConnection();
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nuevo_nombre = trim($_POST['name'] ?? '');
+    if ($id > 0 && $nuevo_nombre !== '') {
+        $stmt = $conn->prepare("UPDATE nino SET name = ? WHERE Id = ?");
+        $stmt->bind_param('si', $nuevo_nombre, $id);
+        $stmt->execute();
+        $stmt->close();
+        $db->closeConnection();
+        header("Location: paciente.php?id=$id");
+        exit;
+    }
+}
+
+$nombre = '';
+if ($id > 0) {
+    $stmt = $conn->prepare("SELECT name FROM nino WHERE Id = ? LIMIT 1");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+        $row = $result->fetch_assoc();
+        $nombre = $row['name'] ?? '';
+    }
+    $stmt->close();
+}
+$db->closeConnection();
+
+include_once '../includes/head.php';
 ?>
 <div class="nk-wrap ">
-    <?php
-    include_once '../includes/menu_superior.php';
-    require_once '../database/conexion.php';
-    $db = new Database();
-    $conn = $db->getConnection();
-
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $nuevo_nombre = trim($_POST['name'] ?? '');
-        if ($id > 0 && $nuevo_nombre !== '') {
-            $stmt = $conn->prepare("UPDATE nino SET name = ? WHERE Id = ?");
-            $stmt->bind_param('si', $nuevo_nombre, $id);
-            $stmt->execute();
-            $stmt->close();
-            $db->closeConnection();
-            header("Location: paciente.php?id=$id");
-            exit;
-        }
-    }
-
-    $nombre = '';
-    if ($id > 0) {
-        $stmt = $conn->prepare("SELECT name FROM nino WHERE Id = ? LIMIT 1");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result) {
-            $row = $result->fetch_assoc();
-            $nombre = $row['name'] ?? '';
-        }
-        $stmt->close();
-    }
-    $db->closeConnection();
-    ?>
+    <?php include_once '../includes/menu_superior.php'; ?>
     <div class="nk-content nk-content-fluid">
         <div class="container-xl wide-xl">
             <div class="nk-content-body">
