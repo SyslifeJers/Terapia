@@ -298,40 +298,48 @@ date_default_timezone_set('America/Mexico_City');
                             </div>
                         </div>
                     </form>
-                    <div class="row g-gs">
-                        <?php foreach ($evaluaciones_fotos as $sec => $lista): ?>
-                            <div class="col-12"><h5 class="mt-2"><?php echo htmlspecialchars($sec); ?></h5></div>
-                            <?php foreach ($lista as $ev): ?>
-                            <div class="col-sm-6 col-lg-4">
-                                <div class="card card-bordered">
-                                    <div class="card-inner">
-                                        <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
-                                        <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
-                                            <em class="icon ni ni-eye"></em> Ver
-                                        </a>
-                                        <?php if ($_SESSION['rol'] != 2): ?>
-                                        <a href="#" class="btn btn-sm btn-outline-danger delete-eval-foto" data-id="<?php echo $ev['id_eval_foto']; ?>">
-                                            <em class="icon ni ni-trash"></em> Eliminar
-                                        </a>
-                                        <?php endif; ?>
-                                        <!--
-                                        <div class="row g-2">
-                                            <?php //foreach (array_filter(explode(',', $ev['imagenes'])) as $img): ?>
-                                            <div class="col-6">
-                                                <img src="../uploads/pacientes/<?php //echo $id; ?>/evaluaciones/<?php //echo $ev['id_eval_foto'] . '/' . htmlspecialchars($img); ?>" class="img-fluid" alt="">
-                                            </div>
-                                            <?php //endforeach; ?>
+                    <?php if (!empty($evaluaciones_fotos)): ?>
+                    <ul class="nav nav-tabs">
+                        <?php $i = 0; foreach ($evaluaciones_fotos as $sec => $lista):
+                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($sec)); ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $i === 0 ? 'active' : ''; ?>" data-bs-toggle="tab" href="#tab-<?php echo $slug; ?>">
+                                <?php echo htmlspecialchars($sec); ?>
+                            </a>
+                        </li>
+                        <?php $i++; endforeach; ?>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <?php $i = 0; foreach ($evaluaciones_fotos as $sec => $lista):
+                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($sec)); ?>
+                        <div class="tab-pane <?php echo $i === 0 ? 'active' : ''; ?>" id="tab-<?php echo $slug; ?>">
+                            <div class="row g-gs">
+                                <?php foreach ($lista as $ev): ?>
+                                <div class="col-sm-6 col-lg-4">
+                                    <div class="card card-bordered">
+                                        <div class="card-inner">
+                                            <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
+                                            <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
+                                                <em class="icon ni ni-eye"></em> Ver
+                                            </a>
+                                            <?php if ($_SESSION['rol'] != 2): ?>
+                                            <a href="#" class="btn btn-sm btn-outline-danger delete-eval-foto" data-id="<?php echo $ev['id_eval_foto']; ?>">
+                                                <em class="icon ni ni-trash"></em> Eliminar
+                                            </a>
+                                            <?php endif; ?>
                                         </div>
-                                        -->
                                     </div>
                                 </div>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endforeach; ?>
-                        <?php endforeach; ?>
-                        <?php if (empty($evaluaciones_fotos)): ?>
-                        <div class="col-12"><p>No hay evaluaciones fotográficas.</p></div>
-                        <?php endif; ?>
+                        </div>
+                        <?php $i++; endforeach; ?>
                     </div>
+                    <?php else: ?>
+                    <div class="row g-gs">
+                        <div class="col-12"><p>No hay evaluaciones fotográficas.</p></div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
                 <div class="card mt-4">
