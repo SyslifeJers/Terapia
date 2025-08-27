@@ -15,7 +15,7 @@ date_default_timezone_set('America/Mexico_City');
                 $conn = $db->getConnection();
 
                 $pacientes  = $conn->query("SELECT COUNT(*) as total FROM nino")->fetch_assoc()['total'] ?? 0;
-                $citas      = $conn->query("SELECT COUNT(*) as total FROM Cita")->fetch_assoc()['total'] ?? 0;
+                $citas      = $conn->query("SELECT COUNT(*) as total FROM Cita WHERE IdUsuario = ". $conn->real_escape_string($_SESSION['id']))->fetch_assoc()['total'] ?? 0;
                 $areas      = $conn->query("SELECT COUNT(*) as total FROM exp_areas_evaluacion")->fetch_assoc()['total'] ?? 0;
                 $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
 
@@ -195,20 +195,9 @@ ORDER BY b.name DESC;");
                                             <div class="card-inner">
                                                 <div class="card-title-group">
                                                     <div class="card-title">
-                                                        <h6 class="title">Key Statistics</h6>
+                                                        <h6 class="title">Mis pacientes</h6>
                                                     </div>
-                                                    <div class="card-tools me-n1 mt-n1">
-                                                        <div class="dropdown">
-                                                            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-                                                            <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
-                                                                <ul class="link-list-opt no-bdr">
-                                                                    <li><a href="#" class="active"><span>15 Days</span></a></li>
-                                                                    <li><a href="#"><span>30 Days</span></a></li>
-                                                                    <li><a href="#"><span>3 Months</span></a></li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                  
                                                 </div>
                                             </div>
                                             <div class="card-inner pt-0">

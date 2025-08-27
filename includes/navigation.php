@@ -33,12 +33,14 @@ function isActive($page) {
                                 <li class="nk-menu-heading">
                                     <h6 class="overline-title text-primary-alt">Menú</h6>
                                 </li><!-- .nk-menu-item -->
+                                                                            <?php if ($_SESSION['rol'] != 2): ?>
                                 <li class="nk-menu-item" id="menu-pacientes">
                                     <a href="/pacientes/pacientes.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-user-group-fill"></em></span>
                                         <span class="nk-menu-text">Pacientes</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
+                                <?php endif; ?>
                                 <li class="nk-menu-item" id="menu-citas">
                                     <a href="/citas.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-calendar-alt"></em></span>

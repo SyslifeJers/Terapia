@@ -76,7 +76,7 @@ foreach($resp as $r){
         $pdf->addPage();
         $y = 40;
     }
-    $pdf->text(60,$y,'Respuesta: '.$r['respuesta']);
+    $pdf->text(60,$y,'R: '.$r['respuesta']);
     $y += 20;
 
     if(!empty($r['comentario'])){

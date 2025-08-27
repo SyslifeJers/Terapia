@@ -62,14 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="nk-split nk-split-page nk-split-md">
                         <div class="nk-split-content nk-block-area nk-block-area-column nk-auth-container bg-white">
                             <div class="nk-block nk-block-middle nk-auth-body">
-                                <div class="brand-logo pb-5">
-                                   
-                                        <img class="logo-light logo-img logo-img-lg" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo">
+                                <div class="brand-logo ">
+                                    <img class="logo-light logo-img logo-img-lg" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo">
                                         <img class="logo-dark logo-img logo-img-lg" src="/assets/imagen/logoC.png" srcset="/assets/imagen/logoC.png 2x" alt="logo-dark">
 
+                                       
                                 </div>
                                 <div class="nk-block-head">
                                     <div class="nk-block-head-content">
+                                        
                                         <h5 class="nk-block-title">Iniciar sesión</h5>
                                         <div class="nk-block-des">
                                             <p>Accede al panel usando tu usuario y contraseña.</p>
@@ -85,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="form-group">
                                         <div class="form-label-group">
                                             <label class="form-label" for="default-01">Usuario</label>
-                                            <a class="link link-primary link-sm" tabindex="-1" href="#">¿Necesitas ayuda?</a>
+                                         
                                         </div>
                                         <div class="form-control-wrap">
                                             <input type="text" name="username" class="form-control form-control-lg" id="default-01" placeholder="Ingresa tu usuario" required>
