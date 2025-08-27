@@ -183,7 +183,7 @@ date_default_timezone_set('America/Mexico_City');
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <ul class="link-list-opt no-bdr">
                                                     <li><a href="#"><em class="icon ni ni-focus"></em><span>Actualizar observaciones</span></a></li>
-                                                    <li><a href="#"><em class="icon ni ni-edit"></em><span>Editar paciente</span></a></li>
+                                                    <li><a href="editar_nombre.php?id=<?php echo $id; ?>"><em class="icon ni ni-edit"></em><span>Editar paciente</span></a></li>
                                                 </ul>
                                             </div>
                                         </div>
