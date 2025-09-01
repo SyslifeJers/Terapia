@@ -71,6 +71,9 @@ $db->closeConnection();
                                         <div class="col-12 mt-1">
                                             <button type="button" class="btn btn-sm btn-outline-secondary rotate-img" data-target="img-<?php echo $ev['id_imagen']; ?>">Rotar</button>
                                             <?php if ($_SESSION['rol'] != 2): ?>
+
+                                            <button type="button" class="btn btn-sm btn-outline-success save-rotation d-none" data-id="<?php echo $ev['id_imagen']; ?>" data-target="img-<?php echo $ev['id_imagen']; ?>">Guardar</button>
+
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-img" data-id="<?php echo $ev['id_imagen']; ?>">Eliminar</button>
                                             <?php endif; ?>
                                         </div>
@@ -133,6 +136,28 @@ $db->closeConnection();
                 });
         });
     });
+
+    document.querySelectorAll('.save-rotation').forEach(btn => {
+        btn.addEventListener('click', function(){
+            const idImg = this.getAttribute('data-id');
+            const img = document.getElementById(this.getAttribute('data-target'));
+            const angle = parseInt(img.getAttribute('data-rot') || '0');
+            const fd = new FormData();
+            fd.append('id_imagen', idImg);
+            fd.append('angulo', angle);
+            fetch('rotar_imagen_evaluacion.php', {method: 'POST', body: fd})
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        Swal.fire('Guardado', '', 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+        });
+    });
+
     <?php endif; ?>
 
     document.querySelectorAll('.rotate-img').forEach(btn => {
@@ -142,6 +167,10 @@ $db->closeConnection();
             const next = (current + 90) % 360;
             img.style.transform = 'rotate(' + next + 'deg)';
             img.setAttribute('data-rot', next);
+
+            const saveBtn = this.parentElement.querySelector('.save-rotation');
+            if (saveBtn) { saveBtn.classList.remove('d-none'); }
+
         });
     });
     </script>
