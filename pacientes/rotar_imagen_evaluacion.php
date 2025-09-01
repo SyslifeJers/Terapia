@@ -87,6 +87,7 @@ if ($rotated) {
     imagedestroy($img);
     imagedestroy($rotated);
     touch($path, $originalTime);
+
     $success = true;
 } else {
     $success = false;
