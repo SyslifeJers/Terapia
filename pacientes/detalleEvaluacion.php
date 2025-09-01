@@ -71,7 +71,9 @@ $db->closeConnection();
                                         <div class="col-12 mt-1">
                                             <button type="button" class="btn btn-sm btn-outline-secondary rotate-img" data-target="img-<?php echo $ev['id_imagen']; ?>">Rotar</button>
                                             <?php if ($_SESSION['rol'] != 2): ?>
+
                                             <button type="button" class="btn btn-sm btn-outline-success save-rotation d-none" data-id="<?php echo $ev['id_imagen']; ?>" data-target="img-<?php echo $ev['id_imagen']; ?>">Guardar</button>
+
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-img" data-id="<?php echo $ev['id_imagen']; ?>">Eliminar</button>
                                             <?php endif; ?>
                                         </div>
@@ -155,6 +157,7 @@ $db->closeConnection();
                 .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
         });
     });
+
     <?php endif; ?>
 
     document.querySelectorAll('.rotate-img').forEach(btn => {
@@ -164,8 +167,10 @@ $db->closeConnection();
             const next = (current + 90) % 360;
             img.style.transform = 'rotate(' + next + 'deg)';
             img.setAttribute('data-rot', next);
+
             const saveBtn = this.parentElement.querySelector('.save-rotation');
             if (saveBtn) { saveBtn.classList.remove('d-none'); }
+
         });
     });
     </script>
