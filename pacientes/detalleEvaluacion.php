@@ -39,6 +39,9 @@ $db->closeConnection();
                     foreach ($evaluaciones_fotos as $ev) {
                         $rutaAbs = __DIR__ . '/../uploads/pacientes/' . $ev['id'] . '/evaluaciones/' . $seccion_dir . '/' . $ev['id_eval_foto'] . '/' . $ev['ruta'];
                         $fechaClave = file_exists($rutaAbs) ? date('Y-m-d', filemtime($rutaAbs)) : 'desconocido';
+
+                        $ev['hash'] = file_exists($rutaAbs) ? md5_file($rutaAbs) : '';
+
                         $imagenes_por_fecha[$fechaClave][] = $ev;
                     }
                     krsort($imagenes_por_fecha);
@@ -64,14 +67,15 @@ $db->closeConnection();
                                 <div class="card-inner">
                                     <div class="row g-2 align-items-center">
                                         <div class="col-12">
-                                            <a href="../uploads/pacientes/<?php echo $ev['id']; ?>/evaluaciones/<?php echo $seccion_dir . '/' . $ev['id_eval_foto'] . '/' . $ev['ruta']; ?>" target="_blank">
-                                                <img id="img-<?php echo $ev['id_imagen']; ?>" src="../uploads/pacientes/<?php echo $ev['id']; ?>/evaluaciones/<?php echo $seccion_dir . '/' . $ev['id_eval_foto'] . '/' . $ev['ruta']; ?>" class="img-fluid" alt="">
+
+                                            <a href="../uploads/pacientes/<?php echo $ev['id']; ?>/evaluaciones/<?php echo $seccion_dir . '/' . $ev['id_eval_foto'] . '/' . $ev['ruta']; ?>?v=<?php echo $ev['hash']; ?>" target="_blank">
+                                                <img id="img-<?php echo $ev['id_imagen']; ?>" src="../uploads/pacientes/<?php echo $ev['id']; ?>/evaluaciones/<?php echo $seccion_dir . '/' . $ev['id_eval_foto'] . '/' . $ev['ruta']; ?>?v=<?php echo $ev['hash']; ?>" class="img-fluid" alt="">
+
                                             </a>
                                         </div>
                                         <div class="col-12 mt-1">
                                             <button type="button" class="btn btn-sm btn-outline-secondary rotate-img" data-target="img-<?php echo $ev['id_imagen']; ?>">Rotar</button>
                                             <?php if ($_SESSION['rol'] != 2): ?>
-
                                             <button type="button" class="btn btn-sm btn-outline-success save-rotation d-none" data-id="<?php echo $ev['id_imagen']; ?>" data-target="img-<?php echo $ev['id_imagen']; ?>">Guardar</button>
 
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-img" data-id="<?php echo $ev['id_imagen']; ?>">Eliminar</button>

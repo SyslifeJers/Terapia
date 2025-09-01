@@ -43,6 +43,7 @@ if (!is_file($path)) {
     exit;
 }
 
+$originalTime = filemtime($path);
 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 switch ($ext) {
     case 'jpg':
@@ -85,6 +86,8 @@ if ($rotated) {
     }
     imagedestroy($img);
     imagedestroy($rotated);
+    touch($path, $originalTime);
+
     $success = true;
 } else {
     $success = false;
