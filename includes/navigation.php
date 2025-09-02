@@ -58,6 +58,24 @@ function isActive($page) {
                                         <span class="nk-menu-text">Evaluaciones</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
+                                <li class="nk-menu-item" id="menu-reportes">
+                                    <a href="/reportes.php" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-file-text"></em></span>
+                                        <span class="nk-menu-text">Reportes</span>
+                                    </a>
+                                </li><!-- .nk-menu-item -->
+                                <li class="nk-menu-item" id="menu-pch">
+                                    <a href="/pch.php" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-cpu"></em></span>
+                                        <span class="nk-menu-text">PCH</span>
+                                    </a>
+                                </li><!-- .nk-menu-item -->
+                                <li class="nk-menu-item" id="menu-proveedor">
+                                    <a href="/proveedor.php" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-truck"></em></span>
+                                        <span class="nk-menu-text">Proveedor</span>
+                                    </a>
+                                </li><!-- .nk-menu-item -->
                                 <li class="nk-menu-heading">
                                     <h6 class="overline-title text-primary-alt">Configuración</h6>
                                 </li><!-- .nk-menu-heading -->
