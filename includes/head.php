@@ -59,11 +59,11 @@ if (!isset($_SESSION['id']) && $currentPage !== 'login.php') {
     <meta charset="utf-8">
     <meta name="author" content="Jers">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="App desarrollada para el uso del personal de Cerene">
+    <meta name="description" content="App desarrollada para el uso del personal de Gank">
     <!-- Fav Icon  -->
     <link rel="shortcut icon" href="/images/favicon.png">
     <!-- Page Title  -->
-    <title>Cerene</title>
+    <title>Gank</title>
 <script>
 (function () {
   const theme = localStorage.getItem("theme");
