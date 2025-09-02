@@ -15,10 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'pacientes/paciente.php': 'menu-pacientes',
             'citas.php': 'menu-citas',
             'areas/index.php': 'menu-areas',
-            'evaluaciones.php': 'menu-evaluaciones',
-            'reportes.php': 'menu-reportes',
-            'pch.php': 'menu-pch',
-            'proveedor.php': 'menu-proveedor'
+            'evaluaciones.php': 'menu-evaluaciones'
         };
 
         const activeItemId = menuItems[currentPath];

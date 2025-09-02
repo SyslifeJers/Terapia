@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Fav Icon  -->
     <link rel="shortcut icon" href="/images/favicon.png">
     <!-- Page Title  -->
-    <title>Inicio de sessión | Gank</title>
+    <title>Inicio de sessión | Cerene</title>
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="/assets/css/dashlite.css?ver=3.3.0">
     <link id="skin-default" rel="stylesheet" href="/assets/css/theme.css?ver=3.3.0">
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="nk-block nk-auth-footer">
 
                                 <div class="mt-3">
-                                    <p>&copy; 2025 Clinica Gank.</p>
+                                    <p>&copy; 2025 Clinica Cerene.</p>
                                 </div>
                             </div><!-- .nk-block -->
                         </div><!-- .nk-split-content -->
