@@ -14,30 +14,67 @@ date_default_timezone_set('America/Mexico_City');
                 $db = new Database();
                 $conn = $db->getConnection();
 
+                $userId = isset($_SESSION['id']) ? (int) $_SESSION['id'] : 0;
+
                 $pacientes  = $conn->query("SELECT COUNT(*) as total FROM nino")->fetch_assoc()['total'] ?? 0;
-                $citas      = $conn->query("SELECT COUNT(*) as total FROM Cita WHERE IdUsuario = ". $conn->real_escape_string($_SESSION['id']))->fetch_assoc()['total'] ?? 0;
+                $citas      = $userId > 0 ? ($conn->query("SELECT COUNT(*) as total FROM Cita WHERE IdUsuario = {$userId}")->fetch_assoc()['total'] ?? 0) : 0;
                 $areas      = $conn->query("SELECT COUNT(*) as total FROM exp_areas_evaluacion")->fetch_assoc()['total'] ?? 0;
                 $evaluaciones = $conn->query("SELECT COUNT(*) as total FROM exp_evaluaciones")->fetch_assoc()['total'] ?? 0;
 
                 $ninos = [];
-                $result2 = $conn->query("SELECT 
-    b.id, 
+                if ($userId > 0) {
+                    $result2 = $conn->query("SELECT
+    b.id,
     UPPER(b.name) AS name
 FROM Cita a
 INNER JOIN nino b ON a.IdNino = b.id
-WHERE a.IdUsuario = ". $conn->real_escape_string($_SESSION['id']) . "
+WHERE a.IdUsuario = {$userId}
 GROUP BY b.id, b.name
 ORDER BY b.name DESC;");
-                if ($result2) {
-                    $ninos = $result2->fetch_all(MYSQLI_ASSOC);
+                    if ($result2) {
+                        $ninos = $result2->fetch_all(MYSQLI_ASSOC);
+                    }
                 }
 
                 $citasProximas = [];
-                $result = $conn->query("SELECT Cita.Id, Programado, nino.name FROM Cita
+                $citasCalendario = [];
+                if ($userId > 0) {
+                    $result = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id AS id_nino FROM Cita
                 INNER JOIN nino ON Cita.IdNino = nino.id
-                 WHERE Programado >= CURDATE() ORDER BY Programado ASC LIMIT 15");
-                if ($result) {
-                    $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
+                 WHERE Cita.IdUsuario = {$userId} AND Programado >= CURDATE() ORDER BY Programado ASC LIMIT 15");
+                    if ($result) {
+                        $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
+                    }
+
+                    $resultCalendario = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id AS id_nino FROM Cita
+                INNER JOIN nino ON Cita.IdNino = nino.id
+                 WHERE Cita.IdUsuario = {$userId} ORDER BY Programado ASC");
+                    if ($resultCalendario) {
+                        $citasCalendario = $resultCalendario->fetch_all(MYSQLI_ASSOC);
+                    }
+                }
+
+                $eventosCalendario = [];
+                if (!empty($citasCalendario)) {
+                    $tz = new DateTimeZone('America/Mexico_City');
+                    foreach ($citasCalendario as $citaCalendario) {
+                        if (empty($citaCalendario['Programado']) || empty($citaCalendario['id_nino'])) {
+                            continue;
+                        }
+
+                        try {
+                            $fechaEvento = new DateTime($citaCalendario['Programado'], $tz);
+                        } catch (Exception $e) {
+                            continue;
+                        }
+
+                        $eventosCalendario[] = [
+                            'id' => $citaCalendario['Id'],
+                            'title' => ucwords(strtolower($citaCalendario['name'] ?? 'Cita')),
+                            'start' => $fechaEvento->format('Y-m-d\TH:i:s'),
+                            'url' => 'pacientes/paciente.php?id=' . urlencode((string) $citaCalendario['id_nino']),
+                        ];
+                    }
                 }
 
                 $db->closeConnection();
@@ -221,7 +258,23 @@ ORDER BY b.name DESC;");
                                             </div>
                                         </div><!-- .card -->
                                     </div><!-- .col -->
-                                   
+
+
+                                    <div class="col-12">
+                                        <div class="card card-full">
+                                            <div class="card-inner">
+                                                <div class="card-title-group">
+                                                    <div class="card-title">
+                                                        <h6 class="title">Calendario de citas</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-inner pt-0">
+                                                <div id="citas-calendar" class="nk-calendar"></div>
+                                            </div>
+                                        </div>
+                                    </div><!-- .col -->
+
 
                                 </div><!-- .row -->
                             </div><!-- .nk-block -->
@@ -229,9 +282,60 @@ ORDER BY b.name DESC;");
                     </div>
                 </div>
                 <!-- content @e -->
-              
+
             </div>
             <!-- wrap @e -->
+            <script src="/assets/js/libs/fullcalendar.js?ver=3.3.0"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var calendarEl = document.getElementById('citas-calendar');
+                if (!calendarEl || typeof FullCalendar === 'undefined') {
+                    return;
+                }
+
+                var calendarOptions = {
+                    initialView: 'dayGridMonth',
+                    timeZone: 'local',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                    },
+                    buttonText: {
+                        today: 'Hoy',
+                        month: 'Mes',
+                        week: 'Semana',
+                        day: 'Día',
+                        list: 'Agenda'
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    },
+                    events: <?php echo json_encode($eventosCalendario, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+                    eventClick: function (info) {
+                        if (info.event.url) {
+                            info.jsEvent.preventDefault();
+                            window.location.href = info.event.url;
+                        }
+                    }
+                };
+
+                if (FullCalendar.globalLocales && Array.isArray(FullCalendar.globalLocales)) {
+                    var hasSpanishLocale = FullCalendar.globalLocales.some(function (locale) {
+                        return locale.code === 'es';
+                    });
+                    if (hasSpanishLocale) {
+                        calendarOptions.locale = 'es';
+                    }
+                }
+
+                var calendar = new FullCalendar.Calendar(calendarEl, calendarOptions);
+
+                calendar.render();
+            });
+            </script>
        <?php
-include_once 'includes/footer.php'; 
+include_once 'includes/footer.php';
 ?>
