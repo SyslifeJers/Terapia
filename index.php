@@ -150,45 +150,96 @@ ORDER BY b.name DESC;");
                             </div><!-- .nk-block-head -->
                             <div class="nk-block">
                                 <div class="row g-gs">
-                                    <!-- Tarjetas originales comentadas
-                                    <div class="col-lg-3 col-sm-6"> ... </div>
-                                    <div class="col-lg-3 col-sm-6"> ... </div>
-                                    <div class="col-lg-3 col-sm-6"> ... </div>
-                                    <div class="col-lg-3 col-sm-6"> ... </div>
-                                    -->
+                                    <div class="col-12">
+                                        <div class="card card-full">
+                                            <div class="card-inner">
+                                                <div class="card-title-group align-items-center">
+                                                    <div class="card-title">
+                                                        <h6 class="title">Calendario de citas</h6>
+                                                    </div>
+                                                    <div class="card-tools">
+                                                        <a href="#" class="btn btn-sm btn-primary" id="calendar-day-view">Vista del día</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-inner pt-0">
+                                                <div id="citas-calendar" class="nk-calendar"></div>
+                                            </div>
+                                        </div>
+                                    </div><!-- .col -->
+
                                     <div class="col-lg-3 col-sm-6">
-                                        <div class="card h-100 bg-primary">
+                                        <div class="card h-100 bg-white border border-primary shadow-sm">
                                             <div class="card-inner text-center py-4">
-                                                <div class="fs-2 text-white mb-1"><?php echo $pacientes; ?></div>
-                                                <h6 class="text-white">Pacientes</h6>
+                                                <div class="fs-2 text-primary mb-1"><?php echo $pacientes; ?></div>
+                                                <h6 class="text-muted">Pacientes</h6>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-sm-6">
-                                        <div class="card h-100 bg-info">
+                                        <div class="card h-100 bg-white border border-info shadow-sm">
                                             <div class="card-inner text-center py-4">
-                                                <div class="fs-2 text-white mb-1"><?php echo $citas; ?></div>
-                                                <h6 class="text-white">Citas</h6>
+                                                <div class="fs-2 text-info mb-1"><?php echo $citas; ?></div>
+                                                <h6 class="text-muted">Citas</h6>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-sm-6">
-                                        <div class="card h-100 bg-warning">
+                                        <div class="card h-100 bg-white border border-warning shadow-sm">
                                             <div class="card-inner text-center py-4">
-                                                <div class="fs-2 text-white mb-1"><?php echo $areas; ?></div>
-                                                <h6 class="text-white">Áreas</h6>
+                                                <div class="fs-2 text-warning mb-1"><?php echo $areas; ?></div>
+                                                <h6 class="text-muted">Áreas</h6>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-sm-6">
-                                        <div class="card h-100 bg-danger">
+                                        <div class="card h-100 bg-white border border-danger shadow-sm">
                                             <div class="card-inner text-center py-4">
-                                                <div class="fs-2 text-white mb-1"><?php echo $evaluaciones; ?></div>
-                                                <h6 class="text-white">Evaluaciones</h6>
+                                                <div class="fs-2 text-danger mb-1"><?php echo $evaluaciones; ?></div>
+                                                <h6 class="text-muted">Evaluaciones</h6>
                                             </div>
                                         </div>
                                     </div>
-                                   
+
+                                    <div class="col-xxl-4 col-md-6">
+                                        <div class="card card-full">
+                                            <div class="card-inner">
+                                                <div class="card-title-group">
+                                                    <div class="card-title">
+                                                        <h6 class="title">Mis pacientes</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-inner pt-0">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Nombre</th>
+                                                            <th class="text-end">Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($ninos as $index => $nino):
+                                                            $detallePacienteUrl = 'pacientes/paciente.php?id=' . urlencode((string)($nino['id'] ?? ''));
+                                                        ?>
+                                                            <tr>
+                                                                <td><?php echo $index + 1; ?></td>
+                                                                <td><?php echo htmlspecialchars($nino['name']); ?></td>
+                                                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detallePacienteUrl, ENT_QUOTES, 'UTF-8'); ?>">Ver más</a></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                        <?php if (empty($ninos)): ?>
+                                                            <tr>
+                                                                <td colspan="3" class="text-center text-muted">No tienes pacientes asignados.</td>
+                                                            </tr>
+                                                        <?php endif; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div><!-- .card -->
+                                    </div><!-- .col -->
+
                                     <div class="col-xxl-8">
                                         <div class="card card-full">
                                             <div class="card-inner">
@@ -202,20 +253,23 @@ ORDER BY b.name DESC;");
                                                 <div class="nk-tb-list nk-tb-flush nk-tb-dashed">
                                                     <div class="nk-tb-item nk-tb-head">
                                                         <div class="nk-tb-col"><span>ID</span></div>
-                                                        <div class="nk-tb-col "><span>Fecha</span></div>
-                                                        <div class="nk-tb-col "><span>Hora</span></div>
-                                                        <div class="nk-tb-col "><span>Nombre</span></div>
+                                                        <div class="nk-tb-col"><span>Fecha</span></div>
+                                                        <div class="nk-tb-col"><span>Hora</span></div>
+                                                        <div class="nk-tb-col"><span>Nombre</span></div>
+                                                        <div class="nk-tb-col text-end"><span>Acciones</span></div>
                                                     </div>
                                                     <?php foreach ($citasProximas as $cita):
                                                         $dt = new DateTime(($cita['Programado'] ?? '') , new DateTimeZone('America/Mexico_City'));
                                                         $fecha = $dt->format('Y-m-d');
                                                         $hora  = $dt->format('H:i');
+                                                        $detalleUrl = 'pacientes/paciente.php?id=' . urlencode((string)($cita['id_nino'] ?? ''));
                                                     ?>
                                                     <div class="nk-tb-item">
                                                         <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['Id'] ?? ''); ?></span></div>
                                                         <div class="nk-tb-col"><span><?php echo htmlspecialchars($fecha); ?></span></div>
                                                         <div class="nk-tb-col"><span><?php echo htmlspecialchars($dt->format('h:i A')); ?></span></div>
                                                         <div class="nk-tb-col"><span><?php echo htmlspecialchars(ucwords(strtolower($cita['name'] ?? ''))); ?></span></div>
+                                                        <div class="nk-tb-col text-end"><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detalleUrl, ENT_QUOTES, 'UTF-8'); ?>">Ver más</a></div>
                                                     </div>
                                                     <?php endforeach; ?>
                                                     <?php if (empty($citasProximas)): ?>
@@ -226,53 +280,6 @@ ORDER BY b.name DESC;");
                                                 </div>
                                             </div>
                                         </div><!-- .card -->
-                                    </div><!-- .col -->
-                                    <div class="col-xxl-4 col-md-6">
-                                        <div class="card card-full">
-                                            <div class="card-inner">
-                                                <div class="card-title-group">
-                                                    <div class="card-title">
-                                                        <h6 class="title">Mis pacientes</h6>
-                                                    </div>
-                                                  
-                                                </div>
-                                            </div>
-                                            <div class="card-inner pt-0">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>#</th>
-                                                                    <th>Nombre</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <?php foreach ($ninos as $index => $nino): ?>
-                                                                    <tr>
-                                                                        <td><?php echo $index + 1; ?></td>
-                                                                        <td><?php echo htmlspecialchars($nino['name']); ?></td>
-                                                                        <td><a href="pacientes/paciente.php?id=<?php echo $nino['id']; ?>">Ver Detalles</a></td>
-                                                                    </tr>
-                                                                <?php endforeach; ?>
-                                                            </tbody>
-                                                        </table>
-                                            </div>
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
-
-
-                                    <div class="col-12">
-                                        <div class="card card-full">
-                                            <div class="card-inner">
-                                                <div class="card-title-group">
-                                                    <div class="card-title">
-                                                        <h6 class="title">Calendario de citas</h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="card-inner pt-0">
-                                                <div id="citas-calendar" class="nk-calendar"></div>
-                                            </div>
-                                        </div>
                                     </div><!-- .col -->
 
 
@@ -294,7 +301,7 @@ ORDER BY b.name DESC;");
                 }
 
                 var calendarOptions = {
-                    initialView: 'dayGridMonth',
+                    initialView: 'timeGridDay',
                     timeZone: 'local',
                     headerToolbar: {
                         left: 'prev,next today',
@@ -314,6 +321,9 @@ ORDER BY b.name DESC;");
                         hour12: true
                     },
                     events: <?php echo json_encode($eventosCalendario, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+                    eventBackgroundColor: '#E3F2FD',
+                    eventBorderColor: '#4D8FEA',
+                    eventTextColor: '#0F172A',
                     eventClick: function (info) {
                         if (info.event.url) {
                             info.jsEvent.preventDefault();
@@ -334,6 +344,14 @@ ORDER BY b.name DESC;");
                 var calendar = new FullCalendar.Calendar(calendarEl, calendarOptions);
 
                 calendar.render();
+
+                var dayViewButton = document.getElementById('calendar-day-view');
+                if (dayViewButton) {
+                    dayViewButton.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        calendar.changeView('timeGridDay');
+                    });
+                }
             });
             </script>
        <?php
