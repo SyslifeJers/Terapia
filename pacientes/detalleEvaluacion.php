@@ -48,14 +48,14 @@ $db->closeConnection();
                 }
                 ?>
                 <h3><?php echo htmlspecialchars($evaluaciones_fotos[0]['titulo'] ?? ''); ?> (<?php echo htmlspecialchars($evaluaciones_fotos[0]['name'] ?? ''); ?>)</h3>
-                <?php if ($_SESSION['rol'] != 2): ?>
+
                 <form id="add-photo-form" class="mb-3">
                     <div class="form-group">
                         <input type="file" name="fotos[]" multiple accept="image/*" required>
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Agregar</button>
                     </div>
                 </form>
-                <?php endif; ?>
+
                 <div class="row g-gs">
                     <?php foreach ($imagenes_por_fecha as $fecha => $imgs): ?>
                         <div class="col-12">
@@ -100,7 +100,7 @@ $db->closeConnection();
 
     <!-- wrap @e -->
     <script>
-    <?php if ($_SESSION['rol'] != 2): ?>
+
     document.getElementById('add-photo-form')?.addEventListener('submit', function(e){
         e.preventDefault();
         const fd = new FormData(this);
@@ -162,7 +162,6 @@ $db->closeConnection();
         });
     });
 
-    <?php endif; ?>
 
     document.querySelectorAll('.rotate-img').forEach(btn => {
         btn.addEventListener('click', function(){

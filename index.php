@@ -201,7 +201,7 @@ ORDER BY b.name DESC;");
                                         </div>
                                     </div>
 
-                                    <div class="col-xxl-4 col-md-6">
+                                    <div class="col-xxl-12 col-md-12">
                                         <div class="card card-full">
                                             <div class="card-inner">
                                                 <div class="card-title-group">
@@ -240,47 +240,6 @@ ORDER BY b.name DESC;");
                                         </div><!-- .card -->
                                     </div><!-- .col -->
 
-                                    <div class="col-xxl-8">
-                                        <div class="card card-full">
-                                            <div class="card-inner">
-                                                <div class="card-title-group">
-                                                    <div class="card-title">
-                                                        <h6 class="title">Próximas Citas</h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="card-inner py-0 mt-n2">
-                                                <div class="nk-tb-list nk-tb-flush nk-tb-dashed">
-                                                    <div class="nk-tb-item nk-tb-head">
-                                                        <div class="nk-tb-col"><span>ID</span></div>
-                                                        <div class="nk-tb-col"><span>Fecha</span></div>
-                                                        <div class="nk-tb-col"><span>Hora</span></div>
-                                                        <div class="nk-tb-col"><span>Nombre</span></div>
-                                                        <div class="nk-tb-col text-end"><span>Acciones</span></div>
-                                                    </div>
-                                                    <?php foreach ($citasProximas as $cita):
-                                                        $dt = new DateTime(($cita['Programado'] ?? '') , new DateTimeZone('America/Mexico_City'));
-                                                        $fecha = $dt->format('Y-m-d');
-                                                        $hora  = $dt->format('H:i');
-                                                        $detalleUrl = 'pacientes/paciente.php?id=' . urlencode((string)($cita['id_nino'] ?? ''));
-                                                    ?>
-                                                    <div class="nk-tb-item">
-                                                        <div class="nk-tb-col"><span class="tb-lead"><?php echo htmlspecialchars($cita['Id'] ?? ''); ?></span></div>
-                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars($fecha); ?></span></div>
-                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars($dt->format('h:i A')); ?></span></div>
-                                                        <div class="nk-tb-col"><span><?php echo htmlspecialchars(ucwords(strtolower($cita['name'] ?? ''))); ?></span></div>
-                                                        <div class="nk-tb-col text-end"><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detalleUrl, ENT_QUOTES, 'UTF-8'); ?>">Ver más</a></div>
-                                                    </div>
-                                                    <?php endforeach; ?>
-                                                    <?php if (empty($citasProximas)): ?>
-                                                    <div class="nk-tb-item">
-                                                        <div class="nk-tb-col">No hay citas próximas.</div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div><!-- .card -->
-                                    </div><!-- .col -->
 
 
                                 </div><!-- .row -->

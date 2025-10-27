@@ -40,12 +40,7 @@ function isActive($page) {
                                     </a>
                                 </li><!-- .nk-menu-item -->
                                 <?php endif; ?>
-                                <li class="nk-menu-item" id="menu-citas">
-                                    <a href="/citas.php" class="nk-menu-link">
-                                        <span class="nk-menu-icon"><em class="icon ni ni-calendar-alt"></em></span>
-                                        <span class="nk-menu-text">Cítas</span>
-                                    </a>
-                                </li><!-- .nk-menu-item -->
+
                                 <li class="nk-menu-item" id="menu-areas">
                                     <a href="/areas/index.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-color-palette"></em></span>
