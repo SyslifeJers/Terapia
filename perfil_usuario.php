@@ -4,24 +4,9 @@ include_once 'includes/head.php';
 require_once 'database/conexion.php';
 $db = new Database();
 $conn = $db->getConnection();
-$message = '';
 $id = $_SESSION['id'] ?? 0;
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $newPass = trim($_POST['pass'] ?? '');
-    if ($newPass !== '') {
-        $stmt = $conn->prepare("UPDATE Usuarios SET pass = ? WHERE id = ?");
-        $stmt->bind_param('si', $newPass, $id);
-        if ($stmt->execute()) {
-            $message = 'Contraseña actualizada correctamente';
-        } else {
-            $message = 'Error al actualizar la contraseña';
-        }
-        $stmt->close();
-    } else {
-        $message = 'La contraseña no puede estar vacía';
-    }
-}
-$stmt = $conn->prepare("SELECT id, name, user, pass, token, activo, registro, telefono, correo, IdRol FROM Usuarios WHERE id = ?");
+
+$stmt = $conn->prepare("SELECT name, user, telefono, correo, IdRol, registro FROM Usuarios WHERE id = ?");
 $stmt->bind_param('i', $id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -42,41 +27,70 @@ $db->closeConnection();
                                 <div class="nk-block-between">
                                     <div class="nk-block-head-content">
                                         <h3 class="nk-block-title page-title">Perfil de usuario</h3>
+                                        <p class="text-soft">Consulta la información asociada a tu cuenta.</p>
                                     </div>
                                 </div>
                             </div>
-                            <?php if ($message): ?>
-                                <div class="alert alert-info"><?php echo $message; ?></div>
-                            <?php endif; ?>
                             <div class="card">
                                 <div class="card-inner">
-                                    <form method="POST">
-                                        <div class="row g-4">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-label">Nombre</label>
-                                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" readonly>
+                                    <div class="row g-4">
+                                        <div class="col-lg-6">
+                                            <div class="nk-data data-list">
+                                                <div class="data-head">
+                                                    <h6 class="overline-title">Información personal</h6>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-label">Usuario</label>
-                                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['user'] ?? ''); ?>" readonly>
+                                                <div class="data-item" data-bs-toggle="tooltip" title="Nombre completo registrado">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Nombre</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['name'] ?? ''); ?></span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="pass">Nueva contraseña</label>
-                                                    <input type="text" name="pass" id="pass" class="form-control" required>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Usuario</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['user'] ?? ''); ?></span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Teléfono</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['telefono'] ?? 'Sin registrar'); ?></span>
+                                                    </div>
+                                                </div>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Correo electrónico</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['correo'] ?? 'Sin registrar'); ?></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
+                                        <div class="col-lg-6">
+                                            <div class="nk-data data-list">
+                                                <div class="data-head">
+                                                    <h6 class="overline-title">Información de la cuenta</h6>
+                                                </div>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Rol</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['IdRol'] ?? ''); ?></span>
+                                                    </div>
+                                                </div>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Fecha de registro</span>
+                                                        <span class="data-value"><?php echo htmlspecialchars($user['registro'] ?? ''); ?></span>
+                                                    </div>
+                                                </div>
+                                                <div class="data-item">
+                                                    <div class="data-col">
+                                                        <span class="data-label">Estado</span>
+                                                        <span class="data-value"><span class="badge bg-success">Activo</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -211,31 +211,45 @@ ORDER BY b.name DESC;");
                                                 </div>
                                             </div>
                                             <div class="card-inner pt-0">
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Nombre</th>
-                                                            <th class="text-end">Acciones</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php foreach ($ninos as $index => $nino):
-                                                            $detallePacienteUrl = 'pacientes/paciente.php?id=' . urlencode((string)($nino['id'] ?? ''));
-                                                        ?>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-hover align-middle">
+                                                        <thead class="table-light">
                                                             <tr>
-                                                                <td><?php echo $index + 1; ?></td>
-                                                                <td><?php echo htmlspecialchars($nino['name']); ?></td>
-                                                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detallePacienteUrl, ENT_QUOTES, 'UTF-8'); ?>">Ver más</a></td>
+                                                                <th class="text-center" style="width: 72px;">#</th>
+                                                                <th>Nombre</th>
+                                                                <th class="text-end" style="width: 140px;">Acciones</th>
                                                             </tr>
-                                                        <?php endforeach; ?>
-                                                        <?php if (empty($ninos)): ?>
-                                                            <tr>
-                                                                <td colspan="3" class="text-center text-muted">No tienes pacientes asignados.</td>
-                                                            </tr>
-                                                        <?php endif; ?>
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($ninos as $index => $nino):
+                                                                $detallePacienteUrl = 'pacientes/paciente.php?id=' . urlencode((string)($nino['id'] ?? ''));
+                                                            ?>
+                                                                <tr>
+                                                                    <td class="text-center fw-semibold"><?php echo $index + 1; ?></td>
+                                                                    <td class="fw-medium text-capitalize text-truncate" style="max-width: 260px;">
+                                                                        <?php echo htmlspecialchars($nino['name']); ?>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detallePacienteUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                            <em class="icon ni ni-eye"></em>
+                                                                            <span class="d-none d-md-inline">Ver más</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endforeach; ?>
+                                                            <?php if (empty($ninos)): ?>
+                                                                <tr>
+                                                                    <td colspan="3" class="text-center text-muted py-4">
+                                                                        <div class="d-flex flex-column align-items-center">
+                                                                            <em class="icon ni ni-users fs-2 text-primary mb-1"></em>
+                                                                            <span>No tienes pacientes asignados.</span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endif; ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div><!-- .card -->
                                     </div><!-- .col -->

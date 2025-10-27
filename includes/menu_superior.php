@@ -48,18 +48,18 @@
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
                                                     <li><a href="/perfil_usuario.php"><em class="icon ni ni-user-alt"></em><span>Perfil</span></a></li>
-                                                     <li><a class="dark-switch" href="#"><em class="icon ni ni-moon"></em><span>Dark Mode</span></a></li>
+                                                    <li><a href="/configuracion_usuario.php"><em class="icon ni ni-setting-alt"></em><span>Configuración</span></a></li>
                                                 </ul>
-                                            </div> 
+                                            </div>
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
                                                     <li><a href="/salir.php"><em class="icon ni ni-signout"></em><span>Salir</span></a></li>
                                                 </ul>
                                             </div>
-                                        </div> 
+                                        </div>
                                     </li>
                                 </ul>
-                            </div><!-- .nk-header-tools --> 
+                            </div><!-- .nk-header-tools -->
                         </div><!-- .nk-header-wrap -->
                     </div><!-- .container-fliud -->
-                </div>       
+                </div>
