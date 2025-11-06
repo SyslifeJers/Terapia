@@ -17,18 +17,48 @@ SELECT `id_examen`, `id_area`, `id_usuario`, `nombre_examen`, `fecha_creacion` F
 -- secciones de examen
 SELECT `id_seccion`, `id_examen`, `nombre_seccion` FROM `exp_secciones_examen` WHERE 1;
 
--- valoraciones por sesión
 CREATE TABLE `exp_valoraciones_sesion` (
     `id_valoracion` INT AUTO_INCREMENT PRIMARY KEY,
     `id_nino` INT NOT NULL,
     `id_usuario` INT NOT NULL,
-    `participacion` TINYINT,
-    `atencion` TINYINT,
-    `tarea_casa` TINYINT,
     `observaciones` TEXT,
     `fecha_valoracion` DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`),
     FOREIGN KEY (`id_usuario`) REFERENCES `Usuarios`(`id_usuario`)
+);
+
+CREATE TABLE `exp_criterios_evaluacion` (
+    `id_criterio` INT AUTO_INCREMENT PRIMARY KEY,
+    `nombre` VARCHAR(150) NOT NULL,
+    `descripcion` TEXT
+);
+
+-- criterios de evaluación sugeridos
+-- INSERT INTO `exp_criterios_evaluacion` (`nombre`) VALUES
+--     ('Permanencia'),
+--     ('Irritabilidad'),
+--     ('Habilidades sociales'),
+--     ('Atención conjunta'),
+--     ('Seguimiento de indicaciones'),
+--     ('Cognición'),
+--     ('Comunicación receptiva'),
+--     ('Comunicación expresiva');
+
+CREATE TABLE `exp_nino_criterio` (
+    `id_nino` INT NOT NULL,
+    `id_criterio` INT NOT NULL,
+    PRIMARY KEY (`id_nino`, `id_criterio`),
+    FOREIGN KEY (`id_nino`) REFERENCES `nino`(`Id`) ON DELETE CASCADE,
+    FOREIGN KEY (`id_criterio`) REFERENCES `exp_criterios_evaluacion`(`id_criterio`) ON DELETE CASCADE
+);
+
+CREATE TABLE `exp_valoracion_detalle` (
+    `id_detalle` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_valoracion` INT NOT NULL,
+    `id_criterio` INT NOT NULL,
+    `valor` TINYINT NOT NULL,
+    FOREIGN KEY (`id_valoracion`) REFERENCES `exp_valoraciones_sesion`(`id_valoracion`) ON DELETE CASCADE,
+    FOREIGN KEY (`id_criterio`) REFERENCES `exp_criterios_evaluacion`(`id_criterio`)
 );
 
 -- progreso general del paciente

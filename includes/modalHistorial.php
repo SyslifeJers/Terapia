@@ -9,12 +9,9 @@
                 <div class="table-responsive">
                     <table class="table table-striped" id="histEvalTable">
                         <thead>
-                            <tr>
+                            <tr id="histEvalHeadRow">
                                 <th>Fecha</th>
-                                <th>Participación</th>
-                                <th>Atención</th>
-                                <th>Tarea en casa</th>
-                                <th>Observaciones</th>
+                                <th class="hist-eval-observaciones">Observaciones</th>
                             </tr>
                         </thead>
                         <tbody id="histEvalBody"></tbody>
