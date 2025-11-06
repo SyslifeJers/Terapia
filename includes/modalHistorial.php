@@ -11,9 +11,8 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Participación</th>
-                                <th>Atención</th>
-                                <th>Tarea en casa</th>
+                                <th>Resultados</th>
+                                <th>Promedio</th>
                                 <th>Observaciones</th>
                             </tr>
                         </thead>
