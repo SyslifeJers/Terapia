@@ -16,15 +16,43 @@ if ($id > 0) {
     $stmt->close();
 }
 
-$evaluaciones = [];
-$stmt = $conn->prepare("SELECT fecha_valoracion, participacion, atencion, tarea_casa FROM exp_valoraciones_sesion WHERE id_nino = ? ORDER BY fecha_valoracion DESC LIMIT 10");
-$stmt->bind_param('i', $id);
-$stmt->execute();
-$res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) {
-    $evaluaciones[] = $row;
-}
-$stmt->close();
+    $evaluaciones = [];
+    $stmt = $conn->prepare("SELECT id_valoracion, fecha_valoracion, observaciones FROM exp_valoraciones_sesion WHERE id_nino = ? ORDER BY fecha_valoracion DESC LIMIT 10");
+    if ($stmt) {
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $idsValoraciones = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $row['id_valoracion'] = (int)$row['id_valoracion'];
+                $row['observaciones'] = $row['observaciones'] ?? '';
+                $row['criterios'] = [];
+                $evaluaciones[] = $row;
+                $idsValoraciones[] = $row['id_valoracion'];
+            }
+        }
+        $stmt->close();
+
+        if (!empty($idsValoraciones)) {
+            $listaIds = implode(',', array_map('intval', $idsValoraciones));
+            $sqlDet = "SELECT vd.id_valoracion, vd.valor, c.nombre FROM exp_valoracion_detalle vd INNER JOIN exp_criterios_evaluacion c ON c.id_criterio = vd.id_criterio WHERE vd.id_valoracion IN ($listaIds) ORDER BY c.nombre ASC";
+            $detRes = $conn->query($sqlDet);
+            if ($detRes) {
+                $indexMap = array_flip($idsValoraciones);
+                while ($det = $detRes->fetch_assoc()) {
+                    $idVal = (int)$det['id_valoracion'];
+                    if (!isset($indexMap[$idVal])) {
+                        continue;
+                    }
+                    $evaluaciones[$indexMap[$idVal]]['criterios'][] = [
+                        'nombre' => $det['nombre'],
+                        'valor' => (float)$det['valor'],
+                    ];
+                }
+            }
+        }
+    }
 
 $sql = "SELECT lenguaje, motricidad, atencion, memoria, social FROM exp_progreso_general WHERE id_nino = ? ORDER BY fecha_registro ASC";
 $stmt = $conn->prepare($sql);
@@ -73,9 +101,24 @@ foreach ($prom as $k => $v) {
 $y += 120;
 $pdf->text(40, $y, 'Últimas evaluaciones:');
 $y += 10;
-foreach ($evaluaciones as $ev) {
-    $line = sprintf('%s - P:%s A:%s T:%s', $ev['fecha_valoracion'], $ev['participacion'], $ev['atencion'], $ev['tarea_casa']);
-    $pdf->text(40, $y, $line, 8);
+if (!empty($evaluaciones)) {
+    foreach ($evaluaciones as $ev) {
+        $criteriosTexto = [];
+        foreach ($ev['criterios'] as $criterio) {
+            $criteriosTexto[] = $criterio['nombre'] . ': ' . $criterio['valor'];
+        }
+        $line = $ev['fecha_valoracion'];
+        if (!empty($criteriosTexto)) {
+            $line .= ' - ' . implode(', ', $criteriosTexto);
+        }
+        if (!empty($ev['observaciones'])) {
+            $line .= ' (Obs: ' . $ev['observaciones'] . ')';
+        }
+        $pdf->text(40, $y, $line, 8);
+        $y += 10;
+    }
+} else {
+    $pdf->text(40, $y, 'Sin evaluaciones registradas.', 8);
     $y += 10;
 }
 

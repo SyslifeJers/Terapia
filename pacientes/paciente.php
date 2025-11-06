@@ -24,6 +24,41 @@ date_default_timezone_set('America/Mexico_City');
     $evaluaciones  = $conn->query("SELECT COUNT(*) as total FROM exp_valoraciones_sesion WHERE id_nino = $id")->fetch_assoc()['total'] ?? 0;
     $examenes = $conn->query("SELECT COUNT(*) as total FROM exp_evaluacion_examen WHERE id_nino = $id")->fetch_assoc()['total'] ?? 0;
 
+    $criteriosDisponibles = [];
+    $criteriosAsignados = [];
+    $criteriosParaGraficas = [];
+    $valoracionesRecientes = [];
+    $promediosCriterios = [];
+    $lineChartData = [
+        'labels' => [],
+        'datasets' => [],
+        'general' => []
+    ];
+
+    $resCriterios = $conn->query("SELECT id_criterio, nombre FROM exp_criterios_evaluacion ORDER BY nombre ASC");
+    if ($resCriterios) {
+        while ($row = $resCriterios->fetch_assoc()) {
+            $row['id_criterio'] = (int)$row['id_criterio'];
+            $criteriosDisponibles[] = $row;
+        }
+    }
+
+    $stmt = $conn->prepare("SELECT c.id_criterio, c.nombre FROM exp_nino_criterio nc INNER JOIN exp_criterios_evaluacion c ON c.id_criterio = nc.id_criterio WHERE nc.id_nino = ? ORDER BY c.nombre ASC");
+    if ($stmt) {
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $row['id_criterio'] = (int)$row['id_criterio'];
+                $criteriosAsignados[] = $row;
+            }
+        }
+        $stmt->close();
+    }
+
+    $idsCriteriosAsignados = array_column($criteriosAsignados, 'id_criterio');
+
     $grafica_data = [
         'primera' => null,
         'ultima' => null,
@@ -90,35 +125,132 @@ date_default_timezone_set('America/Mexico_City');
         $grafica_data['ultima'] = $grafica_data['primera'];
     }
 
-    $ultimas_evaluaciones = [];
-
-    $stmt = $conn->prepare("
-    SELECT participacion, atencion, tarea_casa, fecha_valoracion 
-    FROM exp_valoraciones_sesion 
-    WHERE id_nino = ?
-    ORDER BY fecha_valoracion DESC 
-    LIMIT 15
-");
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Construir arreglo con promedio y ordenar cronológicamente
-    while ($row = $result->fetch_assoc()) {
-        $row['participacion'] = (float)$row['participacion'];
-        $row['atencion'] = (float)$row['atencion'];
-        $row['tarea_casa'] = (float)$row['tarea_casa'];
-        $row['promedio'] = round((
-            $row['participacion'] +
-            $row['atencion'] +
-            $row['tarea_casa']
-        ) / 3, 2);
-
-        $ultimas_evaluaciones[] = $row;
+    $mapCriteriosPaciente = [];
+    foreach ($criteriosAsignados as $crit) {
+        $mapCriteriosPaciente[$crit['id_criterio']] = $crit;
     }
 
-    // Ordenar por fecha ascendente para que se grafique cronológicamente
-    $ultimas_evaluaciones = array_reverse($ultimas_evaluaciones);
+    $stmt = $conn->prepare("SELECT id_valoracion, fecha_valoracion, observaciones FROM exp_valoraciones_sesion WHERE id_nino = ? ORDER BY fecha_valoracion DESC LIMIT 15");
+    if ($stmt) {
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $valoracionIds = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $row['id_valoracion'] = (int)$row['id_valoracion'];
+                $row['detalles'] = [];
+                $row['promedio'] = null;
+                $valoracionesRecientes[] = $row;
+                $valoracionIds[] = $row['id_valoracion'];
+            }
+        }
+        $stmt->close();
+
+        if (!empty($valoracionIds)) {
+            $listaIds = implode(',', array_map('intval', $valoracionIds));
+            $sqlDetalles = "SELECT vd.id_valoracion, vd.id_criterio, vd.valor, c.nombre FROM exp_valoracion_detalle vd INNER JOIN exp_criterios_evaluacion c ON c.id_criterio = vd.id_criterio WHERE vd.id_valoracion IN ($listaIds) ORDER BY c.nombre ASC";
+            $detallesRes = $conn->query($sqlDetalles);
+            if ($detallesRes) {
+                $indicesValoracion = array_flip($valoracionIds);
+                while ($det = $detallesRes->fetch_assoc()) {
+                    $idValoracion = (int)$det['id_valoracion'];
+                    $idCriterio = (int)$det['id_criterio'];
+                    $valor = (float)$det['valor'];
+                    $nombreCriterio = $det['nombre'];
+                    if (isset($indicesValoracion[$idValoracion])) {
+                        $idx = $indicesValoracion[$idValoracion];
+                        $valoracionesRecientes[$idx]['detalles'][$idCriterio] = $valor;
+                    }
+                    if (!isset($mapCriteriosPaciente[$idCriterio])) {
+                        $mapCriteriosPaciente[$idCriterio] = [
+                            'id_criterio' => $idCriterio,
+                            'nombre' => $nombreCriterio
+                        ];
+                    }
+                }
+            }
+        }
+    }
+
+    foreach ($mapCriteriosPaciente as $critId => $critInfo) {
+        if (!isset($promediosCriterios[$critId])) {
+            $promediosCriterios[$critId] = [
+                'id_criterio' => $critId,
+                'nombre' => $critInfo['nombre'],
+                'sum' => 0,
+                'count' => 0,
+                'promedio' => 0,
+            ];
+        }
+    }
+
+    foreach ($valoracionesRecientes as &$valoracion) {
+        $suma = 0;
+        $count = 0;
+        foreach ($valoracion['detalles'] as $criterioId => $valorDetalle) {
+            $suma += (float)$valorDetalle;
+            $count++;
+            if (!isset($promediosCriterios[$criterioId])) {
+                $promediosCriterios[$criterioId] = [
+                    'id_criterio' => $criterioId,
+                    'nombre' => $mapCriteriosPaciente[$criterioId]['nombre'] ?? '',
+                    'sum' => 0,
+                    'count' => 0,
+                    'promedio' => 0,
+                ];
+            }
+            $promediosCriterios[$criterioId]['sum'] += (float)$valorDetalle;
+            $promediosCriterios[$criterioId]['count']++;
+        }
+        $valoracion['promedio'] = $count ? round($suma / $count, 2) : null;
+    }
+    unset($valoracion);
+
+    foreach ($promediosCriterios as $critId => &$info) {
+        $info['promedio'] = $info['count'] ? round($info['sum'] / $info['count'], 2) : 0;
+        unset($info['sum'], $info['count']);
+    }
+    unset($info);
+
+    $criteriosParaGraficas = array_values($mapCriteriosPaciente);
+
+    if (!empty($valoracionesRecientes)) {
+        $valoracionesAsc = array_reverse($valoracionesRecientes);
+        foreach ($valoracionesAsc as $valoracion) {
+            $lineChartData['labels'][] = $valoracion['fecha_valoracion'];
+        }
+
+        $coloresBase = ['#36A2EB', '#4BC0C0', '#FF6384', '#FFCE56', '#9966FF', '#FF9F40', '#8BC34A', '#E91E63'];
+        $datasetIndex = [];
+        foreach ($criteriosParaGraficas as $idx => $criterio) {
+            $color = $coloresBase[$idx % count($coloresBase)];
+            $lineChartData['datasets'][] = [
+                'id_criterio' => $criterio['id_criterio'],
+                'label' => $criterio['nombre'],
+                'color' => $color,
+                'data' => []
+            ];
+            $datasetIndex[$criterio['id_criterio']] = $idx;
+        }
+
+        foreach ($valoracionesAsc as $valoracion) {
+            $suma = 0;
+            $conteo = 0;
+            foreach ($criteriosParaGraficas as $criterio) {
+                $critId = $criterio['id_criterio'];
+                $valor = $valoracion['detalles'][$critId] ?? null;
+                $lineChartData['datasets'][$datasetIndex[$critId]]['data'][] = $valor !== null ? (float)$valor : null;
+                if ($valor !== null) {
+                    $suma += (float)$valor;
+                    $conteo++;
+                }
+            }
+            $lineChartData['general'][] = $conteo ? round($suma / $conteo, 2) : null;
+        }
+    }
+
+    $promediosCriterios = array_values($promediosCriterios);
 
     $lista_examenes = [];
 
@@ -216,15 +348,13 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
 
                                     <div class="team-statistics">
-                                        <?php
-                                        $evalCount = count($ultimas_evaluaciones);
-                                        $avgPart = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'participacion')) / $evalCount, 2) : 0;
-                                        $avgAt = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'atencion')) / $evalCount, 2) : 0;
-                                        $avgTarea = $evalCount ? round(array_sum(array_column($ultimas_evaluaciones, 'tarea_casa')) / $evalCount, 2) : 0;
-                                        ?>
-                                        <p>Participación: <?php echo $avgPart; ?></p>
-                                        <p>Atención: <?php echo $avgAt; ?></p>
-                                        <p>Tarea en casa: <?php echo $avgTarea; ?></p>
+                                        <?php if (!empty($promediosCriterios)): ?>
+                                            <?php foreach ($promediosCriterios as $prom): ?>
+                                                <p><?php echo htmlspecialchars($prom['nombre']); ?>: <?php echo number_format($prom['promedio'], 2); ?></p>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <p>No hay evaluaciones registradas.</p>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="team-view mt-2">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProgreso">Nuevo progreso</button>
@@ -244,6 +374,32 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
 
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-inner">
+                                <h6 class="title mb-3">Criterios de evaluación</h6>
+                                <?php if (!empty($criteriosDisponibles)): ?>
+                                    <form action="guardar_criterios.php" method="POST">
+                                        <input type="hidden" name="id_nino" value="<?php echo $id; ?>">
+                                        <div class="row g-2">
+                                            <?php foreach ($criteriosDisponibles as $criterio): ?>
+                                                <?php $checked = in_array($criterio['id_criterio'], $idsCriteriosAsignados, true); ?>
+                                                <div class="col-12">
+                                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="criterio-<?php echo (int)$criterio['id_criterio']; ?>-asignado" name="criterios[]" value="<?php echo (int)$criterio['id_criterio']; ?>" <?php echo $checked ? 'checked' : ''; ?>>
+                                                        <label class="custom-control-label" for="criterio-<?php echo (int)$criterio['id_criterio']; ?>-asignado"><?php echo htmlspecialchars($criterio['nombre']); ?></label>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">Guardar criterios</button>
+                                        </div>
+                                    </form>
+                                <?php else: ?>
+                                    <p class="text-muted mb-0">Agrega criterios en el catálogo para poder asignarlos al paciente.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -494,70 +650,87 @@ date_default_timezone_set('America/Mexico_City');
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const datosLineales = <?php echo json_encode($ultimas_evaluaciones); ?>;
+    const criteriosEvaluacion = <?php echo json_encode($criteriosParaGraficas); ?>;
+    const lineChartData = <?php echo json_encode($lineChartData); ?>;
 
-    const fechas = datosLineales.map(e => e.fecha_valoracion);
-    const participacion = datosLineales.map(e => parseFloat(e.participacion));
-    const atencion = datosLineales.map(e => parseFloat(e.atencion));
-    const tarea = datosLineales.map(e => parseFloat(e.tarea_casa));
-    const promedio = datosLineales.map(e => parseFloat(e.promedio));
-
-    const configLineal = {
-        type: 'line',
-        data: {
-            labels: fechas,
-            datasets: [{
-                    label: 'Participación',
-                    data: participacion,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    tension: 0.3
-                },
-                {
-                    label: 'Atención',
-                    data: atencion,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.3
-                },
-                {
-                    label: 'Tarea en casa',
-                    data: tarea,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    tension: 0.3
-                },
-                {
-                    label: 'Calificación general',
-                    data: promedio,
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                    tension: 0.3,
-                    borderDash: [5, 5]
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Tendencia de las últimas 10 evaluaciones'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    suggestedMin: 0,
-                    suggestedMax: 10
-                }
-            }
+    function hexToRgba(hex, alpha) {
+        let sanitized = String(hex || '').replace('#', '');
+        if (sanitized.length === 3) {
+            sanitized = sanitized.split('').map(ch => ch + ch).join('');
         }
-    };
+        const bigint = parseInt(sanitized, 16);
+        if (Number.isNaN(bigint)) {
+            return `rgba(0, 0, 0, ${alpha})`;
+        }
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
 
-    new Chart(document.getElementById('graficaLineal'), configLineal);
-    // Aquí va tu configuración de Chart.js con los 4 datasets
-    console.log(datosLineales);
+    const graficaLinealCanvas = document.getElementById('graficaLineal');
+    if (graficaLinealCanvas) {
+        const datasets = [];
+        if (Array.isArray(lineChartData.datasets)) {
+            lineChartData.datasets.forEach(ds => {
+                datasets.push({
+                    label: ds.label,
+                    data: ds.data,
+                    borderColor: ds.color,
+                    backgroundColor: hexToRgba(ds.color, 0.2),
+                    tension: 0.3,
+                    spanGaps: true
+                });
+            });
+        }
+
+        if (Array.isArray(lineChartData.general) && lineChartData.general.some(v => v !== null)) {
+            datasets.push({
+                label: 'Promedio general',
+                data: lineChartData.general,
+                borderColor: 'rgba(255, 206, 86, 1)',
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                tension: 0.3,
+                borderDash: [5, 5],
+                spanGaps: true
+            });
+        }
+
+        if (Array.isArray(lineChartData.labels) && lineChartData.labels.length && datasets.length) {
+            new Chart(graficaLinealCanvas, {
+                type: 'line',
+                data: {
+                    labels: lineChartData.labels,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Tendencia de las últimas evaluaciones'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    }
+                }
+            });
+        } else {
+            const container = graficaLinealCanvas.closest('.card-inner');
+            if (container) {
+                const mensaje = document.createElement('p');
+                mensaje.classList.add('text-muted', 'mb-0');
+                mensaje.textContent = 'Sin datos suficientes para graficar.';
+                container.appendChild(mensaje);
+            }
+            graficaLinealCanvas.remove();
+        }
+    }
 </script>
 
 <script>
@@ -642,29 +815,91 @@ date_default_timezone_set('America/Mexico_City');
     const examNote = document.getElementById('examNote');
     const examLoading = document.getElementById('examUploadLoading');
     let lastFocusedElement = null;
+    let histEvalDt = null;
+    let histProgDt = null;
 
     function cargarHistorial(tipo, tbodyId, modalId) {
         fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
             .then(r => r.json())
             .then(data => {
                 const tbody = document.getElementById(tbodyId);
+                if (!tbody) return;
                 tbody.innerHTML = '';
-                if (data.length === 0) {
-                    const cols = tbodyId === 'histEvalBody' ? 5 : 7;
-                    tbody.innerHTML = `<tr><td colspan="${cols}">Sin registros</td></tr>`;
-                } else {
-                    data.forEach(row => {
-                        if (tipo === 'evaluacion') {
-                            tbody.innerHTML += `<tr><td>${row.fecha_valoracion}</td><td>${row.participacion}</td><td>${row.atencion}</td><td>${row.tarea_casa}</td><td>${row.observaciones || ''}</td></tr>`;
-                            new DataTable('#histEvalTable');
 
-                        } else {
+                if (tipo === 'evaluacion') {
+                    const criteriosTabla = Array.isArray(criteriosEvaluacion) ? [...criteriosEvaluacion] : [];
+                    const idsActuales = new Set(criteriosTabla.map(c => c.id_criterio));
+                    if (Array.isArray(data)) {
+                        data.forEach(row => {
+                            if (Array.isArray(row.criterios)) {
+                                row.criterios.forEach(c => {
+                                    if (!idsActuales.has(c.id_criterio)) {
+                                        criteriosTabla.push(c);
+                                        idsActuales.add(c.id_criterio);
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    const headRow = document.getElementById('histEvalHeadRow');
+                    if (headRow) {
+                        headRow.innerHTML = '<th>Fecha</th>';
+                        criteriosTabla.forEach(c => {
+                            headRow.innerHTML += `<th>${c.nombre}</th>`;
+                        });
+                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th>';
+                    }
+
+                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 2);
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="${totalCols}">Sin registros</td></tr>`;
+                    } else {
+                        data.forEach(row => {
+                            const valores = new Map();
+                            if (Array.isArray(row.criterios)) {
+                                row.criterios.forEach(c => {
+                                    valores.set(String(c.id_criterio), c.valor);
+                                });
+                            }
+                            let celdas = `<td>${row.fecha_valoracion}</td>`;
+                            criteriosTabla.forEach(c => {
+                                const key = String(c.id_criterio);
+                                const valor = valores.has(key) ? valores.get(key) : '';
+                                celdas += `<td>${valor !== '' ? valor : '-'}</td>`;
+                            });
+                            const promedio = typeof row.promedio === 'number' && !Number.isNaN(row.promedio)
+                                ? row.promedio.toFixed(2)
+                                : '-';
+                            celdas += `<td>${promedio}</td>`;
+                            const obs = row.observaciones ? row.observaciones : '';
+                            celdas += `<td>${obs}</td>`;
+                            tbody.innerHTML += `<tr>${celdas}</tr>`;
+                        });
+                    }
+
+                    if (histEvalDt) {
+                        histEvalDt.destroy();
+                    }
+                    histEvalDt = new DataTable('#histEvalTable');
+                } else {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7">Sin registros</td></tr>';
+                    } else {
+                        data.forEach(row => {
                             tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
-                            new DataTable('#histProgTable');
-                        }
-                    });
+                        });
+                    }
+                    if (histProgDt) {
+                        histProgDt.destroy();
+                    }
+                    histProgDt = new DataTable('#histProgTable');
                 }
+
                 const modalEl = document.getElementById(modalId);
+                if (!modalEl) {
+                    return;
+                }
                 const modal = new bootstrap.Modal(modalEl);
                 lastFocusedElement = document.activeElement;
                 modal.show();
