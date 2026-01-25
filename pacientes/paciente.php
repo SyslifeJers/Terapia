@@ -2,6 +2,45 @@
 include_once '../includes/head.php';
 date_default_timezone_set('America/Mexico_City');
 ?>
+<style>
+    .hist-eval-modal .modal-dialog {
+        max-width: 95vw;
+    }
+
+    .hist-eval-modal .table-responsive {
+        max-height: 70vh;
+        overflow: auto;
+    }
+
+    .hist-eval-table {
+        min-width: 1100px;
+    }
+
+    .hist-eval-table td,
+    .hist-eval-table th {
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .hist-eval-observaciones-cell {
+        min-width: 320px;
+        max-width: 420px;
+        white-space: normal;
+    }
+
+    .hist-eval-observaciones-text {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .hist-eval-actions {
+        min-width: 140px;
+    }
+
+    .hist-eval-actions .btn {
+        margin-bottom: 0.35rem;
+    }
+</style>
 <div class="nk-wrap ">
     <?php
     include_once '../includes/menu_superior.php';
@@ -817,6 +856,17 @@ date_default_timezone_set('America/Mexico_City');
     let lastFocusedElement = null;
     let histEvalDt = null;
     let histProgDt = null;
+    const histEvalTable = document.getElementById('histEvalTable');
+
+    const escapeHtml = (value) => {
+        const text = String(value ?? '');
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
 
     function cargarHistorial(tipo, tbodyId, modalId) {
         fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
@@ -848,10 +898,10 @@ date_default_timezone_set('America/Mexico_City');
                         criteriosTabla.forEach(c => {
                             headRow.innerHTML += `<th>${c.nombre}</th>`;
                         });
-                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th>';
+                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th><th class="hist-eval-actions">Acciones</th>';
                     }
 
-                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 2);
+                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 3);
                     if (!Array.isArray(data) || data.length === 0) {
                         tbody.innerHTML = `<tr><td colspan="${totalCols}">Sin registros</td></tr>`;
                     } else {
@@ -873,8 +923,23 @@ date_default_timezone_set('America/Mexico_City');
                                 : '-';
                             celdas += `<td>${promedio}</td>`;
                             const obs = row.observaciones ? row.observaciones : '';
-                            celdas += `<td>${obs}</td>`;
-                            tbody.innerHTML += `<tr>${celdas}</tr>`;
+                            const obsText = escapeHtml(obs);
+                            const obsDisplay = obs ? obsText : 'Sin observaciones';
+                            const obsClass = obs ? '' : ' text-muted';
+                            celdas += `
+                                <td class="hist-eval-observaciones-cell">
+                                    <div class="hist-eval-observaciones-text${obsClass}" data-empty="${obs ? '0' : '1'}">${obsDisplay}</div>
+                                    <textarea class="form-control hist-eval-observaciones-input d-none" rows="3">${obsText}</textarea>
+                                </td>
+                                <td class="hist-eval-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit">Editar</button>
+                                    <div class="d-none hist-eval-actions-edit">
+                                        <button type="button" class="btn btn-sm btn-primary" data-action="save">Guardar</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="cancel">Cancelar</button>
+                                    </div>
+                                </td>
+                            `;
+                            tbody.innerHTML += `<tr data-id="${row.id_valoracion}">${celdas}</tr>`;
                         });
                     }
 
@@ -928,6 +993,80 @@ date_default_timezone_set('America/Mexico_City');
     if (btnHistProg) {
         btnHistProg.addEventListener('click', () => {
             cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
+        });
+    }
+
+    if (histEvalTable) {
+        histEvalTable.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            const row = button.closest('tr');
+            if (!row) return;
+            const action = button.dataset.action;
+            const obsCell = row.querySelector('.hist-eval-observaciones-cell');
+            const textEl = obsCell ? obsCell.querySelector('.hist-eval-observaciones-text') : null;
+            const inputEl = obsCell ? obsCell.querySelector('.hist-eval-observaciones-input') : null;
+            const actionsCell = row.querySelector('.hist-eval-actions');
+            const editButton = actionsCell ? actionsCell.querySelector('[data-action="edit"]') : null;
+            const editActions = actionsCell ? actionsCell.querySelector('.hist-eval-actions-edit') : null;
+            if (!obsCell || !textEl || !inputEl || !actionsCell || !editButton || !editActions) return;
+
+            if (action === 'edit') {
+                row.dataset.originalObs = inputEl.value;
+                inputEl.classList.remove('d-none');
+                textEl.classList.add('d-none');
+                editButton.classList.add('d-none');
+                editActions.classList.remove('d-none');
+                inputEl.focus();
+                return;
+            }
+
+            if (action === 'cancel') {
+                inputEl.value = row.dataset.originalObs || '';
+                inputEl.classList.add('d-none');
+                textEl.classList.remove('d-none');
+                editButton.classList.remove('d-none');
+                editActions.classList.add('d-none');
+                return;
+            }
+
+            if (action === 'save') {
+                const idValoracion = row.dataset.id;
+                const nuevaObs = inputEl.value.trim();
+                button.disabled = true;
+                fetch('actualizar_observacion.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (!res.success) {
+                            Swal.fire('Error', res.message || 'No se pudo actualizar la observación.', 'error');
+                            return;
+                        }
+                        textEl.textContent = nuevaObs || 'Sin observaciones';
+                        if (nuevaObs) {
+                            textEl.classList.remove('text-muted');
+                            textEl.dataset.empty = '0';
+                        } else {
+                            textEl.classList.add('text-muted');
+                            textEl.dataset.empty = '1';
+                        }
+                        inputEl.classList.add('d-none');
+                        textEl.classList.remove('d-none');
+                        editButton.classList.remove('d-none');
+                        editActions.classList.add('d-none');
+                    })
+                    .catch(() => {
+                        Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                    });
+            }
         });
     }
 

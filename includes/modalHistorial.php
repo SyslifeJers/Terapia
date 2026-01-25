@@ -1,4 +1,4 @@
-<div class="modal fade" id="modalHistEval" tabindex="-1" aria-hidden="true">
+<div class="modal fade hist-eval-modal" id="modalHistEval" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    <table class="table table-striped" id="histEvalTable">
+                    <table class="table table-striped hist-eval-table" id="histEvalTable">
                         <thead>
                             <tr id="histEvalHeadRow">
                                 <th>Fecha</th>
