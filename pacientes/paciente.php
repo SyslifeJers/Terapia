@@ -1002,6 +1002,7 @@ date_default_timezone_set('America/Mexico_City');
             if (!button) return;
             const row = button.closest('tr');
             if (!row) return;
+            button.blur();
             pendingEdit = {
                 id: row.dataset.id || '',
                 observaciones: row.dataset.observaciones || ''
@@ -1013,6 +1014,16 @@ date_default_timezone_set('America/Mexico_City');
     }
 
     if (modalHistEvalEl) {
+        modalHistEvalEl.addEventListener('hide.bs.modal', () => {
+            if (modalHistEvalEl.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+            document.body.setAttribute('tabindex', '-1');
+            document.body.focus();
+            setTimeout(() => {
+                document.body.removeAttribute('tabindex');
+            }, 0);
+        });
         modalHistEvalEl.addEventListener('hidden.bs.modal', () => {
             if (!pendingEdit || !modalEditEvalEl) {
                 return;
