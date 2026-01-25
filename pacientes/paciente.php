@@ -2,45 +2,6 @@
 include_once '../includes/head.php';
 date_default_timezone_set('America/Mexico_City');
 ?>
-<style>
-    .hist-eval-modal .modal-dialog {
-        max-width: 95vw;
-    }
-
-    .hist-eval-modal .table-responsive {
-        max-height: 70vh;
-        overflow: auto;
-    }
-
-    .hist-eval-table {
-        min-width: 1100px;
-    }
-
-    .hist-eval-table td,
-    .hist-eval-table th {
-        white-space: nowrap;
-        vertical-align: top;
-    }
-
-    .hist-eval-observaciones-cell {
-        min-width: 320px;
-        max-width: 420px;
-        white-space: normal;
-    }
-
-    .hist-eval-observaciones-text {
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-    .hist-eval-actions {
-        min-width: 140px;
-    }
-
-    .hist-eval-actions .btn {
-        margin-bottom: 0.35rem;
-    }
-</style>
 <div class="nk-wrap ">
     <?php
     include_once '../includes/menu_superior.php';
@@ -400,7 +361,7 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
                                     <div class="team-statistics">
                                         <div class="team-view mt-2">
-                                            <button type="button" class="btn btn-outline-info" id="btnHistEval">Historial de evaluación</button>
+                                            <a href="historial_evaluaciones.php?id=<?php echo $id; ?>" class="btn btn-outline-info">Historial de evaluación</a>
                                         </div>
                                         <div class="team-view mt-2">
                                             <button type="button" class="btn btn-outline-info" id="btnHistProg">Historial de progreso</button>
@@ -848,236 +809,54 @@ date_default_timezone_set('America/Mexico_City');
 </script>
 <script>
     const idPaciente = <?php echo $id; ?>;
-    const btnHistEval = document.getElementById('btnHistEval');
     const btnHistProg = document.getElementById('btnHistProg');
     const examForm = document.getElementById('examUploadForm');
     const examNote = document.getElementById('examNote');
     const examLoading = document.getElementById('examUploadLoading');
     let lastFocusedElement = null;
-    let histEvalDt = null;
     let histProgDt = null;
-    const histEvalTable = document.getElementById('histEvalTable');
-    const modalHistEvalEl = document.getElementById('modalHistEval');
     const modalHistProgEl = document.getElementById('modalHistProg');
-    const modalEditEvalEl = document.getElementById('modalEditEvalObservaciones');
-    const editEvalIdInput = document.getElementById('editEvalId');
-    const editEvalObsInput = document.getElementById('editEvalObservaciones');
-    const btnSaveEvalObs = document.getElementById('btnSaveEvalObservaciones');
-    let pendingEdit = null;
-    let reopenHistEval = false;
 
-    const escapeHtml = (value) => {
-        const text = String(value ?? '');
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    };
-
-    function cargarHistorial(tipo, tbodyId, modalId) {
-        fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
+    function cargarHistorialProgreso() {
+        fetch(`get_historial.php?tipo=progreso&id=${idPaciente}`)
             .then(r => r.json())
             .then(data => {
-                const tbody = document.getElementById(tbodyId);
+                const tbody = document.getElementById('histProgBody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
 
-                if (tipo === 'evaluacion') {
-                    const criteriosTabla = Array.isArray(criteriosEvaluacion) ? [...criteriosEvaluacion] : [];
-                    const idsActuales = new Set(criteriosTabla.map(c => c.id_criterio));
-                    if (Array.isArray(data)) {
-                        data.forEach(row => {
-                            if (Array.isArray(row.criterios)) {
-                                row.criterios.forEach(c => {
-                                    if (!idsActuales.has(c.id_criterio)) {
-                                        criteriosTabla.push(c);
-                                        idsActuales.add(c.id_criterio);
-                                    }
-                                });
-                            }
-                        });
-                    }
-
-                    const headRow = document.getElementById('histEvalHeadRow');
-                    if (headRow) {
-                        headRow.innerHTML = '<th>Fecha</th>';
-                        criteriosTabla.forEach(c => {
-                            headRow.innerHTML += `<th>${c.nombre}</th>`;
-                        });
-                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th><th class="hist-eval-actions">Acciones</th>';
-                    }
-
-                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 3);
-                    if (!Array.isArray(data) || data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="${totalCols}">Sin registros</td></tr>`;
-                    } else {
-                        data.forEach(row => {
-                            const valores = new Map();
-                            if (Array.isArray(row.criterios)) {
-                                row.criterios.forEach(c => {
-                                    valores.set(String(c.id_criterio), c.valor);
-                                });
-                            }
-                            let celdas = `<td>${row.fecha_valoracion}</td>`;
-                            criteriosTabla.forEach(c => {
-                                const key = String(c.id_criterio);
-                                const valor = valores.has(key) ? valores.get(key) : '';
-                                celdas += `<td>${valor !== '' ? valor : '-'}</td>`;
-                            });
-                            const promedio = typeof row.promedio === 'number' && !Number.isNaN(row.promedio)
-                                ? row.promedio.toFixed(2)
-                                : '-';
-                            celdas += `<td>${promedio}</td>`;
-                            const obs = row.observaciones ? row.observaciones : '';
-                            const obsText = escapeHtml(obs);
-                            const obsDisplay = obs ? obsText : 'Sin observaciones';
-                            const obsClass = obs ? '' : ' text-muted';
-                            celdas += `
-                                <td class="hist-eval-observaciones-cell">
-                                    <div class="hist-eval-observaciones-text${obsClass}" data-empty="${obs ? '0' : '1'}">${obsDisplay}</div>
-                                </td>
-                                <td class="hist-eval-actions">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit">Editar</button>
-                                </td>
-                            `;
-                            tbody.innerHTML += `<tr data-id="${row.id_valoracion}" data-observaciones="${obsText}">${celdas}</tr>`;
-                        });
-                    }
-
-                    if (histEvalDt) {
-                        histEvalDt.destroy();
-                    }
-                    histEvalDt = new DataTable('#histEvalTable');
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">Sin registros</td></tr>';
                 } else {
-                    if (!Array.isArray(data) || data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7">Sin registros</td></tr>';
-                    } else {
-                        data.forEach(row => {
-                            tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
-                        });
-                    }
-                    if (histProgDt) {
-                        histProgDt.destroy();
-                    }
-                    histProgDt = new DataTable('#histProgTable');
+                    data.forEach(row => {
+                        tbody.innerHTML += `<tr><td>${row.fecha_registro}</td><td>${row.lenguaje}</td><td>${row.motricidad}</td><td>${row.atencion}</td><td>${row.memoria}</td><td>${row.social}</td><td>${row.observaciones || ''}</td></tr>`;
+                    });
                 }
+                if (histProgDt) {
+                    histProgDt.destroy();
+                }
+                histProgDt = new DataTable('#histProgTable');
 
-                const modalEl = document.getElementById(modalId);
-                if (!modalEl) {
+                if (!modalHistProgEl) {
                     return;
                 }
-                const modal = new bootstrap.Modal(modalEl);
+                const modal = new bootstrap.Modal(modalHistProgEl);
                 lastFocusedElement = document.activeElement;
                 modal.show();
             });
     }
 
-    [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
-        if (modalEl) {
-            modalEl.addEventListener('hidden.bs.modal', () => {
-                if (lastFocusedElement) {
-                    lastFocusedElement.focus();
-                }
-            });
-        }
-    });
-
-    if (btnHistEval) {
-        btnHistEval.addEventListener('click', () => {
-            cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
+    if (modalHistProgEl) {
+        modalHistProgEl.addEventListener('hidden.bs.modal', () => {
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+            }
         });
     }
 
     if (btnHistProg) {
         btnHistProg.addEventListener('click', () => {
-            cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
-        });
-    }
-
-    if (histEvalTable) {
-        histEvalTable.addEventListener('click', (event) => {
-            const button = event.target.closest('button[data-action="edit"]');
-            if (!button) return;
-            const row = button.closest('tr');
-            if (!row) return;
-            button.blur();
-            pendingEdit = {
-                id: row.dataset.id || '',
-                observaciones: row.dataset.observaciones || ''
-            };
-            reopenHistEval = true;
-            const histModal = bootstrap.Modal.getOrCreateInstance(modalHistEvalEl);
-            histModal.hide();
-        });
-    }
-
-    if (modalHistEvalEl) {
-        modalHistEvalEl.addEventListener('hide.bs.modal', () => {
-            if (modalHistEvalEl.contains(document.activeElement)) {
-                document.activeElement.blur();
-            }
-            document.body.setAttribute('tabindex', '-1');
-            document.body.focus();
-            setTimeout(() => {
-                document.body.removeAttribute('tabindex');
-            }, 0);
-        });
-        modalHistEvalEl.addEventListener('hidden.bs.modal', () => {
-            if (!pendingEdit || !modalEditEvalEl) {
-                return;
-            }
-            if (editEvalIdInput) {
-                editEvalIdInput.value = pendingEdit.id;
-            }
-            if (editEvalObsInput) {
-                editEvalObsInput.value = pendingEdit.observaciones;
-                editEvalObsInput.focus();
-            }
-            pendingEdit = null;
-            const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
-            editModal.show();
-        });
-    }
-
-    if (modalEditEvalEl) {
-        modalEditEvalEl.addEventListener('hidden.bs.modal', () => {
-            if (reopenHistEval) {
-                reopenHistEval = false;
-                cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
-            }
-        });
-    }
-
-    if (btnSaveEvalObs) {
-        btnSaveEvalObs.addEventListener('click', () => {
-            if (!editEvalIdInput || !editEvalObsInput) return;
-            const idValoracion = editEvalIdInput.value;
-            const nuevaObs = editEvalObsInput.value.trim();
-            btnSaveEvalObs.disabled = true;
-            fetch('actualizar_observacion.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                    },
-                    body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
-                })
-                .then(r => r.json())
-                .then(res => {
-                    if (!res.success) {
-                        Swal.fire('Error', res.message || 'No se pudo actualizar la observación.', 'error');
-                        return;
-                    }
-                    const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
-                    editModal.hide();
-                })
-                .catch(() => {
-                    Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
-                })
-                .finally(() => {
-                    btnSaveEvalObs.disabled = false;
-                });
+            cargarHistorialProgreso();
         });
     }
 
