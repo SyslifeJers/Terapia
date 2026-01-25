@@ -857,6 +857,14 @@ date_default_timezone_set('America/Mexico_City');
     let histEvalDt = null;
     let histProgDt = null;
     const histEvalTable = document.getElementById('histEvalTable');
+    const modalHistEvalEl = document.getElementById('modalHistEval');
+    const modalHistProgEl = document.getElementById('modalHistProg');
+    const modalEditEvalEl = document.getElementById('modalEditEvalObservaciones');
+    const editEvalIdInput = document.getElementById('editEvalId');
+    const editEvalObsInput = document.getElementById('editEvalObservaciones');
+    const btnSaveEvalObs = document.getElementById('btnSaveEvalObservaciones');
+    let pendingEdit = null;
+    let reopenHistEval = false;
 
     const escapeHtml = (value) => {
         const text = String(value ?? '');
@@ -929,17 +937,12 @@ date_default_timezone_set('America/Mexico_City');
                             celdas += `
                                 <td class="hist-eval-observaciones-cell">
                                     <div class="hist-eval-observaciones-text${obsClass}" data-empty="${obs ? '0' : '1'}">${obsDisplay}</div>
-                                    <textarea class="form-control hist-eval-observaciones-input d-none" rows="3">${obsText}</textarea>
                                 </td>
                                 <td class="hist-eval-actions">
                                     <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit">Editar</button>
-                                    <div class="d-none hist-eval-actions-edit">
-                                        <button type="button" class="btn btn-sm btn-primary" data-action="save">Guardar</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="cancel">Cancelar</button>
-                                    </div>
                                 </td>
                             `;
-                            tbody.innerHTML += `<tr data-id="${row.id_valoracion}">${celdas}</tr>`;
+                            tbody.innerHTML += `<tr data-id="${row.id_valoracion}" data-observaciones="${obsText}">${celdas}</tr>`;
                         });
                     }
 
@@ -971,9 +974,6 @@ date_default_timezone_set('America/Mexico_City');
             });
     }
 
-    const modalHistEvalEl = document.getElementById('modalHistEval');
-    const modalHistProgEl = document.getElementById('modalHistProg');
-
     [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
         if (modalEl) {
             modalEl.addEventListener('hidden.bs.modal', () => {
@@ -998,75 +998,75 @@ date_default_timezone_set('America/Mexico_City');
 
     if (histEvalTable) {
         histEvalTable.addEventListener('click', (event) => {
-            const button = event.target.closest('button[data-action]');
+            const button = event.target.closest('button[data-action="edit"]');
             if (!button) return;
             const row = button.closest('tr');
             if (!row) return;
-            const action = button.dataset.action;
-            const obsCell = row.querySelector('.hist-eval-observaciones-cell');
-            const textEl = obsCell ? obsCell.querySelector('.hist-eval-observaciones-text') : null;
-            const inputEl = obsCell ? obsCell.querySelector('.hist-eval-observaciones-input') : null;
-            const actionsCell = row.querySelector('.hist-eval-actions');
-            const editButton = actionsCell ? actionsCell.querySelector('[data-action="edit"]') : null;
-            const editActions = actionsCell ? actionsCell.querySelector('.hist-eval-actions-edit') : null;
-            if (!obsCell || !textEl || !inputEl || !actionsCell || !editButton || !editActions) return;
+            pendingEdit = {
+                id: row.dataset.id || '',
+                observaciones: row.dataset.observaciones || ''
+            };
+            reopenHistEval = true;
+            const histModal = bootstrap.Modal.getOrCreateInstance(modalHistEvalEl);
+            histModal.hide();
+        });
+    }
 
-            if (action === 'edit') {
-                row.dataset.originalObs = inputEl.value;
-                inputEl.classList.remove('d-none');
-                textEl.classList.add('d-none');
-                editButton.classList.add('d-none');
-                editActions.classList.remove('d-none');
-                inputEl.focus();
+    if (modalHistEvalEl) {
+        modalHistEvalEl.addEventListener('hidden.bs.modal', () => {
+            if (!pendingEdit || !modalEditEvalEl) {
                 return;
             }
-
-            if (action === 'cancel') {
-                inputEl.value = row.dataset.originalObs || '';
-                inputEl.classList.add('d-none');
-                textEl.classList.remove('d-none');
-                editButton.classList.remove('d-none');
-                editActions.classList.add('d-none');
-                return;
+            if (editEvalIdInput) {
+                editEvalIdInput.value = pendingEdit.id;
             }
-
-            if (action === 'save') {
-                const idValoracion = row.dataset.id;
-                const nuevaObs = inputEl.value.trim();
-                button.disabled = true;
-                fetch('actualizar_observacion.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                        },
-                        body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
-                    })
-                    .then(r => r.json())
-                    .then(res => {
-                        if (!res.success) {
-                            Swal.fire('Error', res.message || 'No se pudo actualizar la observación.', 'error');
-                            return;
-                        }
-                        textEl.textContent = nuevaObs || 'Sin observaciones';
-                        if (nuevaObs) {
-                            textEl.classList.remove('text-muted');
-                            textEl.dataset.empty = '0';
-                        } else {
-                            textEl.classList.add('text-muted');
-                            textEl.dataset.empty = '1';
-                        }
-                        inputEl.classList.add('d-none');
-                        textEl.classList.remove('d-none');
-                        editButton.classList.remove('d-none');
-                        editActions.classList.add('d-none');
-                    })
-                    .catch(() => {
-                        Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
-                    })
-                    .finally(() => {
-                        button.disabled = false;
-                    });
+            if (editEvalObsInput) {
+                editEvalObsInput.value = pendingEdit.observaciones;
+                editEvalObsInput.focus();
             }
+            pendingEdit = null;
+            const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
+            editModal.show();
+        });
+    }
+
+    if (modalEditEvalEl) {
+        modalEditEvalEl.addEventListener('hidden.bs.modal', () => {
+            if (reopenHistEval) {
+                reopenHistEval = false;
+                cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
+            }
+        });
+    }
+
+    if (btnSaveEvalObs) {
+        btnSaveEvalObs.addEventListener('click', () => {
+            if (!editEvalIdInput || !editEvalObsInput) return;
+            const idValoracion = editEvalIdInput.value;
+            const nuevaObs = editEvalObsInput.value.trim();
+            btnSaveEvalObs.disabled = true;
+            fetch('actualizar_observacion.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (!res.success) {
+                        Swal.fire('Error', res.message || 'No se pudo actualizar la observación.', 'error');
+                        return;
+                    }
+                    const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
+                    editModal.hide();
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
+                })
+                .finally(() => {
+                    btnSaveEvalObs.disabled = false;
+                });
         });
     }
 
