@@ -60,6 +60,7 @@ if ($id > 0 && ($tipo === 'evaluacion' || $tipo === 'progreso')) {
                 }
                 $promedio = $conteo ? round($suma / $conteo, 2) : null;
                 $datos[] = [
+                    'id_valoracion' => $valoracion['id_valoracion'],
                     'fecha_valoracion' => $valoracion['fecha_valoracion'],
                     'observaciones' => $valoracion['observaciones'],
                     'criterios' => $valoracion['detalles'],
