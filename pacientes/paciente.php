@@ -2,6 +2,45 @@
 include_once '../includes/head.php';
 date_default_timezone_set('America/Mexico_City');
 ?>
+<style>
+    .hist-eval-modal .modal-dialog {
+        max-width: 95vw;
+    }
+
+    .hist-eval-modal .table-responsive {
+        max-height: 70vh;
+        overflow: auto;
+    }
+
+    .hist-eval-table {
+        min-width: 1100px;
+    }
+
+    .hist-eval-table td,
+    .hist-eval-table th {
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .hist-eval-observaciones-cell {
+        min-width: 320px;
+        max-width: 420px;
+        white-space: normal;
+    }
+
+    .hist-eval-observaciones-text {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .hist-eval-actions {
+        min-width: 140px;
+    }
+
+    .hist-eval-actions .btn {
+        margin-bottom: 0.35rem;
+    }
+</style>
 <div class="nk-wrap ">
     <?php
     include_once '../includes/menu_superior.php';
@@ -817,6 +856,25 @@ date_default_timezone_set('America/Mexico_City');
     let lastFocusedElement = null;
     let histEvalDt = null;
     let histProgDt = null;
+    const histEvalTable = document.getElementById('histEvalTable');
+    const modalHistEvalEl = document.getElementById('modalHistEval');
+    const modalHistProgEl = document.getElementById('modalHistProg');
+    const modalEditEvalEl = document.getElementById('modalEditEvalObservaciones');
+    const editEvalIdInput = document.getElementById('editEvalId');
+    const editEvalObsInput = document.getElementById('editEvalObservaciones');
+    const btnSaveEvalObs = document.getElementById('btnSaveEvalObservaciones');
+    let pendingEdit = null;
+    let reopenHistEval = false;
+
+    const escapeHtml = (value) => {
+        const text = String(value ?? '');
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
 
     function cargarHistorial(tipo, tbodyId, modalId) {
         fetch(`get_historial.php?tipo=${tipo}&id=${idPaciente}`)
@@ -848,10 +906,10 @@ date_default_timezone_set('America/Mexico_City');
                         criteriosTabla.forEach(c => {
                             headRow.innerHTML += `<th>${c.nombre}</th>`;
                         });
-                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th>';
+                        headRow.innerHTML += '<th>Promedio</th><th class="hist-eval-observaciones">Observaciones</th><th class="hist-eval-actions">Acciones</th>';
                     }
 
-                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 2);
+                    const totalCols = headRow ? headRow.children.length : (criteriosTabla.length + 3);
                     if (!Array.isArray(data) || data.length === 0) {
                         tbody.innerHTML = `<tr><td colspan="${totalCols}">Sin registros</td></tr>`;
                     } else {
@@ -873,8 +931,18 @@ date_default_timezone_set('America/Mexico_City');
                                 : '-';
                             celdas += `<td>${promedio}</td>`;
                             const obs = row.observaciones ? row.observaciones : '';
-                            celdas += `<td>${obs}</td>`;
-                            tbody.innerHTML += `<tr>${celdas}</tr>`;
+                            const obsText = escapeHtml(obs);
+                            const obsDisplay = obs ? obsText : 'Sin observaciones';
+                            const obsClass = obs ? '' : ' text-muted';
+                            celdas += `
+                                <td class="hist-eval-observaciones-cell">
+                                    <div class="hist-eval-observaciones-text${obsClass}" data-empty="${obs ? '0' : '1'}">${obsDisplay}</div>
+                                </td>
+                                <td class="hist-eval-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit">Editar</button>
+                                </td>
+                            `;
+                            tbody.innerHTML += `<tr data-id="${row.id_valoracion}" data-observaciones="${obsText}">${celdas}</tr>`;
                         });
                     }
 
@@ -906,9 +974,6 @@ date_default_timezone_set('America/Mexico_City');
             });
     }
 
-    const modalHistEvalEl = document.getElementById('modalHistEval');
-    const modalHistProgEl = document.getElementById('modalHistProg');
-
     [modalHistEvalEl, modalHistProgEl].forEach(modalEl => {
         if (modalEl) {
             modalEl.addEventListener('hidden.bs.modal', () => {
@@ -928,6 +993,80 @@ date_default_timezone_set('America/Mexico_City');
     if (btnHistProg) {
         btnHistProg.addEventListener('click', () => {
             cargarHistorial('progreso', 'histProgBody', 'modalHistProg');
+        });
+    }
+
+    if (histEvalTable) {
+        histEvalTable.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-action="edit"]');
+            if (!button) return;
+            const row = button.closest('tr');
+            if (!row) return;
+            pendingEdit = {
+                id: row.dataset.id || '',
+                observaciones: row.dataset.observaciones || ''
+            };
+            reopenHistEval = true;
+            const histModal = bootstrap.Modal.getOrCreateInstance(modalHistEvalEl);
+            histModal.hide();
+        });
+    }
+
+    if (modalHistEvalEl) {
+        modalHistEvalEl.addEventListener('hidden.bs.modal', () => {
+            if (!pendingEdit || !modalEditEvalEl) {
+                return;
+            }
+            if (editEvalIdInput) {
+                editEvalIdInput.value = pendingEdit.id;
+            }
+            if (editEvalObsInput) {
+                editEvalObsInput.value = pendingEdit.observaciones;
+                editEvalObsInput.focus();
+            }
+            pendingEdit = null;
+            const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
+            editModal.show();
+        });
+    }
+
+    if (modalEditEvalEl) {
+        modalEditEvalEl.addEventListener('hidden.bs.modal', () => {
+            if (reopenHistEval) {
+                reopenHistEval = false;
+                cargarHistorial('evaluacion', 'histEvalBody', 'modalHistEval');
+            }
+        });
+    }
+
+    if (btnSaveEvalObs) {
+        btnSaveEvalObs.addEventListener('click', () => {
+            if (!editEvalIdInput || !editEvalObsInput) return;
+            const idValoracion = editEvalIdInput.value;
+            const nuevaObs = editEvalObsInput.value.trim();
+            btnSaveEvalObs.disabled = true;
+            fetch('actualizar_observacion.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (!res.success) {
+                        Swal.fire('Error', res.message || 'No se pudo actualizar la observación.', 'error');
+                        return;
+                    }
+                    const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
+                    editModal.hide();
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
+                })
+                .finally(() => {
+                    btnSaveEvalObs.disabled = false;
+                });
         });
     }
 
