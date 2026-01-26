@@ -100,12 +100,16 @@ $db->closeConnection();
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar observaciones</h5>
+                <h5 class="modal-title">Editar evaluación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form id="editEvalObservacionesForm">
                     <input type="hidden" id="editEvalId" name="id_valoracion" />
+                    <div class="mb-3">
+                        <label class="form-label">Puntos a calificar</label>
+                        <div id="editEvalCriterios" class="d-grid gap-2"></div>
+                    </div>
                     <div class="mb-3">
                         <label for="editEvalObservaciones" class="form-label">Observaciones</label>
                         <textarea class="form-control" id="editEvalObservaciones" name="observaciones" rows="6"></textarea>
@@ -125,6 +129,7 @@ $db->closeConnection();
     const histEvalTable = document.getElementById('histEvalTable');
     const modalEditEvalEl = document.getElementById('modalEditEvalObservaciones');
     const editEvalIdInput = document.getElementById('editEvalId');
+    const editEvalCriterios = document.getElementById('editEvalCriterios');
     const editEvalObsInput = document.getElementById('editEvalObservaciones');
     const btnSaveEvalObs = document.getElementById('btnSaveEvalObservaciones');
     let histEvalDt = null;
@@ -204,7 +209,8 @@ $db->closeConnection();
                                 <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit">Editar</button>
                             </td>
                         `;
-                        tbody.innerHTML += `<tr data-id="${escapeHtml(row.id_valoracion)}" data-observaciones="${obsText}">${celdas}</tr>`;
+                        const criteriosPayload = encodeURIComponent(JSON.stringify(row.criterios || []));
+                        tbody.innerHTML += `<tr data-id="${escapeHtml(row.id_valoracion)}" data-observaciones="${obsText}" data-criterios="${criteriosPayload}">${celdas}</tr>`;
                     });
                 }
 
@@ -223,8 +229,36 @@ $db->closeConnection();
             if (!row) return;
             const id = row.dataset.id || '';
             const observaciones = row.dataset.observaciones || '';
+            const criteriosRaw = row.dataset.criterios || '';
+            let criterios = [];
+            if (criteriosRaw) {
+                try {
+                    criterios = JSON.parse(decodeURIComponent(criteriosRaw));
+                } catch (error) {
+                    criterios = [];
+                }
+            }
             if (editEvalIdInput) {
                 editEvalIdInput.value = id;
+            }
+            if (editEvalCriterios) {
+                editEvalCriterios.innerHTML = '';
+                if (Array.isArray(criterios) && criterios.length > 0) {
+                    criterios.forEach((criterio) => {
+                        const criterioId = String(criterio.id_criterio ?? '');
+                        const criterioNombre = escapeHtml(criterio.nombre ?? '');
+                        const criterioValor = criterio.valor ?? '';
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'input-group';
+                        wrapper.innerHTML = `
+                            <span class="input-group-text">${criterioNombre}</span>
+                            <input type="number" step="0.01" class="form-control" data-criterio-id="${escapeHtml(criterioId)}" value="${escapeHtml(criterioValor)}" />
+                        `;
+                        editEvalCriterios.appendChild(wrapper);
+                    });
+                } else {
+                    editEvalCriterios.innerHTML = '<p class="text-muted mb-0">Sin criterios para editar.</p>';
+                }
             }
             if (editEvalObsInput) {
                 editEvalObsInput.value = observaciones;
@@ -240,13 +274,26 @@ $db->closeConnection();
             if (!editEvalIdInput || !editEvalObsInput) return;
             const idValoracion = editEvalIdInput.value;
             const nuevaObs = editEvalObsInput.value.trim();
+            const params = new URLSearchParams();
+            params.append('id_valoracion', idValoracion);
+            params.append('observaciones', nuevaObs);
+            if (editEvalCriterios) {
+                const inputs = editEvalCriterios.querySelectorAll('input[data-criterio-id]');
+                inputs.forEach((input) => {
+                    const criterioId = input.dataset.criterioId;
+                    const valor = input.value;
+                    if (criterioId !== undefined) {
+                        params.append(`criterios[${criterioId}]`, valor);
+                    }
+                });
+            }
             btnSaveEvalObs.disabled = true;
-            fetch('actualizar_observacion.php', {
+            fetch('actualizar_valoracion.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
                     },
-                    body: `id_valoracion=${encodeURIComponent(idValoracion)}&observaciones=${encodeURIComponent(nuevaObs)}`
+                    body: params.toString()
                 })
                 .then(r => r.json())
                 .then(res => {
