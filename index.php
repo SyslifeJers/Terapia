@@ -38,6 +38,7 @@ ORDER BY b.name DESC;");
 
                 $citasProximas = [];
                 $citasCalendario = [];
+                $reunionesCalendario = [];
                 if ($userId > 0) {
                     $result = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id AS id_nino FROM Cita
                 INNER JOIN nino ON Cita.IdNino = nino.id
@@ -51,6 +52,23 @@ ORDER BY b.name DESC;");
                  WHERE Cita.IdUsuario = {$userId} ORDER BY Programado ASC");
                     if ($resultCalendario) {
                         $citasCalendario = $resultCalendario->fetch_all(MYSQLI_ASSOC);
+                    }
+
+                    $resultReuniones = $conn->query("SELECT
+                        ri.id,
+                        ri.titulo,
+                        ri.descripcion,
+                        ri.inicio,
+                        ri.fin,
+                        GROUP_CONCAT(u.name ORDER BY u.name SEPARATOR ', ') AS psicologos
+                    FROM ReunionInterna ri
+                    INNER JOIN ReunionInternaPsicologo rip ON rip.reunion_id = ri.id
+                    INNER JOIN Usuarios u ON u.id = rip.psicologo_id
+                    WHERE ri.fin >= NOW() AND rip.psicologo_id = {$userId}
+                    GROUP BY ri.id, ri.titulo, ri.descripcion, ri.inicio, ri.fin
+                    ORDER BY ri.inicio ASC");
+                    if ($resultReuniones) {
+                        $reunionesCalendario = $resultReuniones->fetch_all(MYSQLI_ASSOC);
                     }
                 }
 
@@ -69,10 +87,44 @@ ORDER BY b.name DESC;");
                         }
 
                         $eventosCalendario[] = [
-                            'id' => $citaCalendario['Id'],
+                            'id' => 'cita-' . $citaCalendario['Id'],
                             'title' => ucwords(strtolower($citaCalendario['name'] ?? 'Cita')),
                             'start' => $fechaEvento->format('Y-m-d\TH:i:s'),
                             'url' => 'pacientes/paciente.php?id=' . urlencode((string) $citaCalendario['id_nino']),
+                        ];
+                    }
+                }
+
+                if (!empty($reunionesCalendario)) {
+                    $tz = new DateTimeZone('America/Mexico_City');
+                    foreach ($reunionesCalendario as $reunionCalendario) {
+                        if (empty($reunionCalendario['inicio']) || empty($reunionCalendario['fin'])) {
+                            continue;
+                        }
+
+                        try {
+                            $inicioReunion = new DateTime($reunionCalendario['inicio'], $tz);
+                            $finReunion = new DateTime($reunionCalendario['fin'], $tz);
+                        } catch (Exception $e) {
+                            continue;
+                        }
+
+                        $descripcionReunion = trim((string) ($reunionCalendario['descripcion'] ?? ''));
+                        $psicologosReunion = trim((string) ($reunionCalendario['psicologos'] ?? ''));
+
+                        if ($psicologosReunion !== '') {
+                            $descripcionReunion = ($descripcionReunion !== '' ? $descripcionReunion . "\n\n" : '') . 'Participantes: ' . $psicologosReunion;
+                        }
+
+                        $eventosCalendario[] = [
+                            'id' => 'reunion-' . $reunionCalendario['id'],
+                            'title' => 'Reunión: ' . trim((string) ($reunionCalendario['titulo'] ?? 'Sin título')),
+                            'start' => $inicioReunion->format('Y-m-d\TH:i:s'),
+                            'end' => $finReunion->format('Y-m-d\TH:i:s'),
+                            'description' => $descripcionReunion,
+                            'backgroundColor' => '#E8F5E9',
+                            'borderColor' => '#2E7D32',
+                            'textColor' => '#1B4332',
                         ];
                     }
                 }
