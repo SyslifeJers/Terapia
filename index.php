@@ -60,12 +60,15 @@ ORDER BY b.name DESC;");
                         ri.descripcion,
                         ri.inicio,
                         ri.fin,
-                        GROUP_CONCAT(u.name ORDER BY u.name SEPARATOR ', ') AS psicologos
+                        (
+                            SELECT GROUP_CONCAT(u2.name ORDER BY u2.name SEPARATOR ', ')
+                            FROM ReunionInternaPsicologo rip2
+                            INNER JOIN Usuarios u2 ON u2.id = rip2.psicologo_id
+                            WHERE rip2.reunion_id = ri.id
+                        ) AS psicologos
                     FROM ReunionInterna ri
-                    INNER JOIN ReunionInternaPsicologo rip ON rip.reunion_id = ri.id
-                    INNER JOIN Usuarios u ON u.id = rip.psicologo_id
-                    WHERE ri.fin >= NOW() AND rip.psicologo_id = {$userId}
-                    GROUP BY ri.id, ri.titulo, ri.descripcion, ri.inicio, ri.fin
+                    INNER JOIN ReunionInternaPsicologo rip_usuario ON rip_usuario.reunion_id = ri.id
+                    WHERE rip_usuario.psicologo_id = {$userId}
                     ORDER BY ri.inicio ASC");
                     if ($resultReuniones) {
                         $reunionesCalendario = $resultReuniones->fetch_all(MYSQLI_ASSOC);
@@ -98,13 +101,16 @@ ORDER BY b.name DESC;");
                 if (!empty($reunionesCalendario)) {
                     $tz = new DateTimeZone('America/Mexico_City');
                     foreach ($reunionesCalendario as $reunionCalendario) {
-                        if (empty($reunionCalendario['inicio']) || empty($reunionCalendario['fin'])) {
+                        if (empty($reunionCalendario['inicio'])) {
                             continue;
                         }
 
                         try {
                             $inicioReunion = new DateTime($reunionCalendario['inicio'], $tz);
-                            $finReunion = new DateTime($reunionCalendario['fin'], $tz);
+                            $finTexto = trim((string) ($reunionCalendario['fin'] ?? ''));
+                            $finReunion = $finTexto !== ''
+                                ? new DateTime($finTexto, $tz)
+                                : (clone $inicioReunion)->modify('+1 hour');
                         } catch (Exception $e) {
                             continue;
                         }
