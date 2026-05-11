@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "flows": [
+    {
+      "id": "diagnostico",
+      "nombre": "Diagnóstico",
+      "orden": 1,
+      "perfiles": [
+        {
+          "id": "anamnesis",
+          "nombre": "Anamnesis",
+          "descripcion": "Historia clínica inicial",
+          "icon": "ni-clipboad-check",
+          "color": "#3BB273",
+          "orden": 1,
+          "tareas": [
+            {
+              "id": "anamnesis_completar",
+              "titulo": "Completar anamnesis",
+              "evidencia": "optional",
+              "tipos": [
+                "pdf",
+                "png",
+                "jpg",
+                "jpeg",
+                "gif"
+              ],
+              "orden": 1
+            }
+          ]
+        },
+        {
+          "id": "acuerdo_servicios",
+          "nombre": "Acuerdo de prestación de servicios",
+          "descripcion": "Consentimiento y firma",
+          "icon": "ni-file-text",
+          "color": "#F5A623",
+          "orden": 2,
+          "tareas": [
+            {
+              "id": "acuerdo_subir",
+              "titulo": "Subir acuerdo firmado",
+              "evidencia": "required",
+              "tipos": [
+                "pdf",
+                "png",
+                "jpg",
+                "jpeg",
+                "gif"
+              ],
+              "orden": 1
+            }
+          ]
+        },
+        {
+          "id": "perfil_alimenticio",
+          "nombre": "Perfil alimenticio",
+          "descripcion": "Hábitos y preferencias",
+          "icon": "ni-apple",
+          "color": "#3B82F6",
+          "orden": 3,
+          "tareas": [
+            {
+              "id": "alimenticio_registrar",
+              "titulo": "Registrar perfil alimenticio",
+              "evidencia": "none",
+              "tipos": [],
+              "orden": 1
+            }
+          ]
+        },
+        {
+          "id": "perfil_sensorial",
+          "nombre": "Perfil sensorial",
+          "descripcion": "Sensibilidades y respuestas",
+          "icon": "ni-user-alt",
+          "color": "#9CA3AF",
+          "orden": 4,
+          "tareas": [
+            {
+              "id": "sensorial_registrar",
+              "titulo": "Registrar perfil sensorial",
+              "evidencia": "none",
+              "tipos": [],
+              "orden": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

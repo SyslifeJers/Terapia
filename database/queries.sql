@@ -149,3 +149,80 @@ CREATE TABLE `exp_evaluacion_fotos_imagenes` (
     `ruta` VARCHAR(255) NOT NULL,
     FOREIGN KEY (`id_eval_foto`) REFERENCES `exp_evaluacion_fotos`(`id_eval_foto`)
 );
+
+-- seguimiento de pendientes por flujo/perfil/tarea
+DROP TABLE IF EXISTS `spu_paciente_tareas`;
+DROP TABLE IF EXISTS `spu_paciente_flujos`;
+DROP TABLE IF EXISTS `spu_tareas`;
+DROP TABLE IF EXISTS `spu_perfiles`;
+DROP TABLE IF EXISTS `spu_flujos`;
+
+CREATE TABLE `spu_flujos` (
+    `id_flujo` INT AUTO_INCREMENT PRIMARY KEY,
+    `slug` VARCHAR(80) NOT NULL UNIQUE,
+    `nombre` VARCHAR(150) NOT NULL,
+    `descripcion` TEXT NULL,
+    `icon` VARCHAR(80) NULL,
+    `color` VARCHAR(20) NULL,
+    `orden` INT NOT NULL DEFAULT 0,
+    `activo` TINYINT(1) NOT NULL DEFAULT 1,
+    `creado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `actualizado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `spu_perfiles` (
+    `id_perfil` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_flujo` INT NOT NULL,
+    `slug` VARCHAR(80) NOT NULL UNIQUE,
+    `nombre` VARCHAR(150) NOT NULL,
+    `descripcion` TEXT NULL,
+    `icon` VARCHAR(80) NULL,
+    `color` VARCHAR(20) NULL,
+    `orden` INT NOT NULL DEFAULT 0,
+    `activo` TINYINT(1) NOT NULL DEFAULT 1,
+    `creado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `actualizado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`id_flujo`) REFERENCES `spu_flujos`(`id_flujo`) ON DELETE CASCADE
+);
+
+CREATE TABLE `spu_tareas` (
+    `id_tarea` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_perfil` INT NOT NULL,
+    `slug` VARCHAR(80) NOT NULL UNIQUE,
+    `titulo` VARCHAR(180) NOT NULL,
+    `descripcion` TEXT NULL,
+    `evidencia` ENUM('none','optional','required') NOT NULL DEFAULT 'none',
+    `alerta_tipo` ENUM('none','citas') NOT NULL DEFAULT 'none',
+    `alerta_cantidad` INT NOT NULL DEFAULT 0,
+    `tipos_permitidos` TEXT NULL,
+    `orden` INT NOT NULL DEFAULT 0,
+    `activo` TINYINT(1) NOT NULL DEFAULT 1,
+    `creado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `actualizado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`id_perfil`) REFERENCES `spu_perfiles`(`id_perfil`) ON DELETE CASCADE
+);
+
+CREATE TABLE `spu_paciente_flujos` (
+    `id_paciente_flujo` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_nino` INT NOT NULL,
+    `id_flujo` INT NOT NULL,
+    `activo` TINYINT(1) NOT NULL DEFAULT 1,
+    `actualizado_por` INT NULL,
+    `creado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `actualizado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_spu_paciente_flujo` (`id_nino`, `id_flujo`),
+    FOREIGN KEY (`id_flujo`) REFERENCES `spu_flujos`(`id_flujo`) ON DELETE CASCADE
+);
+
+CREATE TABLE `spu_paciente_tareas` (
+    `id_paciente_tarea` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_nino` INT NOT NULL,
+    `id_tarea` INT NOT NULL,
+    `status` ENUM('no_iniciado','en_proceso','completado') NOT NULL DEFAULT 'no_iniciado',
+    `actualizado_por` INT NULL,
+    `completado_en` DATETIME NULL,
+    `creado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `actualizado_en` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_spu_paciente_tarea` (`id_nino`, `id_tarea`),
+    FOREIGN KEY (`id_tarea`) REFERENCES `spu_tareas`(`id_tarea`) ON DELETE CASCADE
+);

@@ -54,6 +54,9 @@ date_default_timezone_set('America/Mexico_City');
                                 <p>Listado de pacientes.</p>
                             </div>
                         </div>
+                        <div class="nk-block-head-content">
+                            <a class="btn btn-outline-secondary" href="/pacientes/demopacientes.php">Demo</a>
+                        </div>
                     </div>
                 </div>
                 <div class="nk-block">

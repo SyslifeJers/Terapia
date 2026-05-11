@@ -8,8 +8,10 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] == 2) {
 }
 
 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-$file = $_POST['file'] ?? '';
-if ($id <= 0 || !$file) {
+$pathRel = isset($_POST['path']) ? (string)$_POST['path'] : '';
+$pathRel = trim(str_replace('\\', '/', $pathRel));
+
+if ($id <= 0 || $pathRel === '') {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Datos invalidos']);
     exit;
@@ -17,7 +19,7 @@ if ($id <= 0 || !$file) {
 
 $dir = __DIR__ . '/../uploads/exams/' . $id . '/';
 $realDir = realpath($dir);
-$path = realpath($dir . $file);
+$path = realpath($dir . $pathRel);
 if (!$realDir || !$path || strpos($path, $realDir) !== 0 || !is_file($path)) {
     http_response_code(404);
     echo json_encode(['success' => false, 'message' => 'Archivo no encontrado']);

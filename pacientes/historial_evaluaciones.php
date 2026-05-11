@@ -19,41 +19,6 @@ if ($id > 0) {
 
 $db->closeConnection();
 ?>
-<style>
-    .hist-eval-wrapper .table-responsive {
-        max-height: 70vh;
-        overflow: auto;
-    }
-
-    .hist-eval-table {
-        min-width: 1100px;
-    }
-
-    .hist-eval-table td,
-    .hist-eval-table th {
-        white-space: nowrap;
-        vertical-align: top;
-    }
-
-    .hist-eval-observaciones-cell {
-        min-width: 320px;
-        max-width: 420px;
-        white-space: normal;
-    }
-
-    .hist-eval-observaciones-text {
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-    .hist-eval-actions {
-        min-width: 140px;
-    }
-
-    .hist-eval-actions .btn {
-        margin-bottom: 0.35rem;
-    }
-</style>
 
 <div class="nk-wrap">
     <?php include_once '../includes/menu_superior.php'; ?>
@@ -98,28 +63,30 @@ $db->closeConnection();
 
 <div class="modal fade" id="modalEditEvalObservaciones" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content">                <form id="editEvalObservacionesForm">
             <div class="modal-header">
                 <h5 class="modal-title">Editar evaluación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <form id="editEvalObservacionesForm">
+            <div class="modal-body" style="height: 18em;line-height: 1em;overflow-x: hidden;overflow-y: scroll;width: 100%;">
+
                     <input type="hidden" id="editEvalId" name="id_valoracion" />
                     <div class="mb-3">
                         <label class="form-label">Puntos a calificar</label>
                         <div id="editEvalCriterios" class="d-grid gap-2"></div>
                     </div>
-                    <div class="mb-3">
+
+                
+            </div>
+            <div class="modal-footer">
+                                <div class="row" style="width: 26em;">
                         <label for="editEvalObservaciones" class="form-label">Observaciones</label>
                         <textarea class="form-control" id="editEvalObservaciones" name="observaciones" rows="6"></textarea>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
+                    <HR/>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btnSaveEvalObservaciones">Guardar</button>
-            </div>
+            </div></form>
         </div>
     </div>
 </div>
@@ -244,25 +211,36 @@ $db->closeConnection();
             if (editEvalCriterios) {
                 editEvalCriterios.innerHTML = '';
                 if (Array.isArray(criterios) && criterios.length > 0) {
-                    criterios.forEach((criterio) => {
-                        const criterioId = String(criterio.id_criterio ?? '');
-                        const criterioNombre = escapeHtml(criterio.nombre ?? '');
-                        const criterioValor = criterio.valor ?? '';
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'input-group';
-                        wrapper.innerHTML = `
-                            <span class="input-group-text">${criterioNombre}</span>
-                            <input type="number" step="0.01" class="form-control" data-criterio-id="${escapeHtml(criterioId)}" value="${escapeHtml(criterioValor)}" />
-                        `;
-                        editEvalCriterios.appendChild(wrapper);
-                    });
+criterios.forEach((criterio) => {
+    const criterioId = String(criterio.id_criterio ?? '');
+    const nombre = escapeHtml(criterio.nombre ?? '');
+    const descripcion = escapeHtml(criterio.descripcion ?? '');
+    const valor = criterio.valor ?? '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mb-4 p-2 border rounded';
+
+    wrapper.innerHTML = `
+        <div class="fw-semibold">${nombre}</div>
+        ${descripcion ? `<div class="text-muted small mb-2">${descripcion}</div>` : ''}
+        <input type="number"
+               class="form-control form-control-sm"
+               style="max-width:120px"
+               min="0"
+               max="10"
+               step="0.01"
+               data-criterio-id="${criterioId}"
+               value="${escapeHtml(valor)}">
+    `;
+
+    editEvalCriterios.appendChild(wrapper);
+});
                 } else {
                     editEvalCriterios.innerHTML = '<p class="text-muted mb-0">Sin criterios para editar.</p>';
                 }
             }
             if (editEvalObsInput) {
                 editEvalObsInput.value = observaciones;
-                editEvalObsInput.focus();
             }
             const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
             editModal.show();
@@ -303,8 +281,8 @@ $db->closeConnection();
                     }
                     const editModal = bootstrap.Modal.getOrCreateInstance(modalEditEvalEl);
                     editModal.hide();
-                    cargarHistorialEvaluaciones();
-                })
+                    location.reload();
+                })  
                 .catch(() => {
                     Swal.fire('Error', 'Ocurrió un error al actualizar la observación.', 'error');
                 })

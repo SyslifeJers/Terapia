@@ -63,13 +63,13 @@ function isActive($page) {
                                     </a>
                                     <ul class="nk-menu-sub">
                                         <li class="nk-menu-item">
-                                            <a href="/html/index-profile.html" class="nk-menu-link"><span class="nk-menu-text">Perfil</span></a>
+                                            <a href="./perfil_usuario.php" class="nk-menu-link"><span class="nk-menu-text">Perfil</span></a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-item">
-                                            <a href="/html/index-profile-activity.html" class="nk-menu-link"><span class="nk-menu-text">Configuración</span></a>
+                                            <a href="./configuracion_usuario.php" class="nk-menu-link"><span class="nk-menu-text">Configuración</span></a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-item">
-                                            <a href="/html/index-profile-settings.html" class="nk-menu-link"><span class="nk-menu-text">
+                                            <a href="./salir.php" class="nk-menu-link"><span class="nk-menu-text">
                                                 Salir
                                             </span></a>
                                         </li><!-- .nk-menu-item -->

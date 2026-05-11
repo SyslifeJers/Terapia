@@ -425,118 +425,233 @@ date_default_timezone_set('America/Mexico_City');
                 </div>
             <div class="card mt-4">
                 <div class="card-inner">
-                    <h5 class="title mb-3">Evaluaciones</h5>
-                    <form action="guardar_evaluacion_fotos.php" method="POST" enctype="multipart/form-data" class="mb-4">
-                        <input type="hidden" name="id_nino" value="<?php echo $id; ?>">
-                        <div class="row g-4">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="titulo_eval">Título</label>
-                                    <div class="form-control-wrap">
-                                        <input type="text" class="form-control" id="titulo_eval" name="titulo" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="seccion_eval">Sección</label>
-                                    <div class="form-control-wrap">
-                                        <input type="text" class="form-control" id="seccion_eval" name="seccion" list="secciones_list" required>
-                                        <datalist id="secciones_list">
-                                            <?php foreach ($lista_secciones as $sec): ?>
-                                                <option value="<?php echo htmlspecialchars($sec); ?>"></option>
-                                            <?php endforeach; ?>
-                                        </datalist>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="fotos_eval">Fotos</label>
-                                    <div class="form-control-wrap">
-                                        <input type="file" class="form-control" id="fotos_eval" name="fotos[]" accept="image/*" multiple required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">Guardar</button>
-                            </div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="title mb-0">Evaluaciones</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm section-upload-btn" data-bs-toggle="modal" data-bs-target="#modalSeccionUpload" data-section-name="General">
+                            <em class="icon ni ni-plus"></em> Subir
+                        </button>
+                    </div>
+
+                    <?php
+                    // Documentos (mismo estilo que Archivos) guardados en uploads/exams/{id}
+                    $examBaseDir = __DIR__ . '/../uploads/exams/' . $id;
+                    $examSections = [];
+                    $generalFiles = [];
+
+                    if (is_dir($examBaseDir)) {
+                        $items = array_diff(scandir($examBaseDir), ['.', '..']);
+                        foreach ($items as $it) {
+                            $p = $examBaseDir . '/' . $it;
+                            if (is_dir($p)) {
+                                $examSections[] = [
+                                    'dir' => $it,
+                                    'name' => null,
+                                    'path' => $p
+                                ];
+                            } else {
+                                if (substr($it, -4) === '.txt') continue;
+                                if (strtolower($it) === 'section.json') continue;
+                                $generalFiles[] = $it;
+                            }
+                        }
+                    }
+
+                    foreach ($examSections as &$sec) {
+                        $metaPath = rtrim($sec['path'], '/\\') . '/section.json';
+                        $name = '';
+                        if (is_file($metaPath)) {
+                            $raw = @file_get_contents($metaPath);
+                            $json = $raw ? json_decode($raw, true) : null;
+                            if (is_array($json) && !empty($json['name'])) {
+                                $name = trim((string)$json['name']);
+                            }
+                        }
+                        if ($name === '') {
+                            $name = ucwords(str_replace(['_', '-'], ' ', (string)$sec['dir']));
+                        }
+                        $sec['name'] = $name;
+                    }
+                    unset($sec);
+
+                    $docsSectionsOut = [];
+                    $docsSectionsOut[] = [
+                        'dir' => '',
+                        'name' => 'General',
+                        'path' => $examBaseDir,
+                        'files' => $generalFiles
+                    ];
+
+                    foreach ($examSections as $sec) {
+                        $files = [];
+                        if (is_dir($sec['path'])) {
+                            $secItems = array_diff(scandir($sec['path']), ['.', '..']);
+                            foreach ($secItems as $f) {
+                                $fp = $sec['path'] . '/' . $f;
+                                if (is_dir($fp)) continue;
+                                if (substr($f, -4) === '.txt') continue;
+                                if (strtolower($f) === 'section.json') continue;
+                                $files[] = $f;
+                            }
+                        }
+                        $docsSectionsOut[] = [
+                            'dir' => $sec['dir'],
+                            'name' => $sec['name'],
+                            'path' => $sec['path'],
+                            'files' => $files
+                        ];
+                    }
+
+                    // Mapear documentos por nombre de seccion (case-insensitive)
+                    $docsBySection = [];
+                    foreach ($docsSectionsOut as $s) {
+                        $docsBySection[strtolower((string)$s['name'])] = $s;
+                    }
+
+                    // Unificar secciones: DB (fotos) + filesystem (documentos)
+                    $allSections = ['General'];
+                    foreach (array_keys($evaluaciones_fotos) as $secName) {
+                        if ($secName === '') continue;
+                        $allSections[] = $secName;
+                    }
+                    foreach ($docsSectionsOut as $s) {
+                        if (!empty($s['name'])) {
+                            $allSections[] = $s['name'];
+                        }
+                    }
+                    $allSections = array_values(array_unique($allSections));
+                    $tail = array_values(array_filter($allSections, function($n) { return strcasecmp((string)$n, 'General') !== 0; }));
+                    usort($tail, function($a, $b) { return strcasecmp((string)$a, (string)$b); });
+                    $allSections = array_merge(['General'], $tail);
+
+                    // Datalist/select para modal
+                    $uploadSectionsNames = $allSections;
+                    ?>
+
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label" for="newExamSection">Nueva sección</label>
+                            <input type="text" class="form-control" id="newExamSection" placeholder="Ej. Plan" list="examSectionsListTop">
+                            <datalist id="examSectionsListTop">
+                                <?php foreach ($uploadSectionsNames as $secName): ?>
+                                    <option value="<?php echo htmlspecialchars($secName); ?>"></option>
+                                <?php endforeach; ?>
+                            </datalist>
                         </div>
-                    </form>
-                    <?php if (!empty($evaluaciones_fotos)): ?>
+                        <div class="col-12 col-md-auto">
+                            <button type="button" class="btn btn-outline-primary" id="btnCreateExamSection">
+                                <em class="icon ni ni-plus"></em> Crear sección
+                            </button>
+                        </div>
+                    </div>
+
                     <ul class="nav nav-tabs">
-                        <?php $i = 0; foreach ($evaluaciones_fotos as $sec => $lista):
-                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($sec)); ?>
+                        <?php $i = 0; foreach ($allSections as $secName):
+                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower((string)$secName));
+                        ?>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo $i === 0 ? 'active' : ''; ?>" data-bs-toggle="tab" href="#tab-<?php echo $slug; ?>">
-                                <?php echo htmlspecialchars($sec); ?>
+                            <a class="nav-link <?php echo $i === 0 ? 'active' : ''; ?>" data-bs-toggle="tab" href="#tab-<?php echo htmlspecialchars($slug); ?>">
+                                <?php echo htmlspecialchars($secName); ?>
                             </a>
                         </li>
                         <?php $i++; endforeach; ?>
                     </ul>
-                    <div class="tab-content mt-3">
-                        <?php $i = 0; foreach ($evaluaciones_fotos as $sec => $lista):
-                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($sec)); ?>
-                        <div class="tab-pane <?php echo $i === 0 ? 'active' : ''; ?>" id="tab-<?php echo $slug; ?>">
-                            <div class="row g-gs">
-                                <?php foreach ($lista as $ev): ?>
-                                <div class="col-sm-6 col-lg-4">
-                                    <div class="card card-bordered">
-                                        <div class="card-inner">
-                                            <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
-                                            <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
-                                                <em class="icon ni ni-eye"></em> Ver
-                                            </a>
-                                            <?php if ($_SESSION['rol'] != 2): ?>
-                                            <a href="#" class="btn btn-sm btn-outline-danger delete-eval-foto" data-id="<?php echo $ev['id_eval_foto']; ?>">
-                                                <em class="icon ni ni-trash"></em> Eliminar
-                                            </a>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                        <?php $i++; endforeach; ?>
-                    </div>
-                    <?php else: ?>
-                    <div class="row g-gs">
-                        <div class="col-12"><p>No hay evaluaciones fotográficas.</p></div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-                <div class="card mt-4">
-                    <div class="card-inner">
-                        <!-- Botón para abrir el modal -->
-                        <div class="d-flex align-items-center mb-3">
-                            <h5 class="title mb-0 me-3">Archivos</h5>
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalExamUpload">
-                                <em class="icon ni ni-plus"></em> Subir archivo
-                            </button>
-                        </div>
-                        <hr class="my-4">
-                        <div id="examFiles" class="nk-files nk-files-view-grid">
-                            <div class="nk-files-list">
-                                <?php
-                                $dir = __DIR__ . '/../uploads/exams/' . $id;
-                                if (is_dir($dir)) {
-                                    $files = array_diff(scandir($dir), ['.', '..']);
-                                    foreach ($files as $f) {
-                                        if (substr($f, -4) === '.txt') continue;
-                                        $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-                                        $icon = in_array($ext, ['png', 'jpg', 'jpeg', 'gif']) ? 'ni-file-img' : 'ni-file-pdf';
-                                        $url = '/uploads/exams/' . $id . '/' . rawurlencode($f);
-                                        $note = '';
-                                        $noteFile = $dir . '/' . $f . '.txt';
-                                        if (is_file($noteFile)) {
-                                            $note = '<div class="mt-1 small text-muted">Nota: ' . nl2br(htmlspecialchars(trim(file_get_contents($noteFile)))) . '</div>';
-                                        } else {
-                                            $note = '';
-                                        }
 
-                                        echo '
+                    <div class="tab-content mt-3">
+                        <?php $i = 0; foreach ($allSections as $secName):
+                            $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower((string)$secName));
+                            $photoList = [];
+                            foreach ($evaluaciones_fotos as $k => $v) {
+                                if (strcasecmp((string)$k, (string)$secName) === 0) {
+                                    $photoList = $v;
+                                    break;
+                                }
+                            }
+
+                            $docsSec = $docsBySection[strtolower((string)$secName)] ?? null;
+                            $docsFiles = is_array($docsSec) ? ($docsSec['files'] ?? []) : [];
+                        ?>
+                        <div class="tab-pane <?php echo $i === 0 ? 'active' : ''; ?>" id="tab-<?php echo htmlspecialchars($slug); ?>">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h6 class="title mb-0"><?php echo htmlspecialchars($secName); ?></h6>
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-outline-primary btn-sm section-upload-btn" data-bs-toggle="modal" data-bs-target="#modalSeccionUpload" data-section-name="<?php echo htmlspecialchars($secName); ?>">
+                                        <em class="icon ni ni-plus"></em> Subir
+                                    </button>
+                                    <?php if ($docsSec && !empty($docsSec['dir'])): ?>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm exam-edit-section" data-dir="<?php echo htmlspecialchars($docsSec['dir']); ?>" data-name="<?php echo htmlspecialchars($docsSec['name']); ?>">
+                                            <em class="icon ni ni-edit"></em> Editar
+                                        </button>
+                                        <?php if ($_SESSION['rol'] != 2): ?>
+                                            <button type="button" class="btn btn-outline-danger btn-sm exam-delete-section" data-dir="<?php echo htmlspecialchars($docsSec['dir']); ?>" data-name="<?php echo htmlspecialchars($docsSec['name']); ?>">
+                                                <em class="icon ni ni-trash"></em> Borrar
+                                            </button>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="title mb-2">Evaluaciones fotográficas</h6>
+                                <?php if (!empty($photoList)): ?>
+                                    <div class="row g-gs">
+                                        <?php foreach ($photoList as $ev): ?>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <div class="card card-bordered">
+                                                <div class="card-inner">
+                                                    <h6 class="title mb-2"><?php echo htmlspecialchars($ev['titulo']); ?></h6>
+                                                    <a href="detalleEvaluacion.php?id=<?php echo $ev['id_eval_foto']; ?>" class="btn btn-sm btn-outline-secondary">
+                                                        <em class="icon ni ni-eye"></em> Ver
+                                                    </a>
+                                                    <?php if ($_SESSION['rol'] != 2): ?>
+                                                        <a href="#" class="btn btn-sm btn-outline-danger delete-eval-foto" data-id="<?php echo $ev['id_eval_foto']; ?>">
+                                                            <em class="icon ni ni-trash"></em> Eliminar
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <p class="mb-0">Sin evaluaciones fotográficas.</p>
+                                <?php endif; ?>
+                            </div>
+
+                            <div>
+                                <h6 class="title mb-2">Archivos</h6>
+                                <div class="nk-files nk-files-view-grid">
+                                    <div class="nk-files-list">
+                                        <?php
+                                        if (empty($docsFiles) || !$docsSec || !is_dir($docsSec['path'])) {
+                                            echo '<p class="mb-0">Sin archivos.</p>';
+                                        } else {
+                                            foreach ($docsFiles as $f) {
+                                                $filePath = rtrim((string)$docsSec['path'], '/\\') . '/' . $f;
+                                                if (!is_file($filePath)) continue;
+
+                                                $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+                                                $icon = in_array($ext, ['png', 'jpg', 'jpeg', 'gif']) ? 'ni-file-img' : 'ni-file-pdf';
+
+                                                $url = '/uploads/exams/' . $id;
+                                                if (!empty($docsSec['dir'])) {
+                                                    $url .= '/' . rawurlencode((string)$docsSec['dir']);
+                                                }
+                                                $url .= '/' . rawurlencode($f);
+
+                                                $note = '';
+                                                $noteFile = $filePath . '.txt';
+                                                if (is_file($noteFile)) {
+                                                    $note = '<div class="mt-1 small text-muted">Nota: ' . nl2br(htmlspecialchars(trim((string)file_get_contents($noteFile)))) . '</div>';
+                                                }
+
+                                                $mtime = @filemtime($filePath);
+                                                $size = @filesize($filePath);
+                                                $mtime = $mtime ? $mtime : time();
+                                                $size = $size ? $size : 0;
+
+                                                $pathRel = (!empty($docsSec['dir']) ? ((string)$docsSec['dir'] . '/' . $f) : $f);
+
+                                                echo '
 <div class="nk-file-item nk-file">
     <div class="nk-file-info">
         <div class="nk-file-title">
@@ -554,8 +669,8 @@ date_default_timezone_set('America/Mexico_City');
             </div>
         </div>
         <ul class="nk-file-desc">
-            <li class="date">' . date("d M", filemtime($noteFile)) . '</li>
-            <li class="size">' . round(filesize($noteFile) / 1048576, 2) . ' MB</li>
+            <li class="date">' . date("d M", $mtime) . '</li>
+            <li class="size">' . round($size / 1048576, 2) . ' MB</li>
             <li class="members">1 Usuario</li>
         </ul>
         ' . $note . '
@@ -569,19 +684,21 @@ date_default_timezone_set('America/Mexico_City');
                 <ul class="link-list-plain no-bdr">
                     <li><a href="' . $url . '" target="_blank"><em class="icon ni ni-eye"></em><span>Ver</span></a></li>
                     <li><a href="' . $url . '" download><em class="icon ni ni-download"></em><span>Descargar</span></a></li>
-                    ' . (($_SESSION['rol'] != 2) ? '<li><a href="#" class="delete-exam" data-file="' . htmlspecialchars($f) . '"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>' : '') . '
+                    ' . (($_SESSION['rol'] != 2) ? '<li><a href="#" class="delete-exam" data-path="' . htmlspecialchars($pathRel) . '"><em class="icon ni ni-trash"></em><span>Eliminar</span></a></li>' : '') . '
                 </ul>
             </div>
         </div>
     </div>
 </div>';
-                                    }
-                                } else {
-                                    echo '<p>No hay archivos.</p>';
-                                }
-                                ?>
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
+                        <?php $i++; endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -617,33 +734,68 @@ date_default_timezone_set('America/Mexico_City');
         </div>
     </div>
 </div>
-<!-- Agregar el <div class="loading-animation tri-ring"></div> para cuando este cargando la subida del archivo -->
-<div class="modal fade" id="modalExamUpload" tabindex="-1" aria-labelledby="modalExamUploadLabel" aria-hidden="true">
+<div class="modal fade" id="modalSeccionUpload" tabindex="-1" aria-labelledby="modalSeccionUploadLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="min-height: 14em;">
-            <div id="examUploadLoading" class="loading-animation tri-ring" style="display:none; margin: 0 auto; position: static !important;"></div>
-            <form id="examUploadForm" class="mb-0">
+            <div id="seccionUploadLoading" class="loading-animation tri-ring" style="display:none; margin: 0 auto; position: static !important;"></div>
+            <div id="seccionUploadBody">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalExamUploadLabel">Subir archivo de examen</h5>
+                    <h5 class="modal-title" id="modalSeccionUploadLabel">Subir a sección</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <input type="file" name="file" id="examFile" class="form-control" required>
+                        <label class="form-label" for="uploadKind">Tipo</label>
+                        <select id="uploadKind" class="form-select">
+                            <option value="archivo">Archivo</option>
+                            <option value="fotos">Evaluación (Fotos)</option>
+                        </select>
                     </div>
+
                     <div class="mb-3">
-                        <textarea name="note" id="examNote" class="form-control" placeholder="Nota"></textarea>
+                        <label class="form-label" for="uploadSectionSelect">Sección</label>
+                        <select id="uploadSectionSelect" class="form-select">
+                            <?php if (isset($uploadSectionsNames) && is_array($uploadSectionsNames)): ?>
+                                <?php foreach ($uploadSectionsNames as $secName): ?>
+                                    <option value="<?php echo htmlspecialchars($secName); ?>"><?php echo htmlspecialchars($secName); ?></option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="General">General</option>
+                            <?php endif; ?>
+                        </select>
+                        <div class="form-text">Si necesitas una sección nueva, escríbela aquí:</div>
+                        <input type="text" id="uploadSectionNew" class="form-control mt-1" placeholder="Ej. Plan">
                     </div>
-                    <!-- Animación de carga al subir archivo -->
-                
+
+                    <div id="uploadArchivoFields">
+                        <div class="mb-3">
+                            <input type="file" id="uploadDocFile" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea id="uploadDocNote" class="form-control" placeholder="Nota"></textarea>
+                        </div>
+                    </div>
+
+                    <form id="uploadFotosForm" action="guardar_evaluacion_fotos.php" method="POST" enctype="multipart/form-data" style="display:none;">
+                        <input type="hidden" name="id_nino" value="<?php echo $id; ?>">
+                        <input type="hidden" name="seccion" id="uploadFotosSeccion">
+                        <div class="mb-3">
+                            <label class="form-label" for="uploadFotosTitulo">Título</label>
+                            <input type="text" class="form-control" id="uploadFotosTitulo" name="titulo">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="uploadFotosFiles">Fotos</label>
+                            <input type="file" class="form-control" id="uploadFotosFiles" name="fotos[]" accept="image/*" multiple>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">
-                        <em class="icon ni ni-upload-cloud"></em> <span class="ms-1">Subir archivo</span>
+                    <button type="button" class="btn btn-primary" id="btnSeccionUploadSubmit">
+                        <em class="icon ni ni-upload-cloud"></em> <span class="ms-1">Subir</span>
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -810,12 +962,164 @@ date_default_timezone_set('America/Mexico_City');
 <script>
     const idPaciente = <?php echo $id; ?>;
     const btnHistProg = document.getElementById('btnHistProg');
-    const examForm = document.getElementById('examUploadForm');
-    const examNote = document.getElementById('examNote');
-    const examLoading = document.getElementById('examUploadLoading');
+    const newExamSection = document.getElementById('newExamSection');
+    const btnCreateExamSection = document.getElementById('btnCreateExamSection');
+    const uploadKind = document.getElementById('uploadKind');
+    const uploadSectionSelect = document.getElementById('uploadSectionSelect');
+    const uploadSectionNew = document.getElementById('uploadSectionNew');
+    const uploadDocFile = document.getElementById('uploadDocFile');
+    const uploadDocNote = document.getElementById('uploadDocNote');
+    const uploadArchivoFields = document.getElementById('uploadArchivoFields');
+    const uploadFotosForm = document.getElementById('uploadFotosForm');
+    const uploadFotosSeccion = document.getElementById('uploadFotosSeccion');
+    const uploadFotosTitulo = document.getElementById('uploadFotosTitulo');
+    const uploadFotosFiles = document.getElementById('uploadFotosFiles');
+    const seccionUploadLoading = document.getElementById('seccionUploadLoading');
+    const seccionUploadBody = document.getElementById('seccionUploadBody');
+    const btnSeccionUploadSubmit = document.getElementById('btnSeccionUploadSubmit');
     let lastFocusedElement = null;
     let histProgDt = null;
     const modalHistProgEl = document.getElementById('modalHistProg');
+
+    function pickUploadSectionName() {
+        const typed = (uploadSectionNew && uploadSectionNew.value) ? uploadSectionNew.value.trim() : '';
+        if (typed) return typed;
+        const selected = (uploadSectionSelect && uploadSectionSelect.value) ? String(uploadSectionSelect.value).trim() : '';
+        return selected || 'General';
+    }
+
+    function setUploadSectionName(name) {
+        const n = String(name || 'General');
+        if (uploadSectionSelect) {
+            let found = false;
+            for (const opt of uploadSectionSelect.options) {
+                if (String(opt.value).toLowerCase() === n.toLowerCase()) {
+                    uploadSectionSelect.value = opt.value;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                uploadSectionSelect.value = 'General';
+            }
+        }
+        if (uploadSectionNew) {
+            const exists = uploadSectionSelect && Array.from(uploadSectionSelect.options).some(o => String(o.value).toLowerCase() === n.toLowerCase());
+            uploadSectionNew.value = exists ? '' : n;
+        }
+    }
+
+    function updateUploadKindUI() {
+        const kind = uploadKind ? uploadKind.value : 'archivo';
+        const isFotos = (kind === 'fotos');
+
+        if (uploadArchivoFields) uploadArchivoFields.style.display = isFotos ? 'none' : 'block';
+        if (uploadFotosForm) uploadFotosForm.style.display = isFotos ? 'block' : 'none';
+
+        if (uploadDocFile) uploadDocFile.required = !isFotos;
+        if (uploadFotosTitulo) uploadFotosTitulo.required = isFotos;
+        if (uploadFotosFiles) uploadFotosFiles.required = isFotos;
+    }
+
+    if (uploadKind) {
+        uploadKind.addEventListener('change', updateUploadKindUI);
+        updateUploadKindUI();
+    }
+
+    document.querySelectorAll('.section-upload-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const secName = this.getAttribute('data-section-name') || 'General';
+            setUploadSectionName(secName);
+
+            if (uploadKind) {
+                uploadKind.value = 'archivo';
+                updateUploadKindUI();
+            }
+
+            if (uploadDocFile) uploadDocFile.value = '';
+            if (uploadDocNote) uploadDocNote.value = '';
+            if (uploadFotosTitulo) uploadFotosTitulo.value = '';
+            if (uploadFotosFiles) uploadFotosFiles.value = '';
+        });
+    });
+
+    if (btnSeccionUploadSubmit) {
+        btnSeccionUploadSubmit.addEventListener('click', function() {
+            const kind = uploadKind ? uploadKind.value : 'archivo';
+            const secName = pickUploadSectionName();
+
+            if (kind === 'fotos') {
+                if (uploadFotosSeccion) uploadFotosSeccion.value = secName;
+                if (!uploadFotosForm) return;
+                uploadFotosForm.submit();
+                return;
+            }
+
+            if (!uploadDocFile || !uploadDocFile.files || !uploadDocFile.files.length) {
+                Swal.fire('Selecciona un archivo', '', 'info');
+                return;
+            }
+
+            const data = new FormData();
+            data.append('file', uploadDocFile.files[0]);
+            data.append('id', idPaciente);
+            data.append('seccion', secName);
+            if (uploadDocNote && uploadDocNote.value) {
+                data.append('note', uploadDocNote.value);
+            }
+
+            if (seccionUploadLoading && seccionUploadBody) {
+                seccionUploadLoading.style.display = 'block';
+                seccionUploadBody.style.display = 'none';
+            }
+
+            fetch('upload_exam.php', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    Swal.fire('Archivo subido', '', 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', res.message || 'Ocurrió un error', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'))
+            .finally(() => {
+                if (seccionUploadLoading && seccionUploadBody) {
+                    seccionUploadLoading.style.display = 'none';
+                    seccionUploadBody.style.display = 'block';
+                }
+            });
+        });
+    }
+
+    if (btnCreateExamSection) {
+        btnCreateExamSection.addEventListener('click', function() {
+            const name = newExamSection ? newExamSection.value.trim() : '';
+            if (!name) {
+                Swal.fire('Escribe el nombre de la sección', '', 'info');
+                return;
+            }
+            const fd = new FormData();
+            fd.append('id', idPaciente);
+            fd.append('name', name);
+            fetch('create_exam_section.php', {
+                method: 'POST',
+                body: fd
+            })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) {
+                    Swal.fire('Sección creada', '', 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+        });
+    }
 
     function cargarHistorialProgreso() {
         fetch(`get_historial.php?tipo=progreso&id=${idPaciente}`)
@@ -860,49 +1164,41 @@ date_default_timezone_set('America/Mexico_City');
         });
     }
 
-    if (examForm) {
-        examForm.addEventListener('submit', function(e) {
+    document.querySelectorAll('.exam-edit-section').forEach(btn => {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const input = document.getElementById('examFile');
-            if (!input.files.length) return;
-            const data = new FormData();
-            data.append('file', input.files[0]);
-            data.append('id', idPaciente);
-            if (examNote) {
-                data.append('note', examNote.value);
-            }
-            // Mostrar animación de carga
-            if (examLoading){
-                examLoading.style.display = 'block';
-                examForm.style.display = 'none';
-            } 
-
-            fetch('upload_exam.php', {
+            const oldDir = this.getAttribute('data-dir');
+            const currentName = this.getAttribute('data-name') || '';
+            Swal.fire({
+                title: 'Editar sección',
+                input: 'text',
+                inputValue: currentName,
+                showCancelButton: true,
+                confirmButtonText: 'Guardar'
+            }).then(res => {
+                if (!res.isConfirmed) return;
+                const newName = (res.value || '').trim();
+                if (!newName) return;
+                const fd = new FormData();
+                fd.append('id', idPaciente);
+                fd.append('old_dir', oldDir);
+                fd.append('new_name', newName);
+                fetch('rename_exam_section.php', {
                     method: 'POST',
-                    body: data
+                    body: fd
                 })
                 .then(r => r.json())
-                .then(res => {
-                    // Ocultar animación de carga
-                    if (examLoading) examLoading.style.display = 'none';
-                    if (res.success) {
-                        Swal.fire('Archivo subido', '', 'success').then(() => location.reload());
+                .then(resp => {
+                    if (resp.success) {
+                        Swal.fire('Actualizado', '', 'success').then(() => location.reload());
                     } else {
-                        Swal.fire('Error', res.message || 'Ocurrió un error', 'error');
+                        Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
                     }
                 })
-                .catch(() => {
-                    if (examLoading) examLoading.style.display = 'none';
-                    Swal.fire('Error', 'Ocurrió un error', 'error');
-                })
-                .finally(() => {
-                    if (examLoading){
-                        examLoading.style.display = 'none';
-                        examForm.style.display = 'block';
-                    } 
-                });
+                .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
+            });
         });
-    }
+    });
 
     <?php if ($_SESSION['rol'] != 2): ?>
     document.querySelectorAll('.delete-eval-foto').forEach(btn => {
@@ -939,7 +1235,7 @@ date_default_timezone_set('America/Mexico_City');
     document.querySelectorAll('.delete-exam').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const file = this.getAttribute('data-file');
+            const path = this.getAttribute('data-path');
             Swal.fire({
                 title: '¿Eliminar archivo?',
                 icon: 'warning',
@@ -949,11 +1245,11 @@ date_default_timezone_set('America/Mexico_City');
                 if (res.isConfirmed) {
                     const fd = new FormData();
                     fd.append('id', idPaciente);
-                    fd.append('file', file);
+                    fd.append('path', path);
                     fetch('delete_exam.php', {
-                            method: 'POST',
-                            body: fd
-                        })
+                             method: 'POST',
+                             body: fd
+                         })
                         .then(r => r.json())
                         .then(resp => {
                             if (resp.success) {
@@ -964,6 +1260,39 @@ date_default_timezone_set('America/Mexico_City');
                         })
                         .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
                 }
+            });
+        });
+    });
+
+    document.querySelectorAll('.exam-delete-section').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const dir = this.getAttribute('data-dir');
+            const name = this.getAttribute('data-name') || 'Sección';
+            Swal.fire({
+                title: `¿Borrar sección "${name}"?`,
+                text: 'Se eliminarán todos los archivos dentro de la sección.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, borrar'
+            }).then(res => {
+                if (!res.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id', idPaciente);
+                fd.append('dir', dir);
+                fetch('delete_exam_section.php', {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        Swal.fire('Eliminado', '', 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', resp.message || 'Ocurrió un error', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Ocurrió un error', 'error'));
             });
         });
     });

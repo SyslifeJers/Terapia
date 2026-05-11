@@ -9,14 +9,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         const currentPath = window.location.pathname.replace(/^\/+/, '');
-        const menuItems = {
-            'index.php': 'menu-casa',
-            'pacientes/pacientes.php': 'menu-pacientes',
-            'pacientes/paciente.php': 'menu-pacientes',
-            'citas.php': 'menu-citas',
-            'areas/index.php': 'menu-areas',
-            'evaluaciones.php': 'menu-evaluaciones'
-        };
+         const menuItems = {
+             'index.php': 'menu-casa',
+             'pacientes/pacientes.php': 'menu-pacientes',
+             'pacientes/paciente.php': 'menu-pacientes',
+             'pacientes/demopacientes.php': 'menu-pacientes',
+             'pacientes/demopaciente.php': 'menu-pacientes',
+             'citas.php': 'menu-citas',
+             'areas/index.php': 'menu-areas',
+             'evaluaciones.php': 'menu-evaluaciones'
+         };
 
         const activeItemId = menuItems[currentPath];
         if (activeItemId) {
