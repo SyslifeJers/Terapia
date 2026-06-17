@@ -14,12 +14,17 @@
                                 <div class="nk-header-menu-inner">
                                     <!-- Menu -->
                                     <ul class="nk-menu nk-menu-main">
+                                         <li class="nk-menu-item">
+                                             <a href="/citas.php" class="nk-menu-link">
+                                                 <span class="nk-menu-text">Citas</span>
+                                             </a>
+                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-item">
-                                            <a href="/citas.php" class="nk-menu-link">
-                                                <span class="nk-menu-text">Citas</span>
+                                            <a href="/flujos/mis_tareas.php" class="nk-menu-link">
+                                                <span class="nk-menu-text">Mis tareas</span>
                                             </a>
                                         </li><!-- .nk-menu-item -->
-                                    </ul>
+                                     </ul>
                                     <!-- Menu -->
                                 </div>
                             </div><!-- .nk-header-menu -->

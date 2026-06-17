@@ -40,15 +40,17 @@ ORDER BY b.name DESC;");
                 $citasCalendario = [];
                 $reunionesCalendario = [];
                 if ($userId > 0) {
-                    $result = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id AS id_nino FROM Cita
+                    $result = $conn->query("SELECT Cita.Id, Programado, Cita.Estatus, Estatus.name AS estatus_nombre, nino.name, nino.id AS id_nino FROM Cita
                 INNER JOIN nino ON Cita.IdNino = nino.id
+                LEFT JOIN Estatus ON Estatus.id = Cita.Estatus
                  WHERE Cita.IdUsuario = {$userId} AND Programado >= CURDATE() ORDER BY Programado ASC LIMIT 15");
                     if ($result) {
                         $citasProximas = $result->fetch_all(MYSQLI_ASSOC);
                     }
 
-                    $resultCalendario = $conn->query("SELECT Cita.Id, Programado, nino.name, nino.id AS id_nino FROM Cita
+                    $resultCalendario = $conn->query("SELECT Cita.Id, Programado, Cita.Estatus, Estatus.name AS estatus_nombre, nino.name, nino.id AS id_nino FROM Cita
                 INNER JOIN nino ON Cita.IdNino = nino.id
+                LEFT JOIN Estatus ON Estatus.id = Cita.Estatus
                  WHERE Cita.IdUsuario = {$userId} ORDER BY Programado ASC");
                     if ($resultCalendario) {
                         $citasCalendario = $resultCalendario->fetch_all(MYSQLI_ASSOC);
@@ -89,12 +91,24 @@ ORDER BY b.name DESC;");
                             continue;
                         }
 
-                        $eventosCalendario[] = [
+                        $estatusCita = trim((string) ($citaCalendario['estatus_nombre'] ?? ''));
+                        $citaCancelada = (int) ($citaCalendario['Estatus'] ?? 0) === 1 || stripos($estatusCita, 'cancel') !== false;
+                        $tituloCita = ucwords(strtolower($citaCalendario['name'] ?? 'Cita'));
+                        $eventoCalendario = [
                             'id' => 'cita-' . $citaCalendario['Id'],
-                            'title' => ucwords(strtolower($citaCalendario['name'] ?? 'Cita')),
+                            'title' => $tituloCita . ($citaCancelada ? ' (cancelada)' : ''),
                             'start' => $fechaEvento->format('Y-m-d\TH:i:s'),
                             'url' => 'pacientes/paciente.php?id=' . urlencode((string) $citaCalendario['id_nino']),
                         ];
+
+                        if ($citaCancelada) {
+                            $eventoCalendario['classNames'] = ['cita-cancelada'];
+                            $eventoCalendario['backgroundColor'] = '#FDECEC';
+                            $eventoCalendario['borderColor'] = '#F3A6A6';
+                            $eventoCalendario['textColor'] = '#8A1F1F';
+                        }
+
+                        $eventosCalendario[] = $eventoCalendario;
                     }
                 }
 
@@ -323,6 +337,33 @@ ORDER BY b.name DESC;");
 
             </div>
             <!-- wrap @e -->
+            <style>
+                #citas-calendar .cita-cancelada,
+                #citas-calendar .cita-cancelada .fc-event-title,
+                #citas-calendar .cita-cancelada .fc-list-event-title {
+                    text-decoration: line-through;
+                    text-decoration-color: #C85252;
+                    text-decoration-thickness: 2px;
+                }
+
+                #citas-calendar .fc-list-event.cita-cancelada td {
+                    background-color: #FDECEC;
+                    color: #8A1F1F;
+                }
+
+                #citas-calendar .cita-reprogramacion,
+                #citas-calendar .cita-reprogramacion .fc-event-title,
+                #citas-calendar .cita-reprogramacion .fc-list-event-title {
+                    font-weight: 700;
+                }
+
+                #citas-calendar .event-type-reunion,
+                #citas-calendar .event-type-reunion-recurrente,
+                #citas-calendar .event-type-aviso {
+                    border-style: solid;
+                    border-width: 1px;
+                }
+            </style>
             <script src="/assets/js/libs/fullcalendar.js?ver=3.3.0"></script>
             <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -351,10 +392,54 @@ ORDER BY b.name DESC;");
                         minute: '2-digit',
                         hour12: true
                     },
-                    events: <?php echo json_encode($eventosCalendario, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+                    events: function (fetchInfo, successCallback, failureCallback) {
+                        var params = new URLSearchParams({
+                            start: fetchInfo.startStr,
+                            end: fetchInfo.endStr
+                        });
+
+                        fetch('api/citas_calendario.php?' + params.toString(), {
+                            credentials: 'same-origin'
+                        })
+                            .then(function (response) {
+                                return response.json().then(function (payload) {
+                                    if (!response.ok || !payload || !Array.isArray(payload.data)) {
+                                        throw new Error(payload && payload.error ? payload.error : 'No se pudo cargar el calendario.');
+                                    }
+
+                                    return payload.data;
+                                });
+                            })
+                            .then(successCallback)
+                            .catch(function (error) {
+                                console.error(error);
+                                if (typeof failureCallback === 'function') {
+                                    failureCallback(error);
+                                }
+                            });
+                    },
                     eventBackgroundColor: '#E3F2FD',
                     eventBorderColor: '#4D8FEA',
                     eventTextColor: '#0F172A',
+                    eventDidMount: function (info) {
+                        var props = info.event.extendedProps || {};
+                        var tooltip = info.event.title;
+
+                        if (props.estatus) {
+                            tooltip += '\nEstatus: ' + props.estatus;
+                        }
+                        if (props.reprogramacionPendiente) {
+                            tooltip += '\nTiene solicitud de reprogramacion pendiente.';
+                        }
+                        if (props.participants) {
+                            tooltip += '\nParticipantes: ' + props.participants;
+                        }
+                        if (props.description) {
+                            tooltip += '\n' + props.description;
+                        }
+
+                        info.el.setAttribute('title', tooltip);
+                    },
                     eventClick: function (info) {
                         if (info.event.url) {
                             info.jsEvent.preventDefault();

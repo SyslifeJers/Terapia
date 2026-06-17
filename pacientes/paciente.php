@@ -29,6 +29,13 @@ date_default_timezone_set('America/Mexico_City');
     $criteriosParaGraficas = [];
     $valoracionesRecientes = [];
     $promediosCriterios = [];
+    $flujosResumen = [
+        'disponible' => false,
+        'activos' => 0,
+        'pendientes' => 0,
+        'vencidas' => 0,
+        'recientes' => [],
+    ];
     $lineChartData = [
         'labels' => [],
         'datasets' => [],
@@ -288,6 +295,44 @@ date_default_timezone_set('America/Mexico_City');
     $lista_secciones['General'] = true; // Agregar opción por defecto
     $lista_secciones = array_keys($lista_secciones);
 
+    $stmt = $conn->prepare("SELECT
+            SUM(CASE WHEN a.estatus IN ('activo', 'completado_excepciones') THEN 1 ELSE 0 END) AS activos,
+            SUM(CASE WHEN ta.estatus IN ('pendiente', 'en_proceso') AND ta.activo = 1 THEN 1 ELSE 0 END) AS pendientes,
+            SUM(CASE WHEN ta.estatus IN ('pendiente', 'en_proceso') AND ta.activo = 1 AND ta.fecha_limite IS NOT NULL AND ta.fecha_limite < CURDATE() THEN 1 ELSE 0 END) AS vencidas
+        FROM exp_flujo_asignaciones a
+        LEFT JOIN exp_flujo_tareas_asignadas ta ON ta.id_asignacion = a.id_asignacion
+        WHERE a.id_nino = ? AND a.activo = 1");
+    if ($stmt) {
+        $flujosResumen['disponible'] = true;
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result ? $result->fetch_assoc() : [];
+        $flujosResumen['activos'] = (int)($row['activos'] ?? 0);
+        $flujosResumen['pendientes'] = (int)($row['pendientes'] ?? 0);
+        $flujosResumen['vencidas'] = (int)($row['vencidas'] ?? 0);
+        $stmt->close();
+
+        $stmt = $conn->prepare("SELECT ta.id_tarea_asignada, ta.nombre, ta.estatus, ta.fecha_limite, f.nombre AS flujo_nombre
+            FROM exp_flujo_tareas_asignadas ta
+            INNER JOIN exp_flujo_asignaciones a ON a.id_asignacion = ta.id_asignacion
+            INNER JOIN exp_flujos f ON f.id_flujo = a.id_flujo
+            WHERE ta.id_nino = ? AND ta.activo = 1 AND ta.responsable = 'psicologa' AND ta.estatus IN ('pendiente', 'en_proceso')
+            ORDER BY ta.fecha_limite IS NULL ASC, ta.fecha_limite ASC, ta.orden ASC
+            LIMIT 5");
+        if ($stmt) {
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    $flujosResumen['recientes'][] = $row;
+                }
+            }
+            $stmt->close();
+        }
+    }
+
     $db->closeConnection();
     ?>
     <div class="nk-content nk-content-fluid">
@@ -374,6 +419,40 @@ date_default_timezone_set('America/Mexico_City');
                                     </div>
 
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-inner">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="title mb-0">Flujos de seguimiento</h6>
+                                    <a href="/flujos/mis_tareas.php" class="btn btn-outline-primary btn-sm">Mis tareas</a>
+                                </div>
+                                <?php if (!$flujosResumen['disponible']): ?>
+                                    <p class="text-soft mb-0">El módulo de flujos aún no está instalado.</p>
+                                <?php else: ?>
+                                    <ul class="team-statistics mb-3">
+                                        <li><span><?php echo (int)$flujosResumen['activos']; ?></span><span>Activos</span></li>
+                                        <li><span><?php echo (int)$flujosResumen['pendientes']; ?></span><span>Pendientes</span></li>
+                                        <li><span><?php echo (int)$flujosResumen['vencidas']; ?></span><span>Vencidas</span></li>
+                                    </ul>
+                                    <?php if (empty($flujosResumen['recientes'])): ?>
+                                        <p class="text-soft mb-0">Sin tareas pendientes de flujos para este paciente.</p>
+                                    <?php else: ?>
+                                        <div class="list-group list-group-flush">
+                                            <?php foreach ($flujosResumen['recientes'] as $tareaFlujo): ?>
+                                                <a class="list-group-item px-0" href="/flujos/detalle_tarea.php?id=<?php echo (int)$tareaFlujo['id_tarea_asignada']; ?>">
+                                                    <div class="d-flex justify-content-between gap-2">
+                                                        <strong><?php echo htmlspecialchars($tareaFlujo['nombre'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                        <span class="badge bg-light text-dark"><?php echo htmlspecialchars($tareaFlujo['estatus'] ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
+                                                    </div>
+                                                    <div class="text-soft small">
+                                                        <?php echo htmlspecialchars($tareaFlujo['flujo_nombre'] ?? '', ENT_QUOTES, 'UTF-8'); ?> | Limite: <?php echo htmlspecialchars($tareaFlujo['fecha_limite'] ?: 'Sin fecha', ENT_QUOTES, 'UTF-8'); ?>
+                                                    </div>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="card mt-3">

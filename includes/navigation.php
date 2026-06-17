@@ -47,15 +47,21 @@ function isActive($page) {
                                         <span class="nk-menu-text">Áreas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-item" id="menu-evaluaciones">
-                                    <a href="/evaluaciones.php" class="nk-menu-link">
-                                        <span class="nk-menu-icon"><em class="icon ni ni-clipboad-check"></em></span>
-                                        <span class="nk-menu-text">Evaluaciones</span>
+                                 <li class="nk-menu-item" id="menu-evaluaciones">
+                                     <a href="/evaluaciones.php" class="nk-menu-link">
+                                         <span class="nk-menu-icon"><em class="icon ni ni-clipboad-check"></em></span>
+                                         <span class="nk-menu-text">Evaluaciones</span>
+                                     </a>
+                                 </li><!-- .nk-menu-item -->
+                                <li class="nk-menu-item" id="menu-flujos">
+                                    <a href="/flujos/mis_tareas.php" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-check-circle"></em></span>
+                                        <span class="nk-menu-text">Mis tareas</span>
                                     </a>
                                 </li><!-- .nk-menu-item -->
-                                <li class="nk-menu-heading">
-                                    <h6 class="overline-title text-primary-alt">Configuración</h6>
-                                </li><!-- .nk-menu-heading -->
+                                 <li class="nk-menu-heading">
+                                     <h6 class="overline-title text-primary-alt">Configuración</h6>
+                                 </li><!-- .nk-menu-heading -->
                                 <li class="nk-menu-item">
                                     <a href="#" class="nk-menu-link nk-menu-toggle">
                                         <span class="nk-menu-icon"><em class="icon ni ni-edit-profile-fill"></em></span>
