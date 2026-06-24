@@ -31,8 +31,15 @@ function escapeHtml(value) { return String(value == null ? '' : value).replace(/
 function postJson(url, data) { return fetch(url, { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN}, credentials:'same-origin', body:JSON.stringify(data) }).then(r => r.json().then(j => ({ok:r.ok,data:j}))); }
 function renderDetail(t, docs, hist) {
     const uploadForm = Number(t.requiere_documento) === 1
-        ? '<div class="card card-bordered mt-3"><div class="card-inner"><h6 class="mb-3">Subir evidencia</h6><form id="uploadForm" class="row g-3 align-items-end"><div class="col-lg-5"><label class="form-label">Documento</label><input class="form-control" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required></div><div class="col-lg-5"><label class="form-label">Comentario</label><input class="form-control" name="comentario" placeholder="Comentario opcional"></div><div class="col-lg-2"><button class="btn btn-primary w-100" type="submit">Subir</button></div></form></div></div>'
+        ? '<div class="card card-bordered mt-3"><div class="card-inner"><h6 class="mb-3">Subir evidencia</h6><form id="uploadForm" class="row g-3 align-items-end"><div class="col-lg-5"><label class="form-label">Documento</label><input class="form-control" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required></div><div class="col-lg-5"><label class="form-label">Comentario</label><input class="form-control" name="comentario" placeholder="Comentario opcional"></div><div class="col-lg-2"><button class="btn btn-primary w-100" type="submit">Subir</button></div></form></div></div>'
         : '';
+    const deliveryActions = [];
+    if (t.tipo_entrega === 'evaluacion_formulario' && Number(t.id_examen || 0) > 0) {
+        deliveryActions.push('<a class="btn btn-primary" href="/pacientes/evaluacion_examen.php?id=' + encodeURIComponent(t.id_nino) + '&examen=' + encodeURIComponent(t.id_examen) + '">Responder evaluacion</a>');
+    }
+    if (t.tipo_entrega === 'documento_plantilla' && t.plantilla_ruta) {
+        deliveryActions.push('<a class="btn btn-outline-primary" target="_blank" href="' + escapeHtml(t.plantilla_ruta) + '">Descargar plantilla</a>');
+    }
 
     return '<div class="card-inner">'
         + '<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">'
@@ -42,6 +49,7 @@ function renderDetail(t, docs, hist) {
         + (t.descripcion ? '<p class="mb-4">' + escapeHtml(t.descripcion) + '</p>' : '')
         + '<div class="border rounded p-3 mb-4 bg-lighter">'
         + '<h6 class="mb-3">Acciones</h6>'
+        + (deliveryActions.length ? '<div class="d-flex flex-wrap gap-2 mb-3">' + deliveryActions.join('') + '</div>' : '')
         + '<div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-warning" onclick="setStatus(\'en_proceso\')">En proceso</button><button class="btn btn-outline-success" onclick="setStatus(\'completada\')">Completar</button><button class="btn btn-outline-danger" onclick="denyTask()">Negar</button></div>'
         + '</div>'
         + '<div class="row g-3">'

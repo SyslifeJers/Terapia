@@ -25,16 +25,35 @@ date_default_timezone_set('America/Mexico_City');
                 if ($userId > 0) {
                     $result2 = $conn->query("SELECT
     b.id,
-    UPPER(b.name) AS name
+    UPPER(b.name) AS name,
+    MIN(CASE WHEN a.Programado >= NOW() THEN a.Programado END) AS proxima_cita,
+    MAX(CASE WHEN a.Programado < NOW() THEN a.Programado END) AS ultima_cita,
+    COALESCE(MIN(CASE WHEN a.Programado >= NOW() THEN a.Programado END), MAX(CASE WHEN a.Programado < NOW() THEN a.Programado END)) AS cita_referencia
 FROM Cita a
 INNER JOIN nino b ON a.IdNino = b.id
 WHERE a.IdUsuario = {$userId}
 GROUP BY b.id, b.name
-ORDER BY b.name DESC;");
+ORDER BY cita_referencia DESC;");
                     if ($result2) {
                         $ninos = $result2->fetch_all(MYSQLI_ASSOC);
                     }
                 }
+
+                $pacientesProximaCita = [];
+                $pacientesUltimaCita = [];
+                foreach ($ninos as $nino) {
+                    if (!empty($nino['proxima_cita'])) {
+                        $pacientesProximaCita[] = $nino;
+                    } else {
+                        $pacientesUltimaCita[] = $nino;
+                    }
+                }
+                usort($pacientesProximaCita, static function (array $first, array $second): int {
+                    return strcmp((string) ($first['proxima_cita'] ?? ''), (string) ($second['proxima_cita'] ?? ''));
+                });
+                usort($pacientesUltimaCita, static function (array $first, array $second): int {
+                    return strcmp((string) ($second['ultima_cita'] ?? ''), (string) ($first['ultima_cita'] ?? ''));
+                });
 
                 $citasProximas = [];
                 $citasCalendario = [];
@@ -206,7 +225,7 @@ ORDER BY b.name DESC;");
                                         $fraseAleatoria = $frases[array_rand($frases)];
                                         ?>
                                         <h3 class="nk-block-title page-title"><?php echo 'Hola '. htmlspecialchars($_SESSION['name']); ?></h3>
-                                        <h4><?php echo $fraseAleatoria; ?></h4>
+                                        <h4><?php echo htmlspecialchars($fraseAleatoria, ENT_QUOTES, 'UTF-8'); ?></h4>
                                     </div><!-- .nk-block-head-content -->
                                     <div class="nk-block-head-content">
                                         <div class="toggle-wrap nk-block-tools-toggle">
@@ -240,7 +259,7 @@ ORDER BY b.name DESC;");
                                         </div>
                                     </div><!-- .col -->
 
-                                    <div class="col-lg-3 col-sm-6">
+                                    <div class="col-lg-3 col-sm-6 d-none">
                                         <div class="card h-100 bg-white border border-primary shadow-sm">
                                             <div class="card-inner text-center py-4">
                                                 <div class="fs-2 text-primary mb-1"><?php echo $pacientes; ?></div>
@@ -248,7 +267,7 @@ ORDER BY b.name DESC;");
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-sm-6">
+                                    <div class="col-lg-3 col-sm-6 d-none">
                                         <div class="card h-100 bg-white border border-info shadow-sm">
                                             <div class="card-inner text-center py-4">
                                                 <div class="fs-2 text-info mb-1"><?php echo $citas; ?></div>
@@ -256,7 +275,7 @@ ORDER BY b.name DESC;");
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-sm-6">
+                                    <div class="col-lg-3 col-sm-6 d-none">
                                         <div class="card h-100 bg-white border border-warning shadow-sm">
                                             <div class="card-inner text-center py-4">
                                                 <div class="fs-2 text-warning mb-1"><?php echo $areas; ?></div>
@@ -264,7 +283,7 @@ ORDER BY b.name DESC;");
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-sm-6">
+                                    <div class="col-lg-3 col-sm-6 d-none">
                                         <div class="card h-100 bg-white border border-danger shadow-sm">
                                             <div class="card-inner text-center py-4">
                                                 <div class="fs-2 text-danger mb-1"><?php echo $evaluaciones; ?></div>
@@ -273,12 +292,12 @@ ORDER BY b.name DESC;");
                                         </div>
                                     </div>
 
-                                    <div class="col-xxl-12 col-md-12">
-                                        <div class="card card-full">
+                                    <div class="col-xxl-6 col-md-12">
+                                        <div class="card card-full h-100">
                                             <div class="card-inner">
                                                 <div class="card-title-group">
                                                     <div class="card-title">
-                                                        <h6 class="title">Mis pacientes</h6>
+                                                        <h6 class="title">Próximas citas</h6>
                                                     </div>
                                                 </div>
                                             </div>
@@ -288,18 +307,27 @@ ORDER BY b.name DESC;");
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th class="text-center" style="width: 72px;">#</th>
-                                                                <th>Nombre</th>
+                                                                <th>Paciente</th>
                                                                 <th class="text-end" style="width: 140px;">Acciones</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <?php foreach ($ninos as $index => $nino):
+                                                            <?php foreach ($pacientesProximaCita as $index => $nino):
                                                                 $detallePacienteUrl = 'pacientes/paciente.php?id=' . urlencode((string)($nino['id'] ?? ''));
+                                                                $citaTexto = 'Sin cita registrada';
+                                                                if (!empty($nino['proxima_cita'])) {
+                                                                    try {
+                                                                        $citaTexto = (new DateTime((string) $nino['proxima_cita']))->format('d/m/Y');
+                                                                    } catch (Exception $e) {
+                                                                        $citaTexto = 'Sin cita registrada';
+                                                                    }
+                                                                }
                                                             ?>
                                                                 <tr>
                                                                     <td class="text-center fw-semibold"><?php echo $index + 1; ?></td>
-                                                                    <td class="fw-medium text-capitalize text-truncate" style="max-width: 260px;">
+                                                                    <td class="fw-medium text-capitalize" style="max-width: 520px;">
                                                                         <?php echo htmlspecialchars($nino['name']); ?>
+                                                                        <span class="text-muted ms-1">Próxima cita: <?php echo htmlspecialchars($citaTexto, ENT_QUOTES, 'UTF-8'); ?></span>
                                                                     </td>
                                                                     <td class="text-end">
                                                                         <a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detallePacienteUrl, ENT_QUOTES, 'UTF-8'); ?>">
@@ -309,12 +337,74 @@ ORDER BY b.name DESC;");
                                                                     </td>
                                                                 </tr>
                                                             <?php endforeach; ?>
-                                                            <?php if (empty($ninos)): ?>
+                                                            <?php if (empty($pacientesProximaCita)): ?>
+                                                                <tr>
+                                                                    <td colspan="3" class="text-center text-muted py-4">
+                                                                        <div class="d-flex flex-column align-items-center">
+                                                                            <em class="icon ni ni-calendar fs-2 text-primary mb-1"></em>
+                                                                            <span>No tienes próximas citas.</span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endif; ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div><!-- .card -->
+                                    </div><!-- .col -->
+
+                                    <div class="col-xxl-6 col-md-12">
+                                        <div class="card card-full h-100">
+                                            <div class="card-inner">
+                                                <div class="card-title-group">
+                                                    <div class="card-title">
+                                                        <h6 class="title">Últimas citas</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-inner pt-0">
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-hover align-middle">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th class="text-center" style="width: 72px;">#</th>
+                                                                <th>Paciente</th>
+                                                                <th class="text-end" style="width: 140px;">Acciones</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($pacientesUltimaCita as $index => $nino):
+                                                                $detallePacienteUrl = 'pacientes/paciente.php?id=' . urlencode((string)($nino['id'] ?? ''));
+                                                                $citaTexto = 'Sin cita registrada';
+                                                                if (!empty($nino['ultima_cita'])) {
+                                                                    try {
+                                                                        $citaTexto = (new DateTime((string) $nino['ultima_cita']))->format('d/m/Y');
+                                                                    } catch (Exception $e) {
+                                                                        $citaTexto = 'Sin cita registrada';
+                                                                    }
+                                                                }
+                                                            ?>
+                                                                <tr>
+                                                                    <td class="text-center fw-semibold"><?php echo $index + 1; ?></td>
+                                                                    <td class="fw-medium text-capitalize" style="max-width: 520px;">
+                                                                        <?php echo htmlspecialchars($nino['name']); ?>
+                                                                        <span class="text-muted ms-1">Última cita: <?php echo htmlspecialchars($citaTexto, ENT_QUOTES, 'UTF-8'); ?></span>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detallePacienteUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                            <em class="icon ni ni-eye"></em>
+                                                                            <span class="d-none d-md-inline">Ver más</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endforeach; ?>
+                                                            <?php if (empty($pacientesUltimaCita)): ?>
                                                                 <tr>
                                                                     <td colspan="3" class="text-center text-muted py-4">
                                                                         <div class="d-flex flex-column align-items-center">
                                                                             <em class="icon ni ni-users fs-2 text-primary mb-1"></em>
-                                                                            <span>No tienes pacientes asignados.</span>
+                                                                            <span>No tienes últimas citas.</span>
                                                                         </div>
                                                                     </td>
                                                                 </tr>

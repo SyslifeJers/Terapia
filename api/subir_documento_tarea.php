@@ -10,8 +10,8 @@ if ($taskId <= 0 || !isset($_FILES['file'])) {
     terapia_flujos_response(422, ['success' => false, 'message' => 'Tarea y archivo son obligatorios.']);
 }
 
-if ((int)($_FILES['file']['size'] ?? 0) > 8 * 1024 * 1024) {
-    terapia_flujos_response(422, ['success' => false, 'message' => 'El archivo excede 8 MB.']);
+if ((int)($_FILES['file']['size'] ?? 0) > 12 * 1024 * 1024) {
+    terapia_flujos_response(422, ['success' => false, 'message' => 'El archivo excede 12 MB.']);
 }
 
 [$db, $conn] = terapia_flujos_db();
@@ -24,14 +24,14 @@ if (!$task || (int)$task['requiere_documento'] !== 1) {
 $original = (string)($_FILES['file']['name'] ?? '');
 $info = pathinfo($original);
 $ext = strtolower((string)($info['extension'] ?? ''));
-if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png'], true)) {
+if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'], true)) {
     $db->closeConnection();
-    terapia_flujos_response(422, ['success' => false, 'message' => 'Solo se permiten PDF, JPG o PNG.']);
+    terapia_flujos_response(422, ['success' => false, 'message' => 'Solo se permiten PDF, JPG, PNG, DOC o DOCX.']);
 }
 
 $tmpPath = (string)($_FILES['file']['tmp_name'] ?? '');
 $realMime = $tmpPath !== '' ? terapia_flujos_detect_mime($tmpPath) : '';
-$allowedMime = ['application/pdf', 'image/jpeg', 'image/png'];
+$allowedMime = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'];
 if ($realMime !== '' && !in_array($realMime, $allowedMime, true)) {
     $db->closeConnection();
     terapia_flujos_response(422, ['success' => false, 'message' => 'El tipo real del archivo no es permitido.']);
@@ -47,6 +47,14 @@ $target = rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $filename;
 if (!@move_uploaded_file($tmpPath, $target)) {
     $db->closeConnection();
     terapia_flujos_response(500, ['success' => false, 'message' => 'No fue posible guardar el archivo.']);
+}
+
+$gitDir = __DIR__ . '/../../git/uploads/flujos/tareas/' . $taskId;
+if (is_dir(__DIR__ . '/../../git')) {
+    if (!is_dir($gitDir)) {
+        @mkdir($gitDir, 0777, true);
+    }
+    @copy($target, rtrim($gitDir, '/\\') . DIRECTORY_SEPARATOR . $filename);
 }
 
 $ruta = '/uploads/flujos/tareas/' . $taskId . '/' . $filename;

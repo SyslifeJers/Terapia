@@ -1,0 +1,447 @@
+{
+  "categoria": "Psicologas Infantiles y Godin",
+  "version": "2.1",
+  "total": 110,
+  "chistes": [
+    {
+      "id": 1,
+      "texto": "El sistema funciona perfecto hasta que llega el cierre de mes."
+    },
+    {
+      "id": 2,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 3,
+      "texto": "La reunión empezó a las 9 y el problema se resolvía con reiniciar."
+    },
+    {
+      "id": 4,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 5,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 6,
+      "texto": "Excel ya es considerado un miembro más del equipo."
+    },
+    {
+      "id": 7,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 8,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 9,
+      "texto": "El café entra como prestación emocional."
+    },
+    {
+      "id": 10,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 11,
+      "texto": "La impresora detecta cuándo tienes prisa."
+    },
+    {
+      "id": 12,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 13,
+      "texto": "El usuario juró que no movió nada; cambió toda la configuración."
+    },
+    {
+      "id": 14,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 15,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 16,
+      "texto": "La contraseña venció justo cuando más se necesitaba."
+    },
+    {
+      "id": 17,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 18,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 19,
+      "texto": "La junta duró una hora para decidir algo de cinco minutos."
+    },
+    {
+      "id": 20,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 21,
+      "texto": "El correo decía urgente; llevaba tres semanas sin abrirse."
+    },
+    {
+      "id": 22,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 23,
+      "texto": "El viernes a las 5 siempre aparece un problema nuevo."
+    },
+    {
+      "id": 24,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 25,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 26,
+      "texto": "El reporte salió mal porque alguien tocó lo que sí funcionaba."
+    },
+    {
+      "id": 27,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 28,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 29,
+      "texto": "El sistema estuvo estable hasta que alguien dijo: tengo una idea."
+    },
+    {
+      "id": 30,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 31,
+      "texto": "El servidor eligió el peor momento para tomar vacaciones."
+    },
+    {
+      "id": 32,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 33,
+      "texto": "El ticket decía sencillo; tenía veinte comentarios ocultos."
+    },
+    {
+      "id": 34,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 35,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 36,
+      "texto": "Intenté innovar; el cliente prefirió la versión con menos sorpresas y más costumbres."
+    },
+    {
+      "id": 37,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 38,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 39,
+      "texto": "El sistema funciona perfecto hasta que llega el cierre de mes."
+    },
+    {
+      "id": 40,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 41,
+      "texto": "La reunión empezó a las 9 y el problema se resolvía con reiniciar."
+    },
+    {
+      "id": 42,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 43,
+      "texto": "Excel ya es considerado un miembro más del equipo."
+    },
+    {
+      "id": 44,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 45,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 46,
+      "texto": "El café entra como prestación emocional."
+    },
+    {
+      "id": 47,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 48,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 49,
+      "texto": "La impresora detecta cuándo tienes prisa."
+    },
+    {
+      "id": 50,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 51,
+      "texto": "El usuario juró que no movió nada; cambió toda la configuración."
+    },
+    {
+      "id": 52,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 53,
+      "texto": "La contraseña venció justo cuando más se necesitaba."
+    },
+    {
+      "id": 54,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 55,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 56,
+      "texto": "La junta duró una hora para decidir algo de cinco minutos."
+    },
+    {
+      "id": 57,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 58,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 59,
+      "texto": "El correo decía urgente; llevaba tres semanas sin abrirse."
+    },
+    {
+      "id": 60,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 61,
+      "texto": "El viernes a las 5 siempre aparece un problema nuevo."
+    },
+    {
+      "id": 62,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 63,
+      "texto": "El reporte salió mal porque alguien tocó lo que sí funcionaba."
+    },
+    {
+      "id": 64,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 65,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 66,
+      "texto": "El sistema estuvo estable hasta que alguien dijo: tengo una idea."
+    },
+    {
+      "id": 67,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 68,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 69,
+      "texto": "El servidor eligió el peor momento para tomar vacaciones."
+    },
+    {
+      "id": 70,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 71,
+      "texto": "El ticket decía sencillo; tenía veinte comentarios ocultos."
+    },
+    {
+      "id": 72,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 73,
+      "texto": "Intenté innovar; el cliente prefirió la versión con menos sorpresas y más costumbres."
+    },
+    {
+      "id": 74,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 75,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 76,
+      "texto": "El sistema funciona perfecto hasta que llega el cierre de mes."
+    },
+    {
+      "id": 77,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 78,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 79,
+      "texto": "La reunión empezó a las 9 y el problema se resolvía con reiniciar."
+    },
+    {
+      "id": 80,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 81,
+      "texto": "Excel ya es considerado un miembro más del equipo."
+    },
+    {
+      "id": 82,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 83,
+      "texto": "El café entra como prestación emocional."
+    },
+    {
+      "id": 84,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 85,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 86,
+      "texto": "La impresora detecta cuándo tienes prisa."
+    },
+    {
+      "id": 87,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 88,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 89,
+      "texto": "El usuario juró que no movió nada; cambió toda la configuración."
+    },
+    {
+      "id": 90,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 91,
+      "texto": "La contraseña venció justo cuando más se necesitaba."
+    },
+    {
+      "id": 92,
+      "texto": "El niño dijo que el monstruo vive bajo la cama; la psicóloga sospecha que también paga impuestos."
+    },
+    {
+      "id": 93,
+      "texto": "La junta duró una hora para decidir algo de cinco minutos."
+    },
+    {
+      "id": 94,
+      "texto": "El paciente de 6 años resolvió el problema en 2 minutos; los adultos tardan meses."
+    },
+    {
+      "id": 95,
+      "texto": "No es un juguete, es material terapéutico premium."
+    },
+    {
+      "id": 96,
+      "texto": "El correo decía urgente; llevaba tres semanas sin abrirse."
+    },
+    {
+      "id": 97,
+      "texto": "El niño dijo 'no fui yo'; la psicóloga anotó 'respuesta automática'."
+    },
+    {
+      "id": 98,
+      "texto": "En la clínica hay más stickers que expedientes."
+    },
+    {
+      "id": 99,
+      "texto": "El viernes a las 5 siempre aparece un problema nuevo."
+    },
+    {
+      "id": 100,
+      "texto": "Los niños llegan por terapia y salen con una colección de estampas."
+    },
+    {
+      "id": 101,
+      "texto": "La junta pudo ser un correo, pero la psicóloga lo llamó intervención grupal."
+    },
+    {
+      "id": 102,
+      "texto": "Recursos Humanos envió otro formulario; la psicóloga lo clasificó como prueba de resiliencia."
+    },
+    {
+      "id": 103,
+      "texto": "El café ya tiene expediente clínico propio."
+    },
+    {
+      "id": 104,
+      "texto": "La impresora volvió a fallar; claramente tiene problemas de comunicación."
+    },
+    {
+      "id": 105,
+      "texto": "La agenda está tan llena que ya necesita terapia."
+    },
+    {
+      "id": 106,
+      "texto": "El papá dijo que serían cinco minutos; la psicóloga anotó expectativa poco realista."
+    },
+    {
+      "id": 107,
+      "texto": "La recepcionista sabe más historias que una plataforma de streaming."
+    },
+    {
+      "id": 108,
+      "texto": "El niño terminó la actividad en dos minutos; el reporte tomó media hora."
+    },
+    {
+      "id": 109,
+      "texto": "El reporte salió mal porque alguien tocó lo que sí funcionaba."
+    },
+    {
+      "id": 110,
+      "texto": "El viernes por la tarde ya es una etapa del desarrollo."
+    }
+  ]
+}

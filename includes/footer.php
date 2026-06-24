@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
              'pacientes/pacientes.php': 'menu-pacientes',
              'pacientes/paciente.php': 'menu-pacientes',
              'pacientes/demopacientes.php': 'menu-pacientes',
-             'pacientes/demopaciente.php': 'menu-pacientes',
-             'citas.php': 'menu-citas',
-             'areas/index.php': 'menu-areas',
+              'pacientes/demopaciente.php': 'menu-pacientes',
+              'citas.php': 'menu-citas',
+              'areas/index.php': 'menu-areas',
              'evaluaciones.php': 'menu-evaluaciones'
          };
 
